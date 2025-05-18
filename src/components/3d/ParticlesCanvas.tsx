@@ -44,15 +44,15 @@ const ParticlesCanvas = ({
     }
   });
   
-  // Using animated.group instead of trying to apply springs directly to Points
-  const { scale } = useSpring({
+  // Using React Spring for animation
+  const springProps = useSpring({
+    scale: 1,
     from: { scale: 0.8 },
-    to: { scale: 1 },
     config: { mass: 2, tension: 200, friction: 30 }
   });
 
   return (
-    <animated.group scale={scale}>
+    <animated.group scale={springProps.scale}>
       <Points
         ref={ref}
         positions={particles}

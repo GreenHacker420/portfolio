@@ -4,9 +4,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense, ErrorBoundary } from "react";
+import { Suspense } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 
 // Simple error boundary fallback component
 const ErrorFallback = () => {

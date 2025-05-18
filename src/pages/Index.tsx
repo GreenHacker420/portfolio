@@ -9,7 +9,7 @@ import Projects from "../components/sections/Projects";
 import Experience from "../components/sections/Experience";
 import Stats from "../components/sections/Stats";
 import Contact from "../components/sections/Contact";
-import { ErrorBoundary } from "react";
+import ErrorBoundary from "../components/common/ErrorBoundary";
 
 // Simple error fallback component
 const SectionErrorFallback = ({ section }: { section: string }) => {
