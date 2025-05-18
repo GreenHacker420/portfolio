@@ -1,6 +1,6 @@
 
-import { useRef, useMemo } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef, useMemo, useEffect } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Points, PointMaterial } from '@react-three/drei';
 import { useSpring, animated } from '@react-spring/three';
@@ -16,7 +16,8 @@ const ParticlesCanvas = ({
   size = 0.06, 
   count = 2000 
 }: ParticlesCanvasProps) => {
-  const ref = useRef<THREE.Points>(null!);
+  const pointsRef = useRef<THREE.Points>(null!);
+  const { mouse, viewport } = useThree();
   
   // Create particle positions
   const particles = useMemo(() => {
@@ -36,25 +37,43 @@ const ParticlesCanvas = ({
     return positions;
   }, [count]);
   
-  // Animate particles with basic rotation
+  // Animate particles with mouse interaction
   useFrame((state, delta) => {
-    if (ref.current) {
-      ref.current.rotation.x += delta * 0.01;
-      ref.current.rotation.y += delta * 0.015;
+    if (pointsRef.current) {
+      // Basic rotation
+      pointsRef.current.rotation.x += delta * 0.01;
+      pointsRef.current.rotation.y += delta * 0.015;
+      
+      // Mouse interaction - particles follow mouse
+      const mouseX = (mouse.x * viewport.width) / 10;
+      const mouseY = (mouse.y * viewport.height) / 10;
+      
+      // Smooth mouse following
+      pointsRef.current.rotation.x = THREE.MathUtils.lerp(
+        pointsRef.current.rotation.x,
+        pointsRef.current.rotation.x + mouseY * 0.05,
+        0.1
+      );
+      
+      pointsRef.current.rotation.y = THREE.MathUtils.lerp(
+        pointsRef.current.rotation.y,
+        pointsRef.current.rotation.y + mouseX * 0.05,
+        0.1
+      );
     }
   });
   
   // Using React Spring for animation
-  const springProps = useSpring({
+  const { scale } = useSpring({
     scale: 1,
-    from: { scale: 0.8 },
+    from: { scale: 0.5 },
     config: { mass: 2, tension: 200, friction: 30 }
   });
 
   return (
-    <animated.group scale={springProps.scale}>
+    <animated.group scale={scale}>
       <Points
-        ref={ref}
+        ref={pointsRef}
         positions={particles}
         stride={3}
         frustumCulled={false}

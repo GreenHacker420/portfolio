@@ -1,42 +1,61 @@
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
+import { useSpring, animated } from '@react-spring/three';
 import * as THREE from 'three';
 
 const HexagonModel = () => {
   const mesh = useRef<THREE.Mesh>(null!);
+  const [hovered, setHovered] = useState(false);
   
-  // Since we don't have an actual GLTF model, we'll create a hexagon mesh
+  // Using react-spring for smooth animations
+  const { scale, emissiveIntensity, rotation } = useSpring({
+    scale: hovered ? 1.1 : 1,
+    emissiveIntensity: hovered ? 0.8 : 0.5,
+    rotation: hovered ? [0, Math.PI * 0.5, 0] : [0, 0, 0],
+    config: { mass: 2, tension: 200, friction: 40 }
+  });
+  
   useFrame((state) => {
     if (mesh.current) {
+      // Continuous rotation regardless of hover state
       mesh.current.rotation.y += 0.005;
-      mesh.current.rotation.x = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.2;
+      
+      // Add subtle floating animation
+      mesh.current.position.y = Math.sin(state.clock.getElapsedTime() * 0.5) * 0.2;
     }
   });
-
+  
   return (
-    <mesh ref={mesh} position={[0, 0, 0]} castShadow>
+    <animated.mesh 
+      ref={mesh} 
+      position={[0, 0, 0]} 
+      castShadow
+      scale={scale}
+      rotation-x={rotation.to((_, y, __) => y)}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    >
       <cylinderGeometry args={[2, 2, 0.5, 6, 1]} />
-      <meshStandardMaterial 
+      <animated.meshStandardMaterial 
         color="#3fb950" 
         emissive="#3fb950"
-        emissiveIntensity={0.5}
+        emissiveIntensity={emissiveIntensity}
         metalness={0.8}
         roughness={0.2}
       />
       <mesh position={[0, 0, 0.251]} castShadow>
         <ringGeometry args={[0.8, 1.5, 6]} />
-        <meshStandardMaterial 
+        <animated.meshStandardMaterial 
           color="#3fb950" 
           emissive="#3fb950"
-          emissiveIntensity={0.5}
+          emissiveIntensity={emissiveIntensity}
           metalness={0.8}
           roughness={0.2}
           side={THREE.DoubleSide}
         />
       </mesh>
-    </mesh>
+    </animated.mesh>
   );
 };
 

@@ -8,78 +8,78 @@ interface SkillIconProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const SkillIcon = ({ name, color, ...props }: SkillIconProps) => {
-  // Map of skill names to corresponding Lucide icons
+  // Map of skill names to corresponding Lucide icons with correct casing
   const iconMap: Record<string, keyof typeof icons> = {
     // Programming Languages
-    "C++": "code-2",
-    "DART": "code",
-    "JAVASCRIPT": "javascript",
-    "PYTHON": "file-code",
-    "TYPESCRIPT": "typescript",
-    "RUST": "file-code",
-    "POWERSHELL": "terminal",
-    "BASH SCRIPT": "terminal",
+    "C++": "Code2",
+    "DART": "Code",
+    "JAVASCRIPT": "Code",
+    "PYTHON": "FileCode",
+    "TYPESCRIPT": "Code",
+    "RUST": "FileCode",
+    "POWERSHELL": "Terminal",
+    "BASH SCRIPT": "Terminal",
     
     // Frontend
-    "HTML5": "html",
-    "CSS3": "css",
-    "REACT": "react",
-    "REACT NATIVE": "react",
-    "ANGULAR": "code",
-    "VUE.JS": "code",
-    "BOOTSTRAP": "layout-dashboard",
-    "TAILWINDCSS": "tailwind",
-    "NEXT": "nextjs",
-    "IONIC": "code",
+    "HTML5": "Code",
+    "CSS3": "Code",
+    "REACT": "Code",
+    "REACT NATIVE": "Code",
+    "ANGULAR": "Code",
+    "VUE.JS": "Code",
+    "BOOTSTRAP": "LayoutDashboard",
+    "TAILWINDCSS": "Code",
+    "NEXT": "Code",
+    "IONIC": "Code",
     
     // Backend
-    "NODE.JS": "nodejs",
-    "EXPRESS.JS": "server",
-    "DJANGO": "server",
-    "FLASK": "server",
-    "FASTAPI": "server",
-    "SPRING": "server",
+    "NODE.JS": "Server",
+    "EXPRESS.JS": "Server",
+    "DJANGO": "Server",
+    "FLASK": "Server",
+    "FASTAPI": "Server",
+    "SPRING": "Server",
     
     // Cloud & Deployment
-    "AWS": "cloud",
-    "AZURE": "cloud",
-    "FIREBASE": "database",
-    "GOOGLECLOUD": "cloud",
-    "NETLIFY": "cloud",
-    "RENDER": "cloud",
-    "VERCEL": "cloud",
+    "AWS": "Cloud",
+    "AZURE": "Cloud",
+    "FIREBASE": "Database",
+    "GOOGLECLOUD": "Cloud",
+    "NETLIFY": "Cloud",
+    "RENDER": "Cloud",
+    "VERCEL": "Cloud",
     
     // Databases
-    "MYSQL": "database",
-    "SQLITE": "database",
-    "MONGODB": "mongodb",
-    "SUPABASE": "database",
+    "MYSQL": "Database",
+    "SQLITE": "Database",
+    "MONGODB": "Database",
+    "SUPABASE": "Database",
     
     // DevOps & Tools
-    "GITHUB ACTIONS": "github",
-    "GIT": "git",
-    "DOCKER": "docker",
-    "POSTMAN": "api",
-    "KUBERNETES": "code",
-    "GITHUB": "github",
+    "GITHUB ACTIONS": "Github",
+    "GIT": "Github",
+    "DOCKER": "Code",
+    "POSTMAN": "Code",
+    "KUBERNETES": "Code",
+    "GITHUB": "Github",
     
     // Data Science & ML
-    "MATPLOTLIB": "chart-bar",
-    "NUMPY": "table",
-    "PANDAS": "table",
-    "TENSORFLOW": "code",
-    "PYTORCH": "code",
+    "MATPLOTLIB": "ChartBar",
+    "NUMPY": "Table",
+    "PANDAS": "Table",
+    "TENSORFLOW": "Code",
+    "PYTORCH": "Code",
     
     // UI/UX & Design
-    "FIGMA": "figma",
-    "CANVA": "image",
-    "BLENDER": "video",
-    "ADOBE CREATIVE CLOUD": "image",
-    "ADOBE PHOTOSHOP": "image"
+    "FIGMA": "Code",
+    "CANVA": "Image",
+    "BLENDER": "Code",
+    "ADOBE CREATIVE CLOUD": "Image",
+    "ADOBE PHOTOSHOP": "Image"
   };
 
   // Get the icon component
-  const iconName = iconMap[name] || "code";
+  const iconName = iconMap[name] || "Code";
   const IconComponent = icons[iconName as keyof typeof icons];
 
   // Generate a default color if not provided

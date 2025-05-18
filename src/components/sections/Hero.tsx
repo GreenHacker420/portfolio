@@ -1,19 +1,40 @@
 
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import ThreeScene from '../3d/ThreeScene';
 
 const Hero = () => {
-  // Simple animated background as fallback
   const [mounted, setMounted] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
   
   useEffect(() => {
     setMounted(true);
+    
+    // Fix hero height to properly fill viewport
+    const updateHeight = () => {
+      if (heroRef.current) {
+        const windowHeight = window.innerHeight;
+        heroRef.current.style.height = `${windowHeight}px`;
+      }
+    };
+    
+    // Initial height set
+    updateHeight();
+    
+    // Update on resize
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center">
+    <section id="home" ref={heroRef} className="relative flex items-center overflow-hidden">
+      {/* Three.js Background */}
+      <div className="absolute inset-0 z-0">
+        <ThreeScene showParticles={true} showHexagon={true} />
+      </div>
+      
       {/* Animated gradient background as fallback for 3D scene */}
-      <div className="absolute inset-0 bg-github-darker z-0">
+      <div className="absolute inset-0 bg-github-darker z-0 opacity-80">
         <div className="absolute inset-0 opacity-30">
           <div className="absolute top-0 -left-4 w-72 h-72 bg-neon-purple rounded-full mix-blend-screen filter blur-xl opacity-70 animate-float"></div>
           <div className="absolute top-8 -right-4 w-72 h-72 bg-neon-green rounded-full mix-blend-screen filter blur-xl opacity-70 animate-float" style={{ animationDelay: '2s' }}></div>
@@ -130,7 +151,7 @@ const Hero = () => {
       </motion.div>
 
       {/* Add CSS for animations */}
-      <style>{`
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes expand {
           to { width: 100%; }
         }
@@ -175,7 +196,17 @@ const Hero = () => {
           from, to { border-color: transparent }
           50% { border-color: #3fb950 }
         }
-      `}</style>
+        
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+          100% { transform: translateY(0px); }
+        }
+        
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
+      `}} />
     </section>
   );
 };

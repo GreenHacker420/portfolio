@@ -1,9 +1,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import SkillIcon from './SkillIcon';
-import { gsap } from 'gsap';
+import { handleSkillHover } from '../../utils/animation';
 import { initScrollAnimations } from '../../utils/animation';
 
 type SkillCategory = {
@@ -13,7 +14,6 @@ type SkillCategory = {
 };
 
 const Skills = () => {
-  const [activeCategory, setActiveCategory] = useState('All');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
   const skillsRef = useRef<HTMLDivElement>(null);
@@ -125,49 +125,14 @@ const Skills = () => {
     }
   ];
 
-  const allSkills = categories.flatMap(category => category.skills);
-  const displaySkills = activeCategory === 'All' 
-    ? allSkills 
-    : categories.find(c => c.name === activeCategory)?.skills || [];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 300, damping: 15 } }
-  };
-
   const toggleCategory = (name: string) => {
     setExpandedCategory(expandedCategory === name ? null : name);
   };
   
-  // Skill hover effect using GSAP
-  const handleSkillHover = (skill: string, isEntering: boolean) => {
+  // Handle skill hover
+  const onSkillHover = (element: HTMLElement, skill: string, isEntering: boolean) => {
     setHoveredSkill(isEntering ? skill : null);
-    
-    if (isEntering) {
-      gsap.to(`#skill-${skill.replace(/\s+/g, '-').toLowerCase()}`, {
-        y: -5,
-        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
-        duration: 0.3,
-        ease: 'power2.out'
-      });
-    } else {
-      gsap.to(`#skill-${skill.replace(/\s+/g, '-').toLowerCase()}`, {
-        y: 0,
-        boxShadow: 'none',
-        duration: 0.3,
-        ease: 'power2.in'
-      });
-    }
+    handleSkillHover(element, isEntering);
   };
 
   return (
@@ -189,135 +154,108 @@ const Skills = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
-            className="flex flex-wrap gap-2 justify-center sm:justify-start"
           >
-            <button
-              onClick={() => setActiveCategory('All')}
-              className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                activeCategory === 'All'
-                  ? 'bg-neon-green text-black font-medium'
-                  : 'bg-github-light text-github-text hover:bg-github-light/80'
-              }`}
-            >
-              All
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category.name}
-                onClick={() => setActiveCategory(category.name)}
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                  activeCategory === category.name
-                    ? 'bg-neon-green text-black font-medium'
-                    : 'bg-github-light text-github-text hover:bg-github-light/80'
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
+            <Tabs defaultValue="Programming Languages" className="w-full">
+              <TabsList className="flex flex-wrap mb-6 bg-github-light/20">
+                {categories.map((category) => (
+                  <TabsTrigger
+                    key={category.name}
+                    value={category.name}
+                    className="data-[state=active]:bg-neon-green data-[state=active]:text-black"
+                  >
+                    {category.name}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              
+              {categories.map((category) => (
+                <TabsContent key={category.name} value={category.name}>
+                  <div className="bg-github-light/20 rounded-lg p-4 mb-6">
+                    <h3 className="text-xl text-white font-medium mb-2">
+                      {category.name}
+                    </h3>
+                    <p className="text-github-text">
+                      {category.description}
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 skills-grid">
+                    {category.skills.map((skill, index) => {
+                      // Create a safe id that can be used with element selectors
+                      const safeId = `skill-${skill.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${index}`;
+                      
+                      return (
+                        <motion.div
+                          key={`${skill.name}-${index}`}
+                          id={safeId}
+                          initial={{ opacity: 0, y: 20 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5, delay: index * 0.05 }}
+                          viewport={{ once: true }}
+                          className="bg-github-light rounded-lg p-4 border border-github-border skill-item transition-all duration-300"
+                          onMouseEnter={(e) => onSkillHover(e.currentTarget, skill.name, true)}
+                          onMouseLeave={(e) => onSkillHover(e.currentTarget, skill.name, false)}
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <SkillIcon 
+                              name={skill.name} 
+                              color={hoveredSkill === skill.name ? "#3fb950" : undefined} 
+                            />
+                            <div className="flex justify-between items-center w-full">
+                              <span className="text-white font-medium">{skill.name}</span>
+                              <span className="text-sm text-neon-green">{skill.level}%</span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-github-dark rounded-full h-2.5">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              whileInView={{ width: `${skill.level}%` }}
+                              transition={{ duration: 1, ease: "easeOut" }}
+                              viewport={{ once: true }}
+                              className={`h-2.5 rounded-full ${skill.color}`}
+                            ></motion.div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                </TabsContent>
+              ))}
+            </Tabs>
           </motion.div>
         </div>
 
-        {activeCategory !== 'All' && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="mb-8 bg-github-light rounded-lg p-4"
-          >
-            <h3 className="text-xl text-white font-medium mb-2">
-              {categories.find(c => c.name === activeCategory)?.name}
-            </h3>
-            <p className="text-github-text">
-              {categories.find(c => c.name === activeCategory)?.description}
-            </p>
-          </motion.div>
-        )}
-
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 skills-grid"
-        >
-          {displaySkills.map((skill, index) => (
-            <motion.div
-              key={`${skill.name}-${index}`}
-              variants={itemVariants}
-              id={`skill-${skill.name.replace(/\s+/g, '-').toLowerCase()}`}
-              className="bg-github-light rounded-lg p-4 border border-github-border skill-item"
-              onMouseEnter={() => handleSkillHover(skill.name, true)}
-              onMouseLeave={() => handleSkillHover(skill.name, false)}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <SkillIcon name={skill.name} color={hoveredSkill === skill.name ? "#3fb950" : undefined} />
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-white font-medium">{skill.name}</span>
-                  <span className="text-sm text-neon-green">{skill.level}%</span>
-                </div>
-              </div>
-              <div className="w-full bg-github-dark rounded-full h-2.5">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${skill.level}%` }}
-                  transition={{ duration: 1, ease: "easeOut" }}
+        <div className="mt-12">
+          <h3 className="text-xl text-white font-bold mb-4">Top Skills at a Glance</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[
+              { name: 'JAVASCRIPT', level: 95 },
+              { name: 'REACT', level: 92 },
+              { name: 'NODE.JS', level: 90 },
+              { name: 'PYTHON', level: 90 },
+              { name: 'TYPESCRIPT', level: 92 },
+              { name: 'MONGODB', level: 92 }
+            ].map((skill, index) => {
+              const safeId = `top-skill-${skill.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}-${index}`;
+              return (
+                <motion.div
+                  key={safeId}
+                  id={safeId}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className={`h-2.5 rounded-full ${skill.color}`}
-                ></motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        <div className="mt-12 space-y-4">
-          <h3 className="text-xl text-white font-bold">Dive Deeper</h3>
-          {categories.map((category) => (
-            <Collapsible 
-              key={category.name}
-              open={expandedCategory === category.name}
-              onOpenChange={() => toggleCategory(category.name)}
-              className="border border-github-border rounded-lg overflow-hidden"
-            >
-              <CollapsibleTrigger className="w-full p-4 flex justify-between items-center bg-github-light hover:bg-github-light/80 transition-colors">
-                <span className="text-white font-medium">{category.name}</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className={`transition-transform ${expandedCategory === category.name ? 'rotate-180' : ''}`}
+                  className="bg-github-light/30 p-3 rounded-lg text-center flex flex-col items-center transition-all duration-300 hover:bg-github-light/50"
+                  onMouseEnter={(e) => onSkillHover(e.currentTarget, skill.name, true)}
+                  onMouseLeave={(e) => onSkillHover(e.currentTarget, skill.name, false)}
                 >
-                  <path d="m6 9 6 6 6-6"/>
-                </svg>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="p-4 bg-github-light/50">
-                <p className="text-github-text mb-4">{category.description}</p>
-                <div className="space-y-4">
-                  {category.skills.map((skill, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <SkillIcon name={skill.name} />
-                        <div className="flex justify-between w-full">
-                          <span className="text-white">{skill.name}</span>
-                          <span className="text-neon-green">{skill.level}%</span>
-                        </div>
-                      </div>
-                      <div className="w-full bg-github-dark rounded-full h-2">
-                        <div 
-                          className={`h-2 rounded-full ${skill.color}`} 
-                          style={{ width: `${skill.level}%` }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
+                  <SkillIcon name={skill.name} color="#3fb950" />
+                  <span className="text-white mt-2">{skill.name}</span>
+                  <span className="text-neon-green text-sm">{skill.level}%</span>
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

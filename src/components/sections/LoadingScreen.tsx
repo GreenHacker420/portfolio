@@ -155,7 +155,8 @@ const LoadingScreen = () => {
           </motion.div>
         )}
       </motion.div>
-      <style jsx>{`
+
+      <style dangerouslySetInnerHTML={{__html: `
         .terminal-window {
           box-shadow: 0 0 10px rgba(63, 185, 80, 0.3), 0 0 20px rgba(63, 185, 80, 0.2);
         }
@@ -175,7 +176,7 @@ const LoadingScreen = () => {
           background-color: rgba(63, 185, 80, 0.5);
           animation: scan 3s linear infinite;
         }
-      `}</style>
+      `}} />
     </motion.div>
   );
 };

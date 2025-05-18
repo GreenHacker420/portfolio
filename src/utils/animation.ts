@@ -1,10 +1,12 @@
 
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
 // Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
+// Initialize smooth scrolling with GSAP
 export const initSmoothScrolling = () => {
   // Add smooth scrolling to all anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -23,6 +25,7 @@ export const initSmoothScrolling = () => {
   });
 };
 
+// Initialize scroll animations for various elements
 export const initScrollAnimations = () => {
   // Animate section headings on scroll
   gsap.utils.toArray('.section-title').forEach((heading: any) => {
@@ -43,7 +46,7 @@ export const initScrollAnimations = () => {
     );
   });
   
-  // Stagger animation for skills items
+  // Staggered animation for skills items
   gsap.utils.toArray('.skills-grid').forEach((grid: any) => {
     const items = gsap.utils.toArray('.skill-item', grid);
     
@@ -58,6 +61,25 @@ export const initScrollAnimations = () => {
         ease: 'power3.out',
         scrollTrigger: {
           trigger: grid,
+          start: 'top bottom-=50',
+          toggleActions: 'play none none none'
+        }
+      }
+    );
+  });
+  
+  // Project cards animation
+  gsap.utils.toArray('.project-card').forEach((card: any) => {
+    gsap.fromTo(
+      card,
+      { y: 40, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.6,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: card,
           start: 'top bottom-=50',
           toggleActions: 'play none none none'
         }
@@ -118,4 +140,63 @@ export const neonFlickerEffect = (element: HTMLElement) => {
     .to(element, { textShadow: '0 0 10px rgba(63, 185, 80, 0.8), 0 0 20px rgba(63, 185, 80, 0.5)', duration: 0.1 });
     
   return timeline;
+};
+
+// Parallax effect for sections
+export const createParallaxEffect = () => {
+  gsap.utils.toArray('section').forEach((section: any) => {
+    const bg = section.querySelector('.section-bg');
+    if (bg) {
+      gsap.to(bg, {
+        y: '30%',
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
+    }
+  });
+};
+
+// Fix for skill hover selectors to avoid CSS selector issues
+export const handleSkillHover = (element: HTMLElement, isEntering: boolean) => {
+  if (isEntering) {
+    gsap.to(element, {
+      y: -5,
+      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+      duration: 0.3,
+      ease: 'power2.out'
+    });
+  } else {
+    gsap.to(element, {
+      y: 0,
+      boxShadow: 'none',
+      duration: 0.3,
+      ease: 'power2.in'
+    });
+  }
+};
+
+// Project card hover effect
+export const projectCardHover = (element: HTMLElement, isEntering: boolean) => {
+  if (isEntering) {
+    gsap.to(element, {
+      y: -8,
+      scale: 1.02,
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
+      duration: 0.4,
+      ease: 'power2.out'
+    });
+  } else {
+    gsap.to(element, {
+      y: 0,
+      scale: 1,
+      boxShadow: 'none',
+      duration: 0.4,
+      ease: 'power2.in'
+    });
+  }
 };

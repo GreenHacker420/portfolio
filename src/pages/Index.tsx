@@ -13,7 +13,12 @@ import Experience from "../components/sections/Experience";
 import Stats from "../components/sections/Stats";
 import Contact from "../components/sections/Contact";
 import ErrorBoundary from "../components/common/ErrorBoundary";
-import { initSmoothScrolling, initScrollAnimations, neonFlickerEffect } from "../utils/animation";
+import { 
+  initSmoothScrolling, 
+  initScrollAnimations, 
+  neonFlickerEffect,
+  createParallaxEffect
+} from "../utils/animation";
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
@@ -48,26 +53,28 @@ const Index = () => {
     // Initialize GSAP animations
     initSmoothScrolling();
     initScrollAnimations();
+    createParallaxEffect();
     
     // Apply neon flicker effect to specific elements
-    const heroTitle = document.querySelector('.section-title');
-    if (heroTitle) {
-      neonFlickerEffect(heroTitle as HTMLElement);
-    }
+    const sectionTitles = document.querySelectorAll('.section-title');
+    sectionTitles.forEach(title => {
+      neonFlickerEffect(title as HTMLElement);
+    });
     
-    // Set up scroll trigger animations
+    // Set up scroll trigger animations for sections
     const sections = document.querySelectorAll('section');
     sections.forEach((section, i) => {
       // Create section animations
       gsap.fromTo(
         section,
-        { opacity: 0.4 },
+        { opacity: 0.6, y: 50 },
         {
           opacity: 1,
+          y: 0,
           scrollTrigger: {
             trigger: section,
             start: "top bottom-=100",
-            end: "center center",
+            end: "top center",
             scrub: true
           }
         }
