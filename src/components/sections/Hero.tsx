@@ -1,7 +1,21 @@
 
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import ThreeScene from '../3d/ThreeScene';
+import { ErrorBoundary } from 'react-error-boundary';
+
+// Define a simple fallback component for the 3D scene
+const ThreeFallback = () => (
+  <div className="absolute inset-0 bg-github-darker z-0 opacity-80">
+    <div className="absolute inset-0 opacity-30">
+      <div className="absolute top-0 -left-4 w-72 h-72 bg-neon-purple rounded-full mix-blend-screen filter blur-xl opacity-70 animate-float"></div>
+      <div className="absolute top-8 -right-4 w-72 h-72 bg-neon-green rounded-full mix-blend-screen filter blur-xl opacity-70 animate-float" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-neon-blue rounded-full mix-blend-screen filter blur-xl opacity-70 animate-float" style={{ animationDelay: '4s' }}></div>
+    </div>
+  </div>
+);
+
+// Dynamically import ThreeScene to prevent it from crashing the whole app
+const ThreeScene = React.lazy(() => import('../3d/ThreeScene'));
 
 const Hero = () => {
   const [mounted, setMounted] = useState(false);
@@ -28,9 +42,13 @@ const Hero = () => {
 
   return (
     <section id="home" ref={heroRef} className="relative flex items-center overflow-hidden">
-      {/* Three.js Background */}
+      {/* Three.js Background with Error Boundary */}
       <div className="absolute inset-0 z-0">
-        <ThreeScene showParticles={true} showHexagon={true} />
+        <ErrorBoundary fallback={<ThreeFallback />}>
+          <React.Suspense fallback={<ThreeFallback />}>
+            {mounted && <ThreeScene showParticles={true} showHexagon={true} />}
+          </React.Suspense>
+        </ErrorBoundary>
       </div>
       
       {/* Animated gradient background as fallback for 3D scene */}

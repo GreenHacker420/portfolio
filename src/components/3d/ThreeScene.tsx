@@ -29,6 +29,11 @@ const ThreeScene = ({
         camera={{ position: [0, 0, 6], fov: 50 }}
         dpr={[1, 2]} // Optimize performance by limiting pixel ratio
         style={{ background: 'transparent' }}
+        gl={{ 
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance'
+        }}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.5} />
