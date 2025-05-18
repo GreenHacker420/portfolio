@@ -4,10 +4,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Suspense } from "react";
+import { Suspense, useState, useEffect } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+import LoadingScreen from "./components/sections/LoadingScreen";
 
 // Simple error boundary fallback component
 const ErrorFallback = () => {
@@ -29,24 +30,59 @@ const ErrorFallback = () => {
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ErrorBoundary fallback={<ErrorFallback />}>
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </ErrorBoundary>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user has already seen the loading screen
+    const hasLoadingBeenShown = sessionStorage.getItem('loadingShown');
+    
+    if (hasLoadingBeenShown) {
+      setIsLoading(false);
+    } else {
+      // Add event listener for when loading is complete
+      const handleLoadingComplete = () => {
+        setTimeout(() => {
+          setIsLoading(false);
+          sessionStorage.setItem('loadingShown', 'true');
+        }, 1000);
+      };
+      
+      window.addEventListener('loadingComplete', handleLoadingComplete);
+      
+      // Fallback in case loading screen gets stuck
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+        sessionStorage.setItem('loadingShown', 'true');
+      }, 12000);
+      
+      return () => {
+        window.removeEventListener('loadingComplete', handleLoadingComplete);
+        clearTimeout(timeout);
+      };
+    }
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        {isLoading && <LoadingScreen />}
+        <BrowserRouter>
+          <ErrorBoundary fallback={<ErrorFallback />}>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

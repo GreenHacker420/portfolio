@@ -90,14 +90,14 @@ const Experience = () => {
       name: "AI For Everyone",
       issuer: "DeepLearning.AI",
       date: "Mar 2025",
-      id: "GQIFS41IFAYR"
+      certId: "GQIFS41IFAYR"
     },
     {
       id: "cert2",
       name: "Generative AI for Everyone",
       issuer: "DeepLearning.AI",
       date: "Mar 2025",
-      id: "R2CGBN98KY1W"
+      certId: "R2CGBN98KY1W"
     }
   ];
 
@@ -387,7 +387,7 @@ const Experience = () => {
                     <p className="text-neon-blue">{cert.issuer}</p>
                     <div className="mt-2 text-github-text text-sm flex justify-between">
                       <span>Issued {cert.date}</span>
-                      <span className="text-xs bg-github-dark px-2 py-1 rounded-full">ID: {cert.id}</span>
+                      <span className="text-xs bg-github-dark px-2 py-1 rounded-full">ID: {cert.certId}</span>
                     </div>
                     <div className="mt-4 flex">
                       <button className="text-sm text-white px-3 py-1 border border-neon-blue/50 rounded hover:bg-neon-blue/10 transition-colors">

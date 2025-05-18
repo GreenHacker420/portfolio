@@ -130,7 +130,7 @@ const Hero = () => {
       </motion.div>
 
       {/* Add CSS for animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes expand {
           to { width: 100%; }
         }

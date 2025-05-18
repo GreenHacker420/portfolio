@@ -1,10 +1,20 @@
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import { gsap } from 'gsap';
+import { animateGithubGraph } from '../../utils/animation';
 
 const Stats = () => {
   const [activeTab, setActiveTab] = useState('contributions');
+  const graphRef = useRef<HTMLDivElement>(null);
+  
+  // Animate GitHub contributions graph when it comes into view
+  useEffect(() => {
+    if (graphRef.current) {
+      animateGithubGraph();
+    }
+  }, [graphRef.current]);
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -390,9 +400,10 @@ const Stats = () => {
           transition={{ duration: 0.5 }}
           viewport={{ once: true }}
           className="mt-12 bg-github-dark/60 p-6 rounded-lg border border-github-border"
+          ref={graphRef}
         >
           <h3 className="text-lg font-semibold text-white mb-4 text-center">623 contributions in the last year</h3>
-          <div className="bg-github-dark p-4 rounded-lg overflow-hidden">
+          <div className="bg-github-dark p-4 rounded-lg overflow-hidden github-graph">
             <div className="grid grid-cols-52 gap-1 auto-rows-fr">
               {Array.from({ length: 52 }, (_, weekIndex) => (
                 <div key={`week-${weekIndex}`} className="grid grid-rows-7 gap-1">
@@ -418,10 +429,11 @@ const Stats = () => {
                     date.setDate(date.getDate() - (52 - weekIndex) * 7 - (6 - dayIndex));
                     
                     return (
-                      <div 
+                      <motion.div 
                         key={`day-${weekIndex}-${dayIndex}`} 
-                        className={`w-3 h-3 rounded-sm ${color} hover:ring-1 hover:ring-white/30 transition-all cursor-pointer`}
+                        className={`w-3 h-3 rounded-sm ${color} hover:ring-1 hover:ring-white/30 transition-all cursor-pointer github-cell`}
                         title={`${contributionCount} contributions on ${date.toLocaleDateString()}`}
+                        whileHover={{ scale: 1.5, boxShadow: '0 0 5px rgba(63, 185, 80, 0.5)' }}
                       />
                     );
                   })}

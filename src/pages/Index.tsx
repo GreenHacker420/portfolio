@@ -1,5 +1,8 @@
 
 import { useEffect } from "react";
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import Hero from "../components/sections/Hero";
@@ -10,6 +13,10 @@ import Experience from "../components/sections/Experience";
 import Stats from "../components/sections/Stats";
 import Contact from "../components/sections/Contact";
 import ErrorBoundary from "../components/common/ErrorBoundary";
+import { initSmoothScrolling, initScrollAnimations, neonFlickerEffect } from "../utils/animation";
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 // Simple error fallback component
 const SectionErrorFallback = ({ section }: { section: string }) => {
@@ -37,6 +44,40 @@ const SafeSection = ({ children, name }: { children: React.ReactNode; name: stri
 const Index = () => {
   useEffect(() => {
     document.title = "GreenHacker | Developer Portfolio";
+    
+    // Initialize GSAP animations
+    initSmoothScrolling();
+    initScrollAnimations();
+    
+    // Apply neon flicker effect to specific elements
+    const heroTitle = document.querySelector('.section-title');
+    if (heroTitle) {
+      neonFlickerEffect(heroTitle as HTMLElement);
+    }
+    
+    // Set up scroll trigger animations
+    const sections = document.querySelectorAll('section');
+    sections.forEach((section, i) => {
+      // Create section animations
+      gsap.fromTo(
+        section,
+        { opacity: 0.4 },
+        {
+          opacity: 1,
+          scrollTrigger: {
+            trigger: section,
+            start: "top bottom-=100",
+            end: "center center",
+            scrub: true
+          }
+        }
+      );
+    });
+    
+    // Clean up ScrollTrigger on unmount
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
   }, []);
 
   return (

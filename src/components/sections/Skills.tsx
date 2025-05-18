@@ -1,7 +1,10 @@
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
+import SkillIcon from './SkillIcon';
+import { gsap } from 'gsap';
+import { initScrollAnimations } from '../../utils/animation';
 
 type SkillCategory = {
   name: string;
@@ -12,6 +15,13 @@ type SkillCategory = {
 const Skills = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
+  const skillsRef = useRef<HTMLDivElement>(null);
+  
+  // Initialize GSAP animations when component mounts
+  useEffect(() => {
+    initScrollAnimations();
+  }, []);
   
   const categories: SkillCategory[] = [
     {
@@ -138,9 +148,30 @@ const Skills = () => {
   const toggleCategory = (name: string) => {
     setExpandedCategory(expandedCategory === name ? null : name);
   };
+  
+  // Skill hover effect using GSAP
+  const handleSkillHover = (skill: string, isEntering: boolean) => {
+    setHoveredSkill(isEntering ? skill : null);
+    
+    if (isEntering) {
+      gsap.to(`#skill-${skill.replace(/\s+/g, '-').toLowerCase()}`, {
+        y: -5,
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2)',
+        duration: 0.3,
+        ease: 'power2.out'
+      });
+    } else {
+      gsap.to(`#skill-${skill.replace(/\s+/g, '-').toLowerCase()}`, {
+        y: 0,
+        boxShadow: 'none',
+        duration: 0.3,
+        ease: 'power2.in'
+      });
+    }
+  };
 
   return (
-    <section id="skills" className="py-20 bg-github-dark">
+    <section id="skills" className="py-20 bg-github-dark" ref={skillsRef}>
       <div className="section-container">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -206,18 +237,23 @@ const Skills = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 skills-grid"
         >
           {displaySkills.map((skill, index) => (
             <motion.div
               key={`${skill.name}-${index}`}
               variants={itemVariants}
-              whileHover={{ y: -5, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
-              className="bg-github-light rounded-lg p-4 border border-github-border"
+              id={`skill-${skill.name.replace(/\s+/g, '-').toLowerCase()}`}
+              className="bg-github-light rounded-lg p-4 border border-github-border skill-item"
+              onMouseEnter={() => handleSkillHover(skill.name, true)}
+              onMouseLeave={() => handleSkillHover(skill.name, false)}
             >
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-white font-medium">{skill.name}</span>
-                <span className="text-sm text-neon-green">{skill.level}%</span>
+              <div className="flex items-center gap-3 mb-3">
+                <SkillIcon name={skill.name} color={hoveredSkill === skill.name ? "#3fb950" : undefined} />
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-white font-medium">{skill.name}</span>
+                  <span className="text-sm text-neon-green">{skill.level}%</span>
+                </div>
               </div>
               <div className="w-full bg-github-dark rounded-full h-2.5">
                 <motion.div 
@@ -263,9 +299,12 @@ const Skills = () => {
                 <div className="space-y-4">
                   {category.skills.map((skill, idx) => (
                     <div key={idx} className="space-y-1">
-                      <div className="flex justify-between">
-                        <span className="text-white">{skill.name}</span>
-                        <span className="text-neon-green">{skill.level}%</span>
+                      <div className="flex items-center gap-3">
+                        <SkillIcon name={skill.name} />
+                        <div className="flex justify-between w-full">
+                          <span className="text-white">{skill.name}</span>
+                          <span className="text-neon-green">{skill.level}%</span>
+                        </div>
                       </div>
                       <div className="w-full bg-github-dark rounded-full h-2">
                         <div 
