@@ -15,8 +15,11 @@ const ThreeScene = ({
   showHexagon = true 
 }: ThreeSceneProps) => {
   return (
-    <div className="canvas-container">
-      <Canvas camera={{ position: [0, 0, 6], fov: 50 }}>
+    <div className="canvas-container absolute inset-0 z-0">
+      <Canvas 
+        camera={{ position: [0, 0, 6], fov: 50 }}
+        dpr={[1, 2]} // Optimize performance by limiting pixel ratio
+      >
         <Suspense fallback={null}>
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 5]} intensity={1} />

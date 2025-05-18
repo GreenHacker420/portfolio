@@ -3,13 +3,22 @@ import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Points, PointMaterial } from '@react-three/drei';
-import { useSpring } from '@react-spring/three';
+import { useSpring, animated } from '@react-spring/three';
 
-const ParticlesCanvas = (props) => {
-  const ref = useRef();
+interface ParticlesCanvasProps {
+  color?: string;
+  size?: number;
+  count?: number;
+}
+
+const ParticlesCanvas = ({ 
+  color = "#3ae371", 
+  size = 0.06, 
+  count = 2000 
+}: ParticlesCanvasProps) => {
+  const ref = useRef<THREE.Points>(null!);
   
   // Create particle positions
-  const count = 2000;
   const particles = useMemo(() => {
     const positions = new Float32Array(count * 3);
     
@@ -27,7 +36,7 @@ const ParticlesCanvas = (props) => {
     return positions;
   }, [count]);
   
-  // Animate particles
+  // Animate particles with basic rotation
   useFrame((state, delta) => {
     if (ref.current) {
       ref.current.rotation.x += delta * 0.01;
@@ -35,58 +44,31 @@ const ParticlesCanvas = (props) => {
     }
   });
   
-  // Animate on hover/scroll with spring physics
-  const [spring, api] = useSpring(() => ({
-    scale: 1,
-    position: [0, 0, 0],
-    rotation: [0, 0, 0],
+  // Using animated.group instead of trying to apply springs directly to Points
+  const { scale } = useSpring({
+    from: { scale: 0.8 },
+    to: { scale: 1 },
     config: { mass: 2, tension: 200, friction: 30 }
-  }));
-  
-  // Use Three.js objects that fit the types expected by Points
-  const scaleVector = useMemo(() => new THREE.Vector3(1, 1, 1), []);
-  const positionVector = useMemo(() => new THREE.Vector3(0, 0, 0), []);
-  const rotationEuler = useMemo(() => new THREE.Euler(0, 0, 0), []);
-  
-  // Update vectors based on spring values
-  useFrame(() => {
-    const scaleValue = spring.scale.get();
-    scaleVector.set(scaleValue, scaleValue, scaleValue);
-    
-    const position = spring.position.get();
-    positionVector.set(position[0], position[1], position[2]);
-    
-    const rotation = spring.rotation.get();
-    rotationEuler.set(rotation[0], rotation[1], rotation[2]);
-    
-    if (ref.current) {
-      ref.current.scale.copy(scaleVector);
-      ref.current.position.copy(positionVector);
-      ref.current.rotation.x = rotationEuler.x;
-      ref.current.rotation.y = rotationEuler.y;
-      ref.current.rotation.z = rotationEuler.z;
-    }
   });
 
   return (
-    <group>
+    <animated.group scale={scale}>
       <Points
         ref={ref}
         positions={particles}
         stride={3}
         frustumCulled={false}
-        {...props}
       >
         <PointMaterial
           transparent
-          color="#3ae371"
-          size={0.06}
+          color={color}
+          size={size}
           sizeAttenuation={true}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
       </Points>
-    </group>
+    </animated.group>
   );
 };
 
