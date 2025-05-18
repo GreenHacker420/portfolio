@@ -7,9 +7,12 @@ interface SkillIconProps extends HTMLAttributes<HTMLDivElement> {
   color?: string;
 }
 
+// Type for the icon mapping
+type IconName = keyof typeof icons;
+
 const SkillIcon = ({ name, color, ...props }: SkillIconProps) => {
   // Map of skill names to corresponding Lucide icons with correct casing
-  const iconMap: Record<string, keyof typeof icons> = {
+  const iconMap: Record<string, IconName> = {
     // Programming Languages
     "C++": "Code2",
     "DART": "Code",
@@ -78,9 +81,11 @@ const SkillIcon = ({ name, color, ...props }: SkillIconProps) => {
     "ADOBE PHOTOSHOP": "Image"
   };
 
-  // Get the icon component
+  // Get the icon component - ensure it's a valid icon, defaulting to Code if not found
   const iconName = iconMap[name] || "Code";
-  const IconComponent = icons[iconName as keyof typeof icons];
+  
+  // Type assertion to ensure TypeScript knows this is a valid component
+  const IconComponent = icons[iconName] as React.ComponentType<{ size?: number, color?: string, className?: string }>;
 
   // Generate a default color if not provided
   const iconColor = color || "#c9d1d9";
@@ -90,7 +95,7 @@ const SkillIcon = ({ name, color, ...props }: SkillIconProps) => {
       className="skill-icon flex items-center justify-center p-2 rounded-md bg-github-darker"
       {...props}
     >
-      {IconComponent && <IconComponent size={24} color={iconColor} className="skill-icon-svg" />}
+      <IconComponent size={24} color={iconColor} className="skill-icon-svg" />
     </div>
   );
 };
