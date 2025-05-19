@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ErrorBoundary from "./components/common/ErrorBoundary";
 import LoadingScreen from "./components/sections/LoadingScreen";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
+import Chatbot from "./components/sections/Chatbot";
 
 // Simple error boundary fallback component
 const ErrorFallback = () => {
@@ -64,24 +66,27 @@ const App = () => {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        {isLoading && <LoadingScreen />}
-        <BrowserRouter>
-          <ErrorBoundary fallback={<ErrorFallback />}>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </ErrorBoundary>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          {isLoading && <LoadingScreen />}
+          <BrowserRouter>
+            <ErrorBoundary fallback={<ErrorFallback />}>
+              <Suspense fallback={<div>Loading...</div>}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
+          </BrowserRouter>
+          <Chatbot />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 };
 

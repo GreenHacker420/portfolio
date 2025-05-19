@@ -12,6 +12,7 @@ import Projects from "../components/sections/Projects";
 import Experience from "../components/sections/Experience";
 import Stats from "../components/sections/Stats";
 import Contact from "../components/sections/Contact";
+import Resume from "../components/sections/Resume";
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import { 
   initSmoothScrolling, 
@@ -88,7 +89,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-github-dark text-github-text">
+    <div className="min-h-screen bg-github-dark text-github-text dark:bg-github-dark dark:text-github-text">
       <Header />
       <main>
         <SafeSection name="Hero">
@@ -105,6 +106,9 @@ const Index = () => {
         </SafeSection>
         <SafeSection name="Experience">
           <Experience />
+        </SafeSection>
+        <SafeSection name="Resume">
+          <Resume />
         </SafeSection>
         <SafeSection name="Stats">
           <Stats />
