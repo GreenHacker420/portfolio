@@ -3,7 +3,8 @@ import { useRef, useState, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
-import { motion } from 'framer-motion-3d';
+// Remove the framer-motion-3d import and use standard framer-motion
+import { motion } from 'framer-motion';
 import { useSpring } from '@react-spring/three';
 
 interface InteractiveThreeSceneProps {
@@ -134,20 +135,8 @@ const InteractiveThreeScene = ({
   if (!particlePositions) return null;
   
   return (
-    <motion.group
-      animate={{ 
-        scale: 1, 
-        rotateZ: 0
-      }}
-      initial={{ 
-        scale: 0.5, 
-        rotateZ: 0.2 
-      }}
-      transition={{ 
-        duration: 2, 
-        ease: "easeOut" 
-      }}
-    >
+    // Replace framer-motion-3d motion.group with a regular group
+    <group>
       <points ref={pointsRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -165,7 +154,7 @@ const InteractiveThreeScene = ({
           sizeAttenuation
         />
       </points>
-    </motion.group>
+    </group>
   );
 };
 

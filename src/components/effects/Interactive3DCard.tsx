@@ -30,7 +30,12 @@ const Interactive3DCard = ({
   // Transform for shadow and z-translation
   const shadowBlur = useTransform(
     [smoothRotateX, smoothRotateY],
-    ([latestX, latestY]) => Math.sqrt(latestX * latestX + latestY * latestY) * 0.5
+    ([latestX, latestY]) => {
+      // Fix the type issue by ensuring we're working with numbers
+      const x = typeof latestX === 'number' ? latestX : 0;
+      const y = typeof latestY === 'number' ? latestY : 0;
+      return Math.sqrt(x * x + y * y) * 0.5;
+    }
   );
   
   const zTranslate = useSpring(0, springConfig);
