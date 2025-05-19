@@ -11,6 +11,8 @@ import ErrorBoundary from "./components/common/ErrorBoundary";
 import LoadingScreen from "./components/sections/LoadingScreen";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import Chatbot from "./components/sections/Chatbot";
+import AnimatedCursor from "./components/effects/AnimatedCursor";
+import ReactiveBackground from "./components/effects/ReactiveBackground";
 
 // Simple error boundary fallback component
 const ErrorFallback = () => {
@@ -34,8 +36,17 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if user is on mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     // Check if user has already seen the loading screen
     const hasLoadingBeenShown = sessionStorage.getItem('loadingShown');
     
@@ -60,9 +71,14 @@ const App = () => {
       
       return () => {
         window.removeEventListener('loadingComplete', handleLoadingComplete);
+        window.removeEventListener('resize', checkMobile);
         clearTimeout(timeout);
       };
     }
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   return (
@@ -72,6 +88,13 @@ const App = () => {
           <Toaster />
           <Sonner />
           {isLoading && <LoadingScreen />}
+          
+          {/* Add reactive background for global effect */}
+          <ReactiveBackground />
+          
+          {/* Only show custom cursor on desktop */}
+          {!isMobile && <AnimatedCursor />}
+          
           <BrowserRouter>
             <ErrorBoundary fallback={<ErrorFallback />}>
               <Suspense fallback={<div>Loading...</div>}>

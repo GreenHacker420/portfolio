@@ -1,7 +1,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { projectCardHover } from '../../utils/animation';
+import ProjectCard from './ProjectCard';
 
 const Projects = () => {
   const [filter, setFilter] = useState('all');
@@ -41,22 +41,6 @@ const Projects = () => {
   const filteredProjects = filter === 'all' 
     ? projects 
     : projects.filter(project => project.category === filter);
-
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
 
   return (
     <section id="projects" className="py-20 bg-github-light">
@@ -120,81 +104,15 @@ const Projects = () => {
           </button>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredProjects.map((project, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="bg-github-dark border border-github-border rounded-lg overflow-hidden project-card transition-all duration-300"
-              onMouseEnter={(e) => projectCardHover(e.currentTarget, true)}
-              onMouseLeave={(e) => projectCardHover(e.currentTarget, false)}
-            >
-              <div className="aspect-video w-full overflow-hidden">
-                <img
-                  src={project.imageUrl}
-                  alt={project.title}
-                  className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-              <div className="p-6">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-xl font-bold text-white">{project.title}</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {project.tags.map((tag, tagIndex) => (
-                      <span
-                        key={tagIndex}
-                        className={`tech-badge px-2 py-1 text-xs rounded ${
-                          tag === "HTML"
-                            ? "bg-tech-html/20 text-tech-html border border-tech-html/30"
-                            : tag === "CSS"
-                            ? "bg-tech-css/20 text-tech-css border border-tech-css/30"
-                            : tag === "TypeScript"
-                            ? "bg-tech-ts/20 text-tech-ts border border-tech-ts/30"
-                            : tag === "JavaScript"
-                            ? "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-                            : tag === "React"
-                            ? "bg-blue-400/20 text-blue-400 border border-blue-400/30"
-                            : tag === "Next.js"
-                            ? "bg-black/40 text-white border border-white/30"
-                            : tag === "Tailwind"
-                            ? "bg-teal-500/20 text-teal-500 border border-teal-500/30"
-                            : tag === "Design"
-                            ? "bg-purple-500/20 text-purple-500 border border-purple-500/30"
-                            : tag === "Cloud"
-                            ? "bg-blue-600/20 text-blue-600 border border-blue-600/30"
-                            : "bg-gray-500/20 text-gray-500 border border-gray-500/30"
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <p className="mt-4 text-github-text">{project.description}</p>
-                <div className="mt-6 flex gap-3">
-                  <a
-                    href="#"
-                    className="px-4 py-2 bg-neon-green/20 text-neon-green rounded-md hover:bg-neon-green/30 transition-colors"
-                  >
-                    Demo
-                  </a>
-                  <a
-                    href="#"
-                    className="px-4 py-2 bg-github-light text-github-text rounded-md hover:bg-github-light/80 transition-colors"
-                  >
-                    Source
-                  </a>
-                </div>
-              </div>
-            </motion.div>
+            <ProjectCard 
+              key={project.title} 
+              project={project} 
+              delay={index * 0.1}
+            />
           ))}
-        </motion.div>
+        </div>
         
         <motion.div
           initial={{ opacity: 0, y: 20 }}
