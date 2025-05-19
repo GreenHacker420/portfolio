@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { useState, useEffect } from 'react';
 import IntroMessage from './IntroMessage';
 import CTAButtons from './CTAButtons';
 import ScrollPrompt from './ScrollPrompt';
@@ -8,18 +8,25 @@ import ThreeFallback from './ThreeFallback';
 import TypewriterEffect from './TypewriterEffect';
 
 const HeroSection = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center py-16">
       <div className="absolute inset-0 z-0">
-        <ThreeDBackground />
+        <ThreeDBackground mounted={mounted} />
       </div>
-      
+
       <div className="container mx-auto px-6 z-10 relative">
         <IntroMessage />
         <TypewriterEffect />
         <CTAButtons />
       </div>
-      
+
       <ScrollPrompt />
     </section>
   );
