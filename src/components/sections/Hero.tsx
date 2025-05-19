@@ -1,6 +1,6 @@
 
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
-import { useState, useEffect, useRef } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 
 // Define a simple fallback component for the 3D scene
@@ -45,9 +45,9 @@ const Hero = () => {
       {/* Three.js Background with Error Boundary */}
       <div className="absolute inset-0 z-0">
         <ErrorBoundary fallback={<ThreeFallback />}>
-          <React.Suspense fallback={<ThreeFallback />}>
+          <Suspense fallback={<ThreeFallback />}>
             {mounted && <ThreeScene showParticles={true} showHexagon={true} />}
-          </React.Suspense>
+          </Suspense>
         </ErrorBoundary>
       </div>
       
