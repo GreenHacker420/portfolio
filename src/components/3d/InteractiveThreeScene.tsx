@@ -29,6 +29,18 @@ const InteractiveThreeScene = ({
   // Store the original particle positions
   const [particlePositions, setParticlePositions] = useState<Float32Array | null>(null);
   
+  // Store texture
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+  
+  // Load texture
+  useEffect(() => {
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load('/images/particle.png', (loadedTexture) => {
+      loadedTexture.premultiplyAlpha = true;
+      setTexture(loadedTexture);
+    });
+  }, []);
+  
   // Spring for smooth camera movement
   const [{ cameraX, cameraY }] = useSpring(() => ({
     cameraX: 0,
@@ -41,14 +53,14 @@ const InteractiveThreeScene = ({
     const positions = new Float32Array(count * 3);
     
     for (let i = 0; i < count; i++) {
-      // Create particles in a 3D sphere shape
-      const radius = Math.random() * 4 + 1;
+      // Create particles in a more cloud-like formation to match the nebula image
+      const radius = Math.random() * 5 + 0.5;
       const phi = Math.acos((Math.random() * 2) - 1);
       const theta = Math.random() * Math.PI * 2;
       
       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);     // x
       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta); // y
-      positions[i * 3 + 2] = radius * Math.cos(phi);                  // z
+      positions[i * 3 + 2] = radius * Math.cos(phi) * 0.5;            // z - flatter on z-axis
     }
     
     setParticlePositions(positions);
@@ -59,7 +71,7 @@ const InteractiveThreeScene = ({
     if (!pointsRef.current || !particlePositions) return;
     
     // Rotate the particle system
-    pointsRef.current.rotation.y += 0.001;
+    pointsRef.current.rotation.y += 0.0008;
     
     // Apply mouse influence to camera
     state.camera.position.x = THREE.MathUtils.lerp(
@@ -89,7 +101,7 @@ const InteractiveThreeScene = ({
   // Custom shader for interactive particles
   const particleShader = {
     uniforms: {
-      pointTexture: { value: new THREE.TextureLoader().load('/images/particle.png') },
+      pointTexture: { value: texture || new THREE.TextureLoader().load('/images/particle.png') },
       time: { value: 0 },
       mousePosition: { value: new THREE.Vector2(0, 0) },
       color: { value: new THREE.Color(color) }
@@ -102,14 +114,15 @@ const InteractiveThreeScene = ({
       varying vec3 vColor;
       
       void main() {
-        vColor = vec3(${color.replace('#', '0x')});
+        // Add subtle variation to color based on position
+        vColor = vec3(${color.replace('#', '0x')}) * (1.0 + sin(position.x * 0.5 + time * 0.2) * 0.2);
         
         // Apply time-based animation
         vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
         
         // Apply subtle wave effect
-        float wave = sin(position.x * 2.0 + time) * 0.1 + 
-                     sin(position.y * 2.0 + time) * 0.1;
+        float wave = sin(position.x * 1.5 + time) * 0.1 + 
+                     sin(position.y * 1.5 + time * 0.8) * 0.1;
         mvPosition.z += wave;
         
         // Mouse interaction
@@ -118,7 +131,10 @@ const InteractiveThreeScene = ({
         mvPosition.z += mouseEffect * 0.5;
         
         gl_Position = projectionMatrix * mvPosition;
-        gl_PointSize = size * (300.0 / -mvPosition.z);
+        
+        // Vary size slightly based on position for more natural look
+        float sizeFactor = 1.0 + sin(position.x * 3.0 + position.y * 2.0) * 0.3;
+        gl_PointSize = size * sizeFactor * (300.0 / -mvPosition.z);
       }
     `,
     fragmentShader: `
@@ -126,8 +142,11 @@ const InteractiveThreeScene = ({
       varying vec3 vColor;
       
       void main() {
-        gl_FragColor = vec4(vColor, 1.0) * texture2D(pointTexture, gl_PointCoord);
-        if (gl_FragColor.a < 0.1) discard;
+        vec4 texColor = texture2D(pointTexture, gl_PointCoord);
+        gl_FragColor = vec4(vColor, 1.0) * texColor;
+        
+        // Enhance the alpha blending to match the nebula effect
+        if (gl_FragColor.a < 0.05) discard;
       }
     `
   };
@@ -135,7 +154,6 @@ const InteractiveThreeScene = ({
   if (!particlePositions) return null;
   
   return (
-    // Replace framer-motion-3d motion.group with a regular group
     <group>
       <points ref={pointsRef}>
         <bufferGeometry>
@@ -146,12 +164,12 @@ const InteractiveThreeScene = ({
             itemSize={3}
           />
         </bufferGeometry>
-        <pointsMaterial
-          size={size}
+        <shaderMaterial
+          attach="material"
+          args={[particleShader]}
           transparent
-          alphaTest={0.5}
-          color={color}
-          sizeAttenuation
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
         />
       </points>
     </group>
