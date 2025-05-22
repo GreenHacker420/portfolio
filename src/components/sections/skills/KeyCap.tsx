@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
-import { Mesh, MeshStandardMaterial, Color, BoxGeometry } from 'three';
+import { Mesh, MeshStandardMaterial, Color } from 'three';
 import { KeyboardKey } from '../../../data/keyboardData';
 import { Skill } from '../../../data/skillsData';
 import { calculateSpringAnimation, DEFAULT_SPRING } from '../../../utils/keyboardUtils';
@@ -26,7 +26,6 @@ const KeyCap: React.FC<KeyCapProps> = ({
 }) => {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
-  const geometryRef = useRef<BoxGeometry>(null);
   const [hovered, setHovered] = useState(false);
   const [animState, setAnimState] = useState({ position: 0, velocity: 0 });
   
@@ -47,7 +46,7 @@ const KeyCap: React.FC<KeyCapProps> = ({
     
     // Apply animation to key position
     const pressDistance = 0.1; // Reduced travel distance for a more modern feel
-    meshRef.current.position.y = -newAnimState.position * pressDistance;
+    meshRef.current.position.z = -newAnimState.position * pressDistance;
     
     // Update emissive color based on RGB lighting
     if (materialRef.current) {
@@ -86,9 +85,6 @@ const KeyCap: React.FC<KeyCapProps> = ({
   // Determine key color - use skill color if available, otherwise use a dark gray
   const keyColor = isSkillKey ? skill.color : "#333333";
   
-  // Calculate key chamfer (rounded edges)
-  const chamferSize = 0.04;
-  
   return (
     <group
       position={[position[0] * 0.8, position[1] * 0.8, position[2]]}
@@ -109,7 +105,6 @@ const KeyCap: React.FC<KeyCapProps> = ({
         {/* Slightly rounded box for more modern look */}
         <boxGeometry 
           args={[keyWidth, keyHeight, keyDepth]} 
-          ref={geometryRef}
         />
         
         {/* Material with slight metallic look for modern appearance */}

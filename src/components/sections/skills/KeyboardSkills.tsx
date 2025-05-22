@@ -1,24 +1,22 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import {
   OrbitControls,
   Environment,
   ContactShadows,
   Html,
-  Text
 } from '@react-three/drei';
 import { Suspense } from 'react';
-import * as THREE from 'three';
-import { motion, AnimatePresence } from 'framer-motion';
 import { skills, skillsMap, getSkillById, Skill } from '../../../data/skillsData';
 import { KEYBOARD_LAYOUT, getKeyByIdFixed } from '../../../data/keyboardData';
 import { playKeySound, initAudio } from '../../../utils/soundUtils';
 import { calculateKeyColor } from '../../../utils/keyboardUtils';
+import { motion, AnimatePresence } from 'framer-motion';
 import KeyboardBase from './KeyboardBase';
 import KeyCap from './KeyCap';
 
-// Define keyboard theme interface (simplified from the original)
+// Define keyboard theme
 interface KeyboardTheme {
   name: string;
   baseColor: string;
@@ -29,40 +27,13 @@ interface KeyboardTheme {
   soundType: 'blue' | 'brown' | 'red' | 'silent';
 }
 
-// Custom hook for WebGL context loss detection
-const useWebGLContextLoss = () => {
-  const [hasLostContext, setHasLostContext] = useState(false);
-
-  useEffect(() => {
-    const handleContextLoss = () => {
-      console.warn('WebGL context lost');
-      setHasLostContext(true);
-    };
-
-    const handleContextRestored = () => {
-      console.log('WebGL context restored');
-      setHasLostContext(false);
-    };
-
-    window.addEventListener('webglcontextlost', handleContextLoss);
-    window.addEventListener('webglcontextrestored', handleContextRestored);
-
-    return () => {
-      window.removeEventListener('webglcontextlost', handleContextLoss);
-      window.removeEventListener('webglcontextrestored', handleContextRestored);
-    };
-  }, []);
-
-  return hasLostContext;
-};
-
 // Loading screen component
 const LoadingScreen = () => {
   return (
     <Html center>
       <div className="flex flex-col items-center justify-center">
         <div className="w-16 h-16 border-4 border-neon-green border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-white text-lg">Loading Mechanical Keyboard...</p>
+        <p className="text-white text-lg">Loading Keyboard...</p>
       </div>
     </Html>
   );
@@ -73,16 +44,12 @@ const WebGLContextRecovery = () => {
   const { gl } = useThree();
 
   useEffect(() => {
-    // Set up context loss handling
     const canvas = gl.domElement;
-
     const handleContextLoss = (event: Event) => {
       event.preventDefault();
       console.warn('WebGL context loss detected in recovery component');
     };
-
     canvas.addEventListener('webglcontextlost', handleContextLoss);
-
     return () => {
       canvas.removeEventListener('webglcontextlost', handleContextLoss);
     };
@@ -126,6 +93,7 @@ const Key = ({ keyData, isPressed, onClick, theme, performanceMode }: KeyProps) 
       isPressed={isPressed}
       onClick={onClick}
       rgbColor={rgbColor}
+      keySound={undefined}
     />
   );
 };
@@ -139,15 +107,10 @@ interface KeyboardProps {
 }
 
 const Keyboard = ({ onSelectKey, selectedKey, theme, performanceMode }: KeyboardProps) => {
-  // Reference to the group containing the keyboard
   const groupRef = useRef<THREE.Group>(null);
 
-  // Check for WebGL context loss
-  const hasLostContext = useWebGLContextLoss();
-  
   // Calculate base size dynamically
   const getKeyboardDimensions = () => {
-    // Find the widest row
     let maxRowWidth = 0;
     KEYBOARD_LAYOUT.forEach(row => {
       const width = row.reduce((sum, key, idx) => {
@@ -163,17 +126,6 @@ const Keyboard = ({ onSelectKey, selectedKey, theme, performanceMode }: Keyboard
   };
 
   const { baseWidth, baseDepth } = getKeyboardDimensions();
-
-  // If context is lost, show fallback
-  if (hasLostContext) {
-    return (
-      <Html center>
-        <div className="bg-black/70 text-white p-4 rounded">
-          <p>WebGL context lost. Please refresh the page.</p>
-        </div>
-      </Html>
-    );
-  }
 
   // Create keyboard layout with keys
   const keySpacing = 0.15;
@@ -325,52 +277,56 @@ const SkillCard = ({ skill, isVisible, onClose }: SkillCardProps) => {
           <p className="text-github-text mb-4 leading-relaxed">{skill.description}</p>
 
           {/* Projects */}
-          <div className="mb-4">
-            <h4 className="text-white font-medium mb-2 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
-              </svg>
-              Projects
-            </h4>
-            <ul className="space-y-1 text-github-text">
-              {skill.projects && skill.projects.map((project, index) => (
-                <li key={index} className="flex items-start">
-                  <span className="text-xs mr-2 mt-1">•</span>
-                  {project}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {skill.projects && skill.projects.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-white font-medium mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Projects
+              </h4>
+              <ul className="space-y-1 text-github-text">
+                {skill.projects.map((project, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-xs mr-2 mt-1">•</span>
+                    {project}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Key Strengths */}
-          <div>
-            <h4 className="text-white font-medium mb-2 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-                <path d="M2 17l10 5 10-5"></path>
-                <path d="M2 12l10 5 10-5"></path>
-              </svg>
-              Key Strengths
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {skill.strengths && skill.strengths.map((strength, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="px-3 py-1 rounded-full text-sm font-medium"
-                  style={{
-                    backgroundColor: `${skill.color}22`,
-                    color: skill.color,
-                    border: `1px solid ${skill.color}44`
-                  }}
-                >
-                  {strength}
-                </motion.span>
-              ))}
+          {skill.strengths && skill.strengths.length > 0 && (
+            <div>
+              <h4 className="text-white font-medium mb-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                  <path d="M2 17l10 5 10-5"></path>
+                  <path d="M2 12l10 5 10-5"></path>
+                </svg>
+                Key Strengths
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {skill.strengths.map((strength, index) => (
+                  <motion.span
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="px-3 py-1 rounded-full text-sm font-medium"
+                    style={{
+                      backgroundColor: `${skill.color}22`,
+                      color: skill.color,
+                      border: `1px solid ${skill.color}44`
+                    }}
+                  >
+                    {strength}
+                  </motion.span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
@@ -399,6 +355,7 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
 
   const [performanceMode, setPerformanceMode] = useState<boolean>(false);
   const [showSkillInfo, setShowSkillInfo] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Get selected skill data
   const selectedSkill = useMemo(() => {
@@ -420,23 +377,28 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
 
   // Handle key selection
   const handleSelectKey = useCallback((key: string) => {
-    // Find the key data
-    const keyData = getKeyByIdFixed(key);
-    
-    if (keyData) {
-      // Set the selected key
-      setSelectedKey(prev => prev === key ? null : key);
-      setLastPressed(Date.now());
+    try {
+      // Find the key data
+      const keyData = getKeyByIdFixed(key);
       
-      // Only show skill info if it's a skill key
-      const hasSkill = keyData && keyData.skillId;
-      setShowSkillInfo(Boolean(hasSkill));
+      if (keyData) {
+        // Set the selected key
+        setSelectedKey(prev => prev === key ? null : key);
+        setLastPressed(Date.now());
+        
+        // Only show skill info if it's a skill key
+        const hasSkill = keyData && keyData.skillId;
+        setShowSkillInfo(Boolean(hasSkill));
 
-      // Initialize audio and play sound
-      initAudio();
-      playKeySound(currentTheme.soundType);
-    } else {
-      console.warn(`Key not found: ${key}`);
+        // Initialize audio and play sound
+        initAudio();
+        playKeySound(currentTheme.soundType);
+      } else {
+        console.warn(`Key not found: ${key}`);
+      }
+    } catch (err) {
+      console.error("Error selecting key:", err);
+      setError("Failed to select key.");
     }
   }, [currentTheme.soundType]);
 
@@ -449,24 +411,29 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
   // Handle keyboard input
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Map keyboard keys to skill keys
-      const key = e.key.toLowerCase();
+      try {
+        // Map keyboard keys to skill keys
+        const key = e.key.toLowerCase();
 
-      // Check for escape key to close skill info
-      if (e.key === 'Escape' && showSkillInfo) {
-        handleCloseSkillCard();
-        return;
-      }
+        // Check for escape key to close skill info
+        if (e.key === 'Escape' && showSkillInfo) {
+          handleCloseSkillCard();
+          return;
+        }
 
-      // Find matching key in layout
-      const flatLayout = KEYBOARD_LAYOUT.flat();
-      const matchingKey = flatLayout.find(k =>
-        k.label.toLowerCase() === key ||
-        k.id.toLowerCase() === key
-      );
+        // Find matching key in layout
+        const flatLayout = KEYBOARD_LAYOUT.flat();
+        const matchingKey = flatLayout.find(k =>
+          k.label.toLowerCase() === key ||
+          k.id.toLowerCase() === key
+        );
 
-      if (matchingKey) {
-        handleSelectKey(matchingKey.id);
+        if (matchingKey) {
+          handleSelectKey(matchingKey.id);
+        }
+      } catch (err) {
+        console.error("Error processing key press:", err);
+        setError("Failed to process key press.");
       }
     };
 
@@ -486,6 +453,23 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
 
     setPerformanceMode(isLowPerfDevice);
   }, []);
+
+  // Error state display
+  if (error) {
+    return (
+      <div className="w-full h-[400px] flex items-center justify-center bg-github-dark/50 rounded-lg">
+        <div className="text-center p-6">
+          <p className="text-red-400 mb-2">Error: {error}</p>
+          <button 
+            onClick={() => setError(null)} 
+            className="px-4 py-2 bg-github-light/30 text-neon-green rounded-md hover:bg-github-light/50 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-[600px] flex flex-col items-center justify-center">

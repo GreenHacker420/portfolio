@@ -18,19 +18,11 @@ const KeyboardBase: React.FC<KeyboardBaseProps> = ({
   color = '#222222',
   rgbGlow = [0, 0, 0]
 }) => {
-  // Load textures for the keyboard base
-  const textures = useTexture({
-    normalMap: '/textures/keyboard_normal.jpg',
-    roughnessMap: '/textures/keyboard_roughness.jpg',
-    aoMap: '/textures/keyboard_ao.jpg',
-  });
-
   // Create materials for different parts of the keyboard
   const baseMaterial = new MeshStandardMaterial({
     color,
     metalness: 0.4,
     roughness: 0.8,
-    ...textures,
     emissive: color,
     emissiveIntensity: 0.05,
   });

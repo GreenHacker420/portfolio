@@ -40,12 +40,12 @@ const KeyboardSkillsView = () => {
       
       {/* Hint text */}
       <motion.div 
-        className="text-center mt-6 text-white/80 font-medium"
+        className="text-center mt-2 text-white/70 font-medium"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <p>(hint: press a key)</p>
+        <p>(hint: press a key to explore skills)</p>
       </motion.div>
     </>
   );
