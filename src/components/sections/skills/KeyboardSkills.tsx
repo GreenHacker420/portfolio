@@ -188,39 +188,60 @@ const Keycap = ({
   // Use cleanup hook to dispose of resources when component unmounts
   useThreeCleanup(keycapRef);
 
-  // Calculate dimensions for a realistic keycap
+  // Calculate dimensions for a realistic mechanical keycap
   const keycapWidth = size[0] * 0.95;
-  const keycapHeight = size[1];
+  const keycapHeight = size[1] * 1.2; // Taller keycaps for mechanical look
   const keycapDepth = size[2] * 0.95;
 
   // Calculate dimensions for the concave top surface
-  const topWidth = keycapWidth * 0.9;
-  const topDepth = keycapDepth * 0.9;
+  const topWidth = keycapWidth * 0.85;
+  const topDepth = keycapDepth * 0.85;
 
-  // Create a more complex geometry for the keycap with a concave top
+  // Calculate dimensions for the beveled edges
+  const bevelFactor = 0.08; // How much to bevel the edges
+
+  // Create a more complex geometry for the keycap with a concave top and beveled edges
   const keycapGeometry = useMemo(() => {
     // Create a custom geometry for the keycap
     const geometry = new THREE.BufferGeometry();
 
-    // Define vertices for a keycap with slightly concave top
-    const concaveFactor = 0.03; // How concave the top surface is
+    // Define parameters for a more sculpted keycap
+    const concaveFactor = 0.06; // Deeper concave top surface
+    const topHeight = keycapHeight * 0.85; // Height of the top surface
+    const bottomHeight = -keycapHeight/2; // Bottom of the keycap
 
-    // Base vertices (bottom of keycap)
+    // Calculate corner positions with beveled edges
+    const bottomBevel = bottomHeight + bevelFactor;
+    const topBevel = topHeight - bevelFactor;
+
+    // Base vertices (bottom of keycap with beveled corners)
     const baseVertices = [
-      // Bottom face (facing down)
-      -keycapWidth/2, -keycapHeight/2, -keycapDepth/2, // 0: bottom left back
-      keycapWidth/2, -keycapHeight/2, -keycapDepth/2,  // 1: bottom right back
-      keycapWidth/2, -keycapHeight/2, keycapDepth/2,   // 2: bottom right front
-      -keycapWidth/2, -keycapHeight/2, keycapDepth/2,  // 3: bottom left front
+      // Bottom face vertices (facing down)
+      -keycapWidth/2, bottomHeight, -keycapDepth/2, // 0: bottom left back
+      keycapWidth/2, bottomHeight, -keycapDepth/2,  // 1: bottom right back
+      keycapWidth/2, bottomHeight, keycapDepth/2,   // 2: bottom right front
+      -keycapWidth/2, bottomHeight, keycapDepth/2,  // 3: bottom left front
+
+      // Bottom bevel vertices
+      -keycapWidth/2 + bevelFactor, bottomBevel, -keycapDepth/2 + bevelFactor, // 4: bottom left back bevel
+      keycapWidth/2 - bevelFactor, bottomBevel, -keycapDepth/2 + bevelFactor,  // 5: bottom right back bevel
+      keycapWidth/2 - bevelFactor, bottomBevel, keycapDepth/2 - bevelFactor,   // 6: bottom right front bevel
+      -keycapWidth/2 + bevelFactor, bottomBevel, keycapDepth/2 - bevelFactor,  // 7: bottom left front bevel
+
+      // Middle vertices (straight sides)
+      -keycapWidth/2 + bevelFactor, topBevel, -keycapDepth/2 + bevelFactor, // 8: top left back middle
+      keycapWidth/2 - bevelFactor, topBevel, -keycapDepth/2 + bevelFactor,  // 9: top right back middle
+      keycapWidth/2 - bevelFactor, topBevel, keycapDepth/2 - bevelFactor,   // 10: top right front middle
+      -keycapWidth/2 + bevelFactor, topBevel, keycapDepth/2 - bevelFactor,  // 11: top left front middle
 
       // Top face vertices (with concave shape)
-      -topWidth/2, keycapHeight/2 - concaveFactor, -topDepth/2, // 4: top left back
-      topWidth/2, keycapHeight/2 - concaveFactor, -topDepth/2,  // 5: top right back
-      topWidth/2, keycapHeight/2 - concaveFactor, topDepth/2,   // 6: top right front
-      -topWidth/2, keycapHeight/2 - concaveFactor, topDepth/2,  // 7: top left front
+      -topWidth/2, topHeight, -topDepth/2, // 12: top left back
+      topWidth/2, topHeight, -topDepth/2,  // 13: top right back
+      topWidth/2, topHeight, topDepth/2,   // 14: top right front
+      -topWidth/2, topHeight, topDepth/2,  // 15: top left front
 
       // Center of top face (lowest point of concave)
-      0, keycapHeight/2 - concaveFactor*2, 0 // 8: center top
+      0, topHeight - concaveFactor, 0 // 16: center top
     ];
 
     // Define faces using indices (triangles)
@@ -229,21 +250,29 @@ const Keycap = ({
       0, 1, 2,
       0, 2, 3,
 
+      // Bottom bevels
+      0, 4, 5, 0, 5, 1, // back
+      1, 5, 6, 1, 6, 2, // right
+      2, 6, 7, 2, 7, 3, // front
+      3, 7, 4, 3, 4, 0, // left
+
       // Side faces
-      0, 4, 5,
-      0, 5, 1,
-      1, 5, 6,
-      1, 6, 2,
-      2, 6, 7,
-      2, 7, 3,
-      3, 7, 4,
-      3, 4, 0,
+      4, 8, 9, 4, 9, 5, // back
+      5, 9, 10, 5, 10, 6, // right
+      6, 10, 11, 6, 11, 7, // front
+      7, 11, 8, 7, 8, 4, // left
+
+      // Top bevels
+      8, 12, 13, 8, 13, 9, // back
+      9, 13, 14, 9, 14, 10, // right
+      10, 14, 15, 10, 15, 11, // front
+      11, 15, 12, 11, 12, 8, // left
 
       // Top face (concave with triangles to center)
-      4, 8, 5,
-      5, 8, 6,
-      6, 8, 7,
-      7, 8, 4
+      12, 16, 13, // back
+      13, 16, 14, // right
+      14, 16, 15, // front
+      15, 16, 12  // left
     ];
 
     // Set attributes
@@ -253,17 +282,13 @@ const Keycap = ({
     // Add UV coordinates for texture mapping
     const uvs = [
       // Bottom face
-      0, 0,
-      1, 0,
-      1, 1,
-      0, 1,
-
+      0, 0, 1, 0, 1, 1, 0, 1,
+      // Bottom bevel
+      0.1, 0.1, 0.9, 0.1, 0.9, 0.9, 0.1, 0.9,
+      // Middle
+      0.1, 0.1, 0.9, 0.1, 0.9, 0.9, 0.1, 0.9,
       // Top face
-      0, 0,
-      1, 0,
-      1, 1,
-      0, 1,
-
+      0.2, 0.2, 0.8, 0.2, 0.8, 0.8, 0.2, 0.8,
       // Center
       0.5, 0.5
     ];
@@ -272,7 +297,7 @@ const Keycap = ({
     geometry.computeVertexNormals();
 
     return geometry;
-  }, [keycapWidth, keycapHeight, keycapDepth, topWidth, topDepth]);
+  }, [keycapWidth, keycapHeight, keycapDepth, topWidth, topDepth, bevelFactor]);
 
   // Create a plane geometry for the logo
   const logoGeometry = useMemo(() => {
@@ -287,11 +312,15 @@ const Keycap = ({
         castShadow
         receiveShadow
       >
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={color}
-          metalness={theme.metalness}
-          roughness={theme.roughness}
+          metalness={0.1} // Lower metalness for plastic-like appearance
+          roughness={0.7} // Higher roughness for matte finish
+          clearcoat={0.3} // Slight clearcoat for subtle shine
+          clearcoatRoughness={0.25}
           emissive={emissive}
+          emissiveIntensity={isHovered || isPressed ? 0.5 : 0.1}
+          envMapIntensity={0.8} // Better reflection of environment
         />
       </mesh>
 
@@ -447,16 +476,34 @@ const Key = ({ position, size, color, text, icon, skillId, isPressed, onClick, t
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
     >
-      {/* Key switch (stem) */}
-      <mesh position={[0, -0.04, 0]}>
-        <boxGeometry args={[0.14, 0.1, 0.14]} />
-        <meshStandardMaterial color="#111111" />
+      {/* Key switch housing (outer part) */}
+      <mesh position={[0, -0.15, 0]}>
+        <boxGeometry args={[0.18, 0.15, 0.18]} />
+        <meshStandardMaterial color="#0a0a0a" roughness={0.9} />
       </mesh>
 
-      {/* Key spring */}
-      <mesh position={[0, -0.09, 0]} rotation={[Math.PI/2, 0, 0]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.1, 8, 1, true]} />
-        <meshStandardMaterial color="#555555" wireframe={true} />
+      {/* Key switch stem (inner part) */}
+      <mesh position={[0, -0.08, 0]}>
+        <boxGeometry args={[0.14, 0.15, 0.14]} />
+        <meshStandardMaterial color={theme.rgbLight ? "#3a3a3a" : "#1a1a1a"} roughness={0.8} />
+      </mesh>
+
+      {/* Key switch pins (contacts) */}
+      <group position={[0, -0.22, 0]}>
+        <mesh position={[-0.06, 0, 0]}>
+          <boxGeometry args={[0.02, 0.05, 0.02]} />
+          <meshStandardMaterial color="#888888" metalness={0.8} roughness={0.2} />
+        </mesh>
+        <mesh position={[0.06, 0, 0]}>
+          <boxGeometry args={[0.02, 0.05, 0.02]} />
+          <meshStandardMaterial color="#888888" metalness={0.8} roughness={0.2} />
+        </mesh>
+      </group>
+
+      {/* Key spring - more detailed with more segments */}
+      <mesh position={[0, -0.15, 0]} rotation={[Math.PI/2, 0, 0]}>
+        <cylinderGeometry args={[0.06, 0.08, 0.2, 12, 6, true]} />
+        <meshStandardMaterial color="#999999" metalness={0.9} roughness={0.3} wireframe={true} />
       </mesh>
 
       {/* Keycap with spring animation */}
@@ -507,42 +554,52 @@ const KeyboardBase = ({ theme, performanceMode, baseWidth, baseDepth }: Keyboard
 
   // Create materials for different parts of the keyboard
   const baseMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
+    return new THREE.MeshPhysicalMaterial({
       color: theme.baseColor,
-      metalness: theme.metalness + 0.1,
-      roughness: theme.roughness - 0.1,
-      envMapIntensity: 1.0
+      metalness: 0.2, // Slight metallic look for aluminum-like appearance
+      roughness: 0.8, // High roughness for matte finish
+      clearcoat: 0.1, // Very slight clearcoat
+      clearcoatRoughness: 0.8,
+      envMapIntensity: 0.8
     });
-  }, [theme.baseColor, theme.metalness, theme.roughness]);
+  }, [theme.baseColor]);
 
   // Create top plate material
   const topPlateMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: theme.baseColor,
-      metalness: theme.metalness + 0.15,
-      roughness: theme.roughness - 0.15,
-      envMapIntensity: 1.2
+    return new THREE.MeshPhysicalMaterial({
+      color: new THREE.Color(theme.baseColor).lerp(new THREE.Color('#222222'), 0.3),
+      metalness: 0.3, // More metallic for the top plate
+      roughness: 0.7,
+      clearcoat: 0.2,
+      clearcoatRoughness: 0.7,
+      envMapIntensity: 1.0
     });
-  }, [theme.baseColor, theme.metalness, theme.roughness]);
+  }, [theme.baseColor]);
 
   // Create edge material with RGB glow
   const edgeMaterial = useMemo(() => {
     const rgbColor = hexToRgb(theme.accentColor);
-    return new THREE.MeshStandardMaterial({
-      color: theme.baseColor,
-      metalness: theme.metalness + 0.2,
-      roughness: theme.roughness - 0.2,
+    return new THREE.MeshPhysicalMaterial({
+      color: '#0a0a0a', // Almost black
+      metalness: 0.1,
+      roughness: 0.9,
+      clearcoat: 0.3,
+      clearcoatRoughness: 0.7,
       emissive: new THREE.Color(rgbColor[0], rgbColor[1], rgbColor[2]),
-      emissiveIntensity: theme.rgbLight ? 0.5 : 0.1
+      emissiveIntensity: theme.rgbLight ? 0.8 : 0.1,
+      envMapIntensity: 0.8
     });
-  }, [theme.baseColor, theme.accentColor, theme.metalness, theme.roughness, theme.rgbLight]);
+  }, [theme.accentColor, theme.rgbLight]);
 
   // Create bottom material
   const bottomMaterial = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: "#111111",
-      metalness: 0.2,
-      roughness: 0.9
+    return new THREE.MeshPhysicalMaterial({
+      color: "#0a0a0a", // Darker black for bottom
+      metalness: 0.1,
+      roughness: 0.95, // Very rough
+      clearcoat: 0.05,
+      clearcoatRoughness: 0.9,
+      envMapIntensity: 0.5
     });
   }, []);
 
@@ -561,68 +618,108 @@ const KeyboardBase = ({ theme, performanceMode, baseWidth, baseDepth }: Keyboard
     }
   });
 
+  // Calculate the angle for the keyboard (typical mechanical keyboard has a 7-degree angle)
+  const keyboardAngle = Math.PI * 0.04; // ~7 degrees in radians
+
   return (
     <group ref={baseRef}>
-      {/* Top plate where keys will be mounted */}
-      <mesh position={[0, 0.05, 0]} material={topPlateMaterial} castShadow receiveShadow>
+      {/* Top plate where keys will be mounted - slightly angled */}
+      <mesh position={[0, 0.05, 0]} rotation={[-keyboardAngle, 0, 0]} material={topPlateMaterial} castShadow receiveShadow>
         <boxGeometry args={[baseWidth, 0.1, baseDepth]} />
       </mesh>
 
-      {/* Main keyboard case with height */}
-      <mesh position={[0, -baseHeight/2 + 0.05, 0]} material={baseMaterial} castShadow receiveShadow>
-        <boxGeometry args={[baseWidth, baseHeight, baseDepth]} />
+      {/* Main keyboard case with angled design */}
+      <group position={[0, -baseHeight/2, 0]} rotation={[-keyboardAngle, 0, 0]}>
+        {/* Main body */}
+        <mesh material={baseMaterial} castShadow receiveShadow>
+          <boxGeometry args={[baseWidth, baseHeight, baseDepth]} />
+        </mesh>
+
+        {/* Beveled edges */}
+        <mesh position={[0, baseHeight/2 + 0.02, 0]} material={topPlateMaterial} castShadow>
+          <boxGeometry args={[baseWidth - 0.05, 0.05, baseDepth - 0.05]} />
+        </mesh>
+      </group>
+
+      {/* RGB strip around the edge */}
+      <mesh position={[0, -0.05, 0]} rotation={[-keyboardAngle, 0, 0]} material={edgeMaterial} castShadow>
+        <boxGeometry args={[baseWidth + 0.15, 0.08, baseDepth + 0.15]} />
       </mesh>
 
-      {/* Beveled top edges with RGB glow */}
-      <mesh position={[0, 0, 0]} material={edgeMaterial} castShadow>
-        <boxGeometry args={[baseWidth + 0.2, 0.05, baseDepth + 0.2]} />
+      {/* RGB underglow effect */}
+      <mesh position={[0, -baseHeight/2, 0]} rotation={[-keyboardAngle, 0, 0]} material={edgeMaterial} castShadow>
+        <boxGeometry args={[baseWidth + 0.1, baseHeight - 0.15, baseDepth + 0.1]} />
       </mesh>
 
-      {/* RGB strip around the middle of the case */}
-      <mesh position={[0, -baseHeight/2 + 0.05, 0]} material={edgeMaterial} castShadow>
-        <boxGeometry args={[baseWidth + 0.1, baseHeight - 0.1, baseDepth + 0.1]} />
+      {/* Bottom plate with rubber pads */}
+      <mesh position={[0, -baseHeight - 0.05, 0]} rotation={[0, 0, 0]} material={bottomMaterial} castShadow>
+        <boxGeometry args={[baseWidth - 0.1, 0.1, baseDepth - 0.1]} />
       </mesh>
 
-      {/* Bottom plate */}
-      <mesh position={[0, -baseHeight, 0]} material={bottomMaterial} castShadow>
-        <boxGeometry args={[baseWidth - 0.2, 0.1, baseDepth - 0.2]} />
+      {/* Front chamfer for ergonomics */}
+      <mesh
+        position={[0, -baseHeight/2 + 0.1, baseDepth/2 + 0.05]}
+        rotation={[Math.PI/4, 0, 0]}
+        material={baseMaterial}
+        castShadow
+      >
+        <boxGeometry args={[baseWidth - 0.05, 0.2, 0.2]} />
       </mesh>
 
-      {/* Angled front edge for ergonomics */}
-      <mesh position={[0, -baseHeight/2 + 0.1, baseDepth/2 + 0.1]} rotation={[Math.PI/6, 0, 0]} material={baseMaterial} castShadow>
-        <boxGeometry args={[baseWidth, 0.3, 0.2]} />
+      {/* Back chamfer */}
+      <mesh
+        position={[0, -baseHeight/2 + 0.1, -baseDepth/2 - 0.05]}
+        rotation={[-Math.PI/4, 0, 0]}
+        material={baseMaterial}
+        castShadow
+      >
+        <boxGeometry args={[baseWidth - 0.05, 0.2, 0.2]} />
       </mesh>
 
-      {/* Rubber feet at corners */}
-      <mesh position={[baseWidth/2 - 0.5, -baseHeight - 0.025, baseDepth/2 - 0.3]}>
+      {/* Rubber feet at corners - thicker at the back for angle */}
+      <mesh position={[baseWidth/2 - 0.5, -baseHeight - 0.05, baseDepth/2 - 0.5]}>
         <cylinderGeometry args={[0.15, 0.15, 0.05, 16]} />
-        <meshStandardMaterial color="#111111" roughness={1} />
+        <meshPhysicalMaterial color="#050505" roughness={1} clearcoat={0.1} />
       </mesh>
-      <mesh position={[baseWidth/2 - 0.5, -baseHeight - 0.025, -baseDepth/2 + 0.3]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.05, 16]} />
-        <meshStandardMaterial color="#111111" roughness={1} />
+      <mesh position={[baseWidth/2 - 0.5, -baseHeight - 0.05, -baseDepth/2 + 0.5]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.12, 16]} /> {/* Taller back feet */}
+        <meshPhysicalMaterial color="#050505" roughness={1} clearcoat={0.1} />
       </mesh>
-      <mesh position={[-baseWidth/2 + 0.5, -baseHeight - 0.025, baseDepth/2 - 0.3]}>
+      <mesh position={[-baseWidth/2 + 0.5, -baseHeight - 0.05, baseDepth/2 - 0.5]}>
         <cylinderGeometry args={[0.15, 0.15, 0.05, 16]} />
-        <meshStandardMaterial color="#111111" roughness={1} />
+        <meshPhysicalMaterial color="#050505" roughness={1} clearcoat={0.1} />
       </mesh>
-      <mesh position={[-baseWidth/2 + 0.5, -baseHeight - 0.025, -baseDepth/2 + 0.3]}>
-        <cylinderGeometry args={[0.15, 0.15, 0.05, 16]} />
-        <meshStandardMaterial color="#111111" roughness={1} />
+      <mesh position={[-baseWidth/2 + 0.5, -baseHeight - 0.05, -baseDepth/2 + 0.5]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.12, 16]} /> {/* Taller back feet */}
+        <meshPhysicalMaterial color="#050505" roughness={1} clearcoat={0.1} />
       </mesh>
 
-      {/* USB Cable */}
-      <group position={[0, -baseHeight/2, -baseDepth/2 - 0.1]} rotation={[Math.PI/2, 0, 0]}>
+      {/* USB Cable - braided style */}
+      <group position={[0, -baseHeight/2, -baseDepth/2 - 0.15]} rotation={[Math.PI/2, 0, 0]}>
+        {/* Cable core */}
         <mesh>
-          <cylinderGeometry args={[0.1, 0.1, 0.3, 8]} />
-          <meshStandardMaterial color="#222222" />
+          <cylinderGeometry args={[0.08, 0.08, 0.4, 12]} />
+          <meshPhysicalMaterial color="#111111" roughness={0.7} metalness={0.2} />
+        </mesh>
+
+        {/* Braided sleeve */}
+        <mesh>
+          <cylinderGeometry args={[0.1, 0.1, 0.38, 12]} />
+          <meshPhysicalMaterial
+            color="#222222"
+            roughness={0.9}
+            metalness={0.1}
+            clearcoat={0.2}
+            clearcoatRoughness={0.8}
+            wireframe={true}
+          />
         </mesh>
       </group>
 
       {/* Cable strain relief */}
       <mesh position={[0, -baseHeight/2, -baseDepth/2 - 0.05]} rotation={[Math.PI/2, 0, 0]}>
-        <cylinderGeometry args={[0.15, 0.12, 0.1, 16]} />
-        <meshStandardMaterial color="#333333" />
+        <cylinderGeometry args={[0.15, 0.12, 0.15, 16]} />
+        <meshPhysicalMaterial color="#0a0a0a" roughness={0.8} clearcoat={0.2} />
       </mesh>
     </group>
   );
@@ -638,7 +735,7 @@ interface KeyboardProps {
 
 const Keyboard = ({ onSelectKey, selectedKey, theme, performanceMode }: KeyboardProps) => {
   const keySpacing = 0.15;
-  const keySize: [number, number, number] = [1, 0.08, 1];
+  const keySize: [number, number, number] = [1, 0.35, 1]; // Taller keys for mechanical keyboard look
 
   // Use frame to create subtle floating animation
   const groupRef = useRef<THREE.Group>(null);
@@ -857,7 +954,7 @@ const SkillCard = ({ skill, isVisible, onClose }: SkillCardProps) => {
                 animate={{ width: `${skill.proficiency}%` }}
                 transition={{ duration: 1, ease: "easeOut" }}
                 className="h-full rounded-full"
-                style={{ backgroundColor: skill.color }}
+                style={{ backgroundColor: getProficiencyColor(skill.proficiency) }}
               />
             </div>
           </div>
@@ -925,19 +1022,19 @@ const KeyboardSkills = () => {
   // Add theme state with default theme
   const fallbackTheme: KeyboardTheme = {
     name: 'Default',
-    description: 'Default keyboard theme',
-    baseColor: '#333',
-    keycapColor: '#444',
-    textColor: '#fff',
-    accentColor: '#0f0',
-    metalness: 0.2,
-    roughness: 0.5,
-    rgbLight: false,
-    soundType: 'blue',
+    description: 'Default mechanical keyboard theme',
+    baseColor: '#111111', // Very dark gray, almost black for mechanical keyboard base
+    keycapColor: '#222222', // Dark gray for non-skill keycaps
+    textColor: '#ffffff',
+    accentColor: '#00ff88', // Bright green accent for RGB effects
+    metalness: 0.1, // Lower metalness for plastic-like appearance
+    roughness: 0.7, // Higher roughness for matte finish
+    rgbLight: true, // Enable RGB lighting effects
+    soundType: 'blue', // Clicky blue switch sound
     ambientLightColor: '#ffffff',
-    ambientLightIntensity: 0.5,
+    ambientLightIntensity: 0.6, // Slightly brighter ambient light
     spotLightColor: '#ffffff',
-    spotLightIntensity: 0.8,
+    spotLightIntensity: 1.0, // Brighter spotlight to highlight the sculpted keycaps
     environmentPreset: 'studio'
   };
 

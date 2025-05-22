@@ -1,15 +1,17 @@
 // Keyboard layout and configuration data
 
 // Key size definitions (width, height, depth)
+// All keys maintain 1u depth (z-dimension) for consistent mechanical keyboard layout
+// Height (y-dimension) is consistent at 0.35 for a taller, more mechanical profile
 export const KEY_SIZES: Record<string, [number, number, number]> = {
-  STANDARD: [1, 1, 1],      // Standard 1u key
-  WIDE_1_25: [1.25, 1, 1],  // 1.25u key (Ctrl, Win, Alt)
-  WIDE_1_5: [1.5, 1, 1],    // 1.5u key (Tab, Caps, etc)
-  WIDE_1_75: [1.75, 1, 1],  // 1.75u key (Caps Lock)
-  WIDE_2: [2, 1, 1],        // 2u key (Backspace)
-  WIDE_2_25: [2.25, 1, 1],  // 2.25u key (Left Shift, Enter)
-  WIDE_2_75: [2.75, 1, 1],  // 2.75u key (Right Shift)
-  SPACE: [3, 1, 1],      // Spacebar
+  STANDARD: [1, 0.35, 1],      // Standard 1u key (perfect square base)
+  WIDE_1_25: [1.25, 0.35, 1],  // 1.25u key (Ctrl, Win, Alt)
+  WIDE_1_5: [1.5, 0.35, 1],    // 1.5u key (Tab, Backslash)
+  WIDE_1_75: [1.75, 0.35, 1],  // 1.75u key (Caps Lock)
+  WIDE_2: [2, 0.35, 1],        // 2u key (Backspace)
+  WIDE_2_25: [2.25, 0.35, 1],  // 2.25u key (Left Shift, Enter)
+  WIDE_2_75: [2.75, 0.35, 1],  // 2.75u key (Right Shift)
+  SPACE: [6.25, 0.35, 1],      // Spacebar (6.25u standard size)
 };
 
 // Key type for physical properties
