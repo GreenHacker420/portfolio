@@ -85,7 +85,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h4 className="font-medium text-white">Email</h4>
-                  <p className="text-github-text">harsh_hirawat</p>
+                  <p className="text-github-text"><a href="mailto:harsh@greenhacker.tech">harsh@greenhacker.tech</a></p>
                 </div>
               </div>
 
@@ -119,7 +119,7 @@ const Contact = () => {
               <h3 className="text-xl font-bold text-white mb-4">Connect With Me</h3>
               <div className="flex space-x-4">
                 <a
-                  href="https://linkedin.com"
+                  href="https://www.linkedin.com/in/harsh-hirawat-b657061b7/"
                   target="_blank"
                   rel="noreferrer"
                   className="w-12 h-12 rounded-full bg-github-light flex items-center justify-center hover:bg-neon-blue/20 transition-colors"
@@ -129,7 +129,7 @@ const Contact = () => {
                   </svg>
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href="https://instagram.com/harsh_hirawat"
                   target="_blank"
                   rel="noreferrer"
                   className="w-12 h-12 rounded-full bg-github-light flex items-center justify-center hover:bg-neon-pink/20 transition-colors"
@@ -139,7 +139,7 @@ const Contact = () => {
                   </svg>
                 </a>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/GreenHacker420"
                   target="_blank"
                   rel="noreferrer"
                   className="w-12 h-12 rounded-full bg-github-light flex items-center justify-center hover:bg-white/10 transition-colors"
