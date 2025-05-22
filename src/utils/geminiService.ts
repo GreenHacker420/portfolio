@@ -5,11 +5,11 @@
 interface GeminiHighlightResponse {
   highlight: string;
   category: string;
-  icon: 'award' | 'book-open' | 'coffee';
+  icon: 'award' | 'book-open' | 'coffee';  // Fixed: strict union type
 }
 
 // Predefined set of highlight templates for simulation purposes
-const highlightTemplates = [
+const highlightTemplates: GeminiHighlightResponse[] = [
   {
     highlight: "Implemented serverless architecture using AWS Lambda, reducing operational costs by 40%",
     category: "Cloud Architecture",
