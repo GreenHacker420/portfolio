@@ -6,6 +6,8 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "ESNext",
+    "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"]
     },

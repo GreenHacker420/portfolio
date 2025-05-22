@@ -13,12 +13,12 @@ const Skills = () => {
   const [displayStyle, setDisplayStyle] = useState<'tabs' | 'keyboard'>('tabs');
   const skillsRef = useRef<HTMLDivElement>(null);
   const { categories, topSkills } = getSkillsData();
-  
+
   // Initialize GSAP animations when component mounts
   useEffect(() => {
     initScrollAnimations();
   }, []);
-  
+
   // Handle skill hover
   const onSkillHover = (element: HTMLElement, skill: string, isEntering: boolean) => {
     setHoveredSkill(isEntering ? skill : null);
@@ -43,20 +43,20 @@ const Skills = () => {
           Skills
         </motion.h2>
 
-        <DisplayToggle 
-          displayStyle={displayStyle} 
-          toggleDisplayStyle={toggleDisplayStyle} 
+        <DisplayToggle
+          displayStyle={displayStyle}
+          toggleDisplayStyle={toggleDisplayStyle}
         />
 
-        {displayStyle === 'keyboard' ? (
-          <KeyboardSkillsView />
-        ) : (
-          <TabSkillsView 
+        {displayStyle === 'tabs' ? (
+          <TabSkillsView
             categories={categories}
             topSkills={topSkills}
             hoveredSkill={hoveredSkill}
             onSkillHover={onSkillHover}
           />
+        ) : (
+          <KeyboardSkillsView />
         )}
       </div>
     </section>
