@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
+import * as THREE from 'three';
 import {
   OrbitControls,
   Environment,
