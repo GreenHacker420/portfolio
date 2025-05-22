@@ -86,8 +86,8 @@ const Chatbot = () => {
     { 
       type: 'bot', 
       content: [
-        '👋 Hi there! I\'m Green Hacker\'s AI assistant.',
-        'I can tell you about Green Hacker, their skills, projects, or how to get in touch.',
+        '👋 Hi there! I\'m GREENHACKER\'s AI assistant.',
+        'I can tell you about GREENHACKER, their skills, projects, or how to get in touch.',
         'Type "help" to see what I can do!'
       ] 
     }
@@ -157,11 +157,11 @@ const Chatbot = () => {
     } else if (lowercaseInput.includes('thanks') || lowercaseInput.includes('thank you')) {
       return ['You\'re welcome! Anything else you\'d like to know?'];
     } else if (lowercaseInput.includes('experience') || lowercaseInput.includes('work')) {
-      return ['Green Hacker has over 5 years of experience in full-stack development and machine learning projects.', 'They\'ve worked with startups and enterprise companies on various AI-powered applications.'];
+      return ['GREENHACKER has over 5 years of experience in full-stack development and machine learning projects.', 'They\'ve worked with startups and enterprise companies on various AI-powered applications.'];
     } else if (lowercaseInput.includes('education')) {
-      return ['Green Hacker has a Master\'s degree in Computer Science with a specialization in Artificial Intelligence.', 'They\'re also continually learning through courses and self-study.'];
+      return ['GREENHACKER has a Master\'s degree in Computer Science with a specialization in Artificial Intelligence.', 'They\'re also continually learning through courses and self-study.'];
     } else if (lowercaseInput.includes('name')) {
-      return ['My name is GreenBot! I\'m Green Hacker\'s AI assistant.'];
+      return ['My name is GreenBot! I\'m GREENHACKER\'s AI assistant.'];
     } else {
       return ['I\'m not sure I understand that query.', 'Type "help" to see what commands are available.'];
     }
@@ -201,7 +201,7 @@ const Chatbot = () => {
             <div className="flex items-center justify-between p-3 border-b border-neon-green/30 bg-black">
               <div className="flex items-center">
                 <Terminal className="text-neon-green mr-2" size={18} />
-                <h3 className="text-neon-green font-mono text-sm">GreenBot Terminal</h3>
+                <h3 className="text-neon-green font-mono text-sm">GREENHACKER Terminal</h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button 
@@ -232,7 +232,7 @@ const Chatbot = () => {
                       ))}
                     </div>
                     <p className="text-xs text-github-text mt-1">
-                      {message.type === 'user' ? 'You' : 'GreenBot'} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {message.type === 'user' ? 'You' : 'GREENHACKER Bot'} • {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 ))}

@@ -13,6 +13,7 @@ import Experience from "../components/sections/Experience";
 import Stats from "../components/sections/Stats";
 import Contact from "../components/sections/Contact";
 import Resume from "../components/sections/Resume";
+import Chatbot from "../components/sections/Chatbot";
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import { 
   initSmoothScrolling, 
@@ -49,7 +50,7 @@ const SafeSection = ({ children, name }: { children: React.ReactNode; name: stri
 
 const Index = () => {
   useEffect(() => {
-    document.title = "GreenHacker | Developer Portfolio";
+    document.title = "GREENHACKER | Developer Portfolio";
     
     // Initialize GSAP animations
     initSmoothScrolling();
@@ -117,6 +118,7 @@ const Index = () => {
           <Contact />
         </SafeSection>
       </main>
+      <Chatbot />
       <Footer />
     </div>
   );
