@@ -1,3 +1,4 @@
+
 // Utility functions for keyboard animations and effects
 
 import { MathUtils } from 'three';
@@ -54,7 +55,7 @@ export const hslToRgb = (h: number, s: number, l: number): [number, number, numb
 
 // Calculate key color based on theme, position, and time
 export const calculateKeyColor = (
-  theme: RGBTheme,
+  theme: any,
   x: number,
   y: number,
   time: number,
@@ -62,7 +63,7 @@ export const calculateKeyColor = (
   isSkillKey: boolean = false
 ): [number, number, number] => {
   // Base intensity from theme
-  let intensity = theme.intensity;
+  let intensity = theme.intensity || 0.8;
   
   // Increase intensity for pressed keys
   if (isPressed) {
@@ -77,13 +78,13 @@ export const calculateKeyColor = (
   // Calculate color based on theme type
   switch (theme.keyColors) {
     case 'rainbow':
-      const rainbowColor = getRainbowColor(x, y, time, theme.speed);
+      const rainbowColor = getRainbowColor(x, y, time, theme.speed || 1);
       return rainbowColor.map(c => c * intensity) as [number, number, number];
     
     case 'gradient':
       const baseRgb = hexToRgb(theme.baseColor);
       const accentRgb = hexToRgb(theme.accentColor);
-      const gradientFactor = (Math.sin(x * 0.5 + time * theme.speed) + 1) / 2;
+      const gradientFactor = (Math.sin(x * 0.5 + time * (theme.speed || 1)) + 1) / 2;
       return [
         MathUtils.lerp(baseRgb[0], accentRgb[0], gradientFactor) * intensity,
         MathUtils.lerp(baseRgb[1], accentRgb[1], gradientFactor) * intensity,
@@ -106,7 +107,7 @@ export const calculateKeyColor = (
       
       // Apply breathing effect if theme animation is breathing
       if (theme.animation === 'breathing') {
-        const breathFactor = (Math.sin(time * theme.speed) + 1) / 2;
+        const breathFactor = (Math.sin(time * (theme.speed || 0.5)) + 1) / 2;
         intensity *= 0.3 + breathFactor * 0.7;
       }
       

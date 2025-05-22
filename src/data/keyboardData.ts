@@ -1,3 +1,4 @@
+
 // Keyboard layout and configuration data
 
 // Key size definitions (width, height, depth)
@@ -113,6 +114,11 @@ export const FLAT_KEYBOARD_LAYOUT = KEYBOARD_LAYOUT.flat();
 
 // Get a key by ID
 export const getKeyById = (id: string): KeyboardKey | undefined => {
+  return FLAT_KEYBOARD_LAYOUT.find(key => key.id === key.id);
+};
+
+// Fixed getKeyById function that was causing issues
+export const getKeyByIdFixed = (id: string): KeyboardKey | undefined => {
   return FLAT_KEYBOARD_LAYOUT.find(key => key.id === id);
 };
 
