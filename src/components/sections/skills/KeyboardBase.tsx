@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTexture } from '@react-three/drei';
 import { MeshStandardMaterial } from 'three';
@@ -62,9 +63,9 @@ const KeyboardBase: React.FC<KeyboardBaseProps> = ({
   const bottomDepth = depth * 0.1;
   
   // Calculate positions
-  const basePosition = [0, 0, 0];
-  const edgePosition = [0, 0, -baseDepth / 2 - edgeDepth / 2];
-  const bottomPosition = [0, 0, -baseDepth / 2 - edgeDepth - bottomDepth / 2];
+  const basePosition: [number, number, number] = [0, 0, 0];
+  const edgePosition: [number, number, number] = [0, 0, -baseDepth / 2 - edgeDepth / 2];
+  const bottomPosition: [number, number, number] = [0, 0, -baseDepth / 2 - edgeDepth - bottomDepth / 2];
 
   return (
     <group>
@@ -109,7 +110,7 @@ const KeyboardBase: React.FC<KeyboardBaseProps> = ({
             bottomPosition[0] + pos[0], 
             bottomPosition[1] + pos[1], 
             bottomPosition[2] + pos[2]
-          ]}
+          ] as [number, number, number]}
         >
           <cylinderGeometry args={[0.2, 0.2, 0.1, 16]} />
           <meshStandardMaterial color="#111111" roughness={1} />

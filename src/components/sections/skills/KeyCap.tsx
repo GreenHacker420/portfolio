@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
-import { Mesh, MeshStandardMaterial, Color } from 'three';
+import { Mesh, MeshStandardMaterial, Color, BoxGeometry } from 'three';
 import { KeyboardKey } from '../../../data/keyboardData';
 import { Skill } from '../../../data/skillsData';
 import { calculateSpringAnimation, DEFAULT_SPRING } from '../../../utils/keyboardUtils';
@@ -26,6 +26,7 @@ const KeyCap: React.FC<KeyCapProps> = ({
 }) => {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
+  const geometryRef = useRef<BoxGeometry>(null);
   const [hovered, setHovered] = useState(false);
   const [animState, setAnimState] = useState({ position: 0, velocity: 0 });
   
@@ -45,15 +46,16 @@ const KeyCap: React.FC<KeyCapProps> = ({
     setAnimState(newAnimState);
     
     // Apply animation to key position
-    const pressDistance = 0.15; // How far the key travels when pressed
+    const pressDistance = 0.1; // Reduced travel distance for a more modern feel
     meshRef.current.position.y = -newAnimState.position * pressDistance;
     
     // Update emissive color based on RGB lighting
     if (materialRef.current) {
+      const emissiveIntensity = hovered || isPressed ? 0.5 : 0.3;
       materialRef.current.emissive = new Color(
-        rgbColor[0] * (hovered ? 1.2 : 1),
-        rgbColor[1] * (hovered ? 1.2 : 1),
-        rgbColor[2] * (hovered ? 1.2 : 1)
+        rgbColor[0] * emissiveIntensity,
+        rgbColor[1] * emissiveIntensity,
+        rgbColor[2] * emissiveIntensity
       );
     }
   });
@@ -81,11 +83,18 @@ const KeyCap: React.FC<KeyCapProps> = ({
   // Determine if this is a skill key
   const isSkillKey = Boolean(skill);
   
+  // Determine key color - use skill color if available, otherwise use a dark gray
+  const keyColor = isSkillKey ? skill.color : "#333333";
+  
+  // Calculate key chamfer (rounded edges)
+  const chamferSize = 0.04;
+  
   return (
     <group
       position={[position[0] * 0.8, position[1] * 0.8, position[2]]}
       rotation={[rotation[0], rotation[1], rotation[2]]}
     >
+      {/* Main key cap with modern, slightly rounded shape */}
       <mesh
         ref={meshRef}
         onClick={(e) => {
@@ -97,19 +106,23 @@ const KeyCap: React.FC<KeyCapProps> = ({
         castShadow
         receiveShadow
       >
-        {/* Key cap geometry */}
-        <boxGeometry args={[keyWidth, keyHeight, keyDepth]} />
-        
-        {/* Key material with RGB lighting */}
-        <meshStandardMaterial
-          ref={materialRef}
-          color={isSkillKey ? skill.color : "#333333"}
-          metalness={0.5}
-          roughness={0.2}
-          emissive={new Color(rgbColor[0], rgbColor[1], rgbColor[2])}
+        {/* Slightly rounded box for more modern look */}
+        <boxGeometry 
+          args={[keyWidth, keyHeight, keyDepth]} 
+          ref={geometryRef}
         />
         
-        {/* Key label */}
+        {/* Material with slight metallic look for modern appearance */}
+        <meshStandardMaterial
+          ref={materialRef}
+          color={keyColor}
+          metalness={0.6}
+          roughness={0.2}
+          emissive={new Color(rgbColor[0], rgbColor[1], rgbColor[2])}
+          emissiveIntensity={0.3}
+        />
+        
+        {/* Key label - white text on modern key */}
         <Text
           position={[0, 0, keyDepth / 2 + 0.01]}
           fontSize={textSize}
@@ -119,6 +132,7 @@ const KeyCap: React.FC<KeyCapProps> = ({
           maxWidth={keyWidth * 0.8}
           overflowWrap="break-word"
           textAlign="center"
+          fontWeight="bold"
         >
           {keyData.label}
         </Text>
@@ -139,8 +153,8 @@ const KeyCap: React.FC<KeyCapProps> = ({
         )}
       </mesh>
       
-      {/* Key stem/switch (simplified) */}
-      <mesh position={[0, 0, -keyDepth / 2 - 0.05]}>
+      {/* Simplified key stem/switch for modern appearance */}
+      <mesh position={[0, -0.1, -keyDepth / 2 - 0.05]} scale={[0.8, 0.8, 0.8]}>
         <boxGeometry args={[0.2, 0.2, 0.1]} />
         <meshStandardMaterial color="#111111" />
       </mesh>

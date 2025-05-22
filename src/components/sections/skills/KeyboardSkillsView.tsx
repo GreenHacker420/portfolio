@@ -21,18 +21,31 @@ const KeyboardSkillsView = () => {
         transition={{ duration: 0.5 }}
         className="my-4 w-full flex flex-col items-center justify-center"
       >
+        {/* Display selected skill info at the top */}
+        {selectedSkill && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 text-center"
+          >
+            <h3 className="text-2xl font-bold text-white mb-2">{selectedSkill.name}</h3>
+            <p className="text-github-text max-w-xl">{selectedSkill.description}</p>
+          </motion.div>
+        )}
+        
         <div className="w-full max-w-4xl mx-auto">
           <KeyboardSkills onSkillSelect={handleSkillSelect} />
         </div>
       </motion.div>
       
+      {/* Hint text */}
       <motion.div 
-        className="text-center mt-2 text-github-text"
+        className="text-center mt-6 text-white/80 font-medium"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <p className="text-neon-green">(press a key to view skill details)</p>
+        <p>(hint: press a key)</p>
       </motion.div>
     </>
   );
