@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { Skill } from '../../../data/skillsData';
@@ -7,6 +6,7 @@ import { Application } from '@splinetool/runtime';
 import { toast } from '@/components/ui/use-toast';
 import { skills, skillsMap, getSkillById } from '../../../data/skillsData';
 import { KEYBOARD_LAYOUT, getKeyByIdFixed } from '../../../data/keyboardData';
+import LoadingScreen from './keyboard/LoadingScreen';
 
 // Skill card component to display when a key is pressed
 interface SkillCardProps {
@@ -173,6 +173,7 @@ const KeyboardSkillsView = () => {
         const keyObject = splineApp.findObjectByName(keyId);
         
         if (keyObject) {
+          // Use on:click event instead of addEventListener for Spline objects
           keyObject.addEventListener('mouseDown', () => {
             handleKeyPress(keyId);
           });
@@ -292,18 +293,11 @@ const KeyboardSkillsView = () => {
         {/* Spline 3D keyboard */}
         <div className="w-full max-w-4xl mx-auto relative h-[600px]">
           {/* Loading overlay */}
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-github-dark/50 z-10 rounded-lg">
-              <div className="flex flex-col items-center">
-                <div className="w-16 h-16 border-4 border-neon-green border-t-transparent rounded-full animate-spin mb-4"></div>
-                <p className="text-white text-lg">Loading Keyboard...</p>
-              </div>
-            </div>
-          )}
+          {loading && <LoadingScreen />}
           
-          {/* Spline component */}
+          {/* Spline component with the new URL */}
           <Spline 
-            scene="https://prod.spline.design/keyboard.splinecode" 
+            scene="https://prod.spline.design/bnffRvBtBHvfSiOW/scene.splinecode" 
             onLoad={onSplineLoad}
             style={{ width: '100%', height: '100%' }}
           />
