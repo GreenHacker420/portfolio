@@ -39,18 +39,21 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    
+
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     // Check if user is on mobile device
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     // Check if user has already seen the loading screen
     const hasLoadingBeenShown = sessionStorage.getItem('loadingShown');
-    
+
     if (hasLoadingBeenShown) {
       setIsLoading(false);
     } else {
@@ -61,22 +64,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
           sessionStorage.setItem('loadingShown', 'true');
         }, 1000);
       };
-      
+
       window.addEventListener('loadingComplete', handleLoadingComplete);
-      
+
       // Fallback in case loading screen gets stuck
       const timeout = setTimeout(() => {
         setIsLoading(false);
         sessionStorage.setItem('loadingShown', 'true');
       }, 12000);
-      
+
       return () => {
         window.removeEventListener('loadingComplete', handleLoadingComplete);
         window.removeEventListener('resize', checkMobile);
         clearTimeout(timeout);
       };
     }
-    
+
     return () => {
       window.removeEventListener('resize', checkMobile);
     };
@@ -92,17 +95,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          
+
           {isLoading && <LoadingScreen />}
-          
+
           {/* Add reactive background for global effect */}
           <ReactiveBackground />
-          
+
           {/* Only show custom cursor on desktop */}
           {!isMobile && <AnimatedCursor />}
-          
+
           {children}
-          
+
           <Chatbot />
         </TooltipProvider>
       </QueryClientProvider>

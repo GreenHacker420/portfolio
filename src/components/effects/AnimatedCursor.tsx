@@ -10,6 +10,9 @@ const AnimatedCursor = () => {
   const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof document === 'undefined') return;
+
     const handleMouseMove = (e: MouseEvent) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
@@ -20,11 +23,15 @@ const AnimatedCursor = () => {
     };
 
     const handleMouseEnter = () => {
-      document.body.style.cursor = 'none';
+      if (typeof document !== 'undefined') {
+        document.body.style.cursor = 'none';
+      }
     };
 
     const handleMouseLeave = () => {
-      document.body.style.cursor = 'auto';
+      if (typeof document !== 'undefined') {
+        document.body.style.cursor = 'auto';
+      }
     };
 
     // Add hover detection for interactive elements
@@ -51,7 +58,9 @@ const AnimatedCursor = () => {
       document.removeEventListener('mouseenter', handleMouseEnter);
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseover', handleMouseOver);
-      document.body.style.cursor = 'auto';
+      if (typeof document !== 'undefined') {
+        document.body.style.cursor = 'auto';
+      }
     };
   }, []);
 

@@ -138,7 +138,7 @@ const WebVitals = () => {
 
     // Track page visibility changes
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
+      if (typeof document !== 'undefined' && document.visibilityState === 'hidden') {
         trackEvent({
           action: 'page_hidden',
           category: 'engagement',
@@ -153,7 +153,9 @@ const WebVitals = () => {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    }
 
     // Track user engagement time
     let startTime = Date.now();
@@ -188,21 +190,29 @@ const WebVitals = () => {
     };
 
     // Listen for user activity
-    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-      document.addEventListener(event, handleUserActive, { passive: true });
-    });
+    if (typeof document !== 'undefined') {
+      ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+        document.addEventListener(event, handleUserActive, { passive: true });
+      });
+    }
 
     // Track when user leaves the page
-    window.addEventListener('beforeunload', handleUserInactive);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', handleUserInactive);
+    }
 
     // Cleanup
     return () => {
       observer.disconnect();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleUserInactive);
-      ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
-        document.removeEventListener(event, handleUserActive);
-      });
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+          document.removeEventListener(event, handleUserActive);
+        });
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('beforeunload', handleUserInactive);
+      }
     };
   }, []);
 

@@ -4,6 +4,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Send, X, Maximize2, Minimize2 } from 'lucide-react';
+import { trackEvent, portfolioEvents } from '@/components/analytics/GoogleAnalytics';
 
 // Chatbot commands and responses
 const COMMANDS = {
@@ -112,7 +113,13 @@ const Chatbot = () => {
   }, [isOpen]);
 
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    const newState = !isOpen;
+    setIsOpen(newState);
+
+    // Track chat interactions
+    if (newState) {
+      trackEvent(portfolioEvents.aiChatStart);
+    }
   };
 
   const toggleExpand = () => {
@@ -158,6 +165,11 @@ const Chatbot = () => {
   };
 
   const generateAIResponse = async (input: string) => {
+    // Check if we're on the client side
+    if (typeof window === 'undefined') {
+      return getFallbackResponse(input);
+    }
+
     try {
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
@@ -230,6 +242,9 @@ const Chatbot = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
+      // Track message sending
+      trackEvent(portfolioEvents.aiChatMessage);
+
       processCommand(input);
       setInput('');
     }
