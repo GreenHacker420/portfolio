@@ -12,7 +12,10 @@ const Hero = () => {
   const heroRef = useRef<HTMLElement>(null);
   
   useEffect(() => {
-    setMounted(true);
+    // Delay mounting to ensure DOM is ready
+    const timer = setTimeout(() => {
+      setMounted(true);
+    }, 100);
     
     // Fix hero height to properly fill viewport
     const updateHeight = () => {
@@ -27,16 +30,20 @@ const Hero = () => {
     
     // Update on resize
     window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateHeight);
+    };
   }, []);
 
   return (
     <section id="home" ref={heroRef} className="relative flex items-center overflow-hidden">
-      {/* Three.js Background with Error Boundary */}
-      <ThreeDBackground mounted={mounted} />
-      
-      {/* Animated gradient background as fallback for 3D scene */}
+      {/* Always show fallback background */}
       <ThreeFallback />
+      
+      {/* Three.js Background with Error Boundary - overlaid on top */}
+      {mounted && <ThreeDBackground mounted={mounted} />}
       
       <div className="section-container relative z-10">
         <IntroMessage />

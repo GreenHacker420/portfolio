@@ -168,15 +168,21 @@ const KeyboardSkillsView = () => {
       // Find all keyboard keys in the Spline model
       const keyObjects = KEYBOARD_LAYOUT.flatMap(row => row.map(key => key.id));
       
-      // Set up interaction handlers for each key
+      // Set up interaction handlers for each key - using Spline's event system
       keyObjects.forEach(keyId => {
-        const keyObject = splineApp.findObjectByName(keyId);
-        
-        if (keyObject) {
-          // Use on:click event instead of addEventListener for Spline objects
-          keyObject.addEventListener('mouseDown', () => {
-            handleKeyPress(keyId);
-          });
+        try {
+          const keyObject = splineApp.findObjectByName(keyId);
+          
+          if (keyObject) {
+            // Use Spline's emitEvent system for interactions
+            splineApp.addEventListener('mouseDown', (e) => {
+              if (e.target && e.target.name === keyId) {
+                handleKeyPress(keyId);
+              }
+            });
+          }
+        } catch (keyErr) {
+          console.warn(`Could not set up interaction for key: ${keyId}`, keyErr);
         }
       });
       

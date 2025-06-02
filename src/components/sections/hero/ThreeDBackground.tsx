@@ -14,7 +14,12 @@ interface ThreeDBackgroundProps {
 const ThreeDBackground = ({ mounted }: ThreeDBackgroundProps) => {
   return (
     <div className="absolute inset-0 z-0">
-      <ErrorBoundary fallback={<ThreeFallback />}>
+      <ErrorBoundary 
+        fallback={<ThreeFallback />}
+        onError={(error, errorInfo) => {
+          console.error('3D Background Error:', error, errorInfo);
+        }}
+      >
         <Suspense fallback={<ThreeFallback />}>
           {mounted && (
             <Canvas 
@@ -24,7 +29,17 @@ const ThreeDBackground = ({ mounted }: ThreeDBackgroundProps) => {
               gl={{ 
                 antialias: true,
                 alpha: true,
-                powerPreference: 'high-performance'
+                powerPreference: 'high-performance',
+                preserveDrawingBuffer: false,
+                failIfMajorPerformanceCaveat: false
+              }}
+              onCreated={({ gl }) => {
+                // Ensure WebGL context is properly initialized
+                gl.setClearColor(0x000000, 0);
+                console.log('3D Canvas initialized successfully');
+              }}
+              onError={(error) => {
+                console.error('Canvas error:', error);
               }}
             >
               <InteractiveThreeScene />
