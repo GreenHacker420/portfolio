@@ -1,8 +1,10 @@
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +12,29 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
 User-agent: *
 Allow: /
+Crawl-delay: 2
+
+# Sitemap location
+Sitemap: https://greenhacker.tech/sitemap.xml
+
+# Disallow crawling of API routes that don't need indexing
+Disallow: /api/
+Allow: /api/github/stats
+
+# Allow all static assets
+Allow: /images/
+Allow: /fonts/
+Allow: /sounds/
+Allow: /_next/static/
+Allow: /resume.pdf

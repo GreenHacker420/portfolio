@@ -4,12 +4,57 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
+import { RefreshCw, Github, Star, GitFork, Users, Calendar } from 'lucide-react';
 
 import { animateGithubGraph } from '../../utils/animation';
+
+interface GitHubProfile {
+  login: string;
+  name: string;
+  bio: string;
+  avatar_url: string;
+  html_url: string;
+  public_repos: number;
+  followers: number;
+  following: number;
+  created_at: string;
+  updated_at: string;
+  location: string;
+  blog: string;
+  twitter_username: string;
+  company: string;
+}
+
+interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string;
+  html_url: string;
+  homepage: string;
+  language: string;
+  stargazers_count: number;
+  forks_count: number;
+  watchers_count: number;
+  size: number;
+  created_at: string;
+  updated_at: string;
+  pushed_at: string;
+  topics: string[];
+  license: string;
+  default_branch: string;
+  open_issues_count: number;
+}
 
 const Stats = () => {
   const [activeTab, setActiveTab] = useState('contributions');
   const graphRef = useRef<HTMLDivElement>(null);
+  const [githubProfile, setGithubProfile] = useState<GitHubProfile | null>(null);
+  const [githubRepos, setGithubRepos] = useState<GitHubRepo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Animate GitHub contributions graph when it comes into view
   useEffect(() => {
@@ -17,6 +62,67 @@ const Stats = () => {
       animateGithubGraph();
     }
   }, [graphRef.current]);
+
+  // Fetch GitHub data on component mount
+  useEffect(() => {
+    fetchGitHubData();
+  }, []);
+
+  const fetchGitHubData = async () => {
+    try {
+      setError(null);
+
+      // Fetch profile and repos in parallel
+      const [profileResponse, reposResponse] = await Promise.all([
+        fetch('/api/github/profile'),
+        fetch('/api/github/repos')
+      ]);
+
+      if (!profileResponse.ok || !reposResponse.ok) {
+        throw new Error('Failed to fetch GitHub data');
+      }
+
+      const profileData = await profileResponse.json();
+      const reposData = await reposResponse.json();
+
+      if (profileData.success) {
+        setGithubProfile(profileData.data);
+      }
+
+      if (reposData.repos) {
+        setGithubRepos(reposData.repos);
+      }
+
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error('Error fetching GitHub data:', error);
+      setError('Failed to load GitHub stats. Using cached data.');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchGitHubData();
+  };
+
+  const calculateYearsOfCoding = () => {
+    if (!githubProfile?.created_at) return 0;
+    const createdDate = new Date(githubProfile.created_at);
+    const now = new Date();
+    const years = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+    return Math.floor(years);
+  };
+
+  const calculateTotalStars = () => {
+    return githubRepos.reduce((total, repo) => total + repo.stargazers_count, 0);
+  };
+
+  const calculateTotalForks = () => {
+    return githubRepos.reduce((total, repo) => total + repo.forks_count, 0);
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -75,15 +181,36 @@ const Stats = () => {
   return (
     <section id="stats" className="py-20 bg-github-light">
       <div className="section-container">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="section-title"
-        >
-          GitHub Stats
-        </motion.h2>
+        <div className="flex items-center justify-between mb-8">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="section-title"
+          >
+            GitHub Stats
+          </motion.h2>
+
+          <div className="flex items-center gap-4">
+            {error && (
+              <span className="text-red-400 text-sm">{error}</span>
+            )}
+            {lastUpdated && (
+              <span className="text-github-text text-sm">
+                Updated: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
+            <button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-2 px-3 py-1 bg-github-dark border border-github-border rounded-md text-github-text hover:text-white hover:border-neon-green transition-colors disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={isRefreshing ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
+        </div>
 
         <div className="mb-10 flex justify-center">
           <div className="flex rounded-lg overflow-hidden border border-github-border">
@@ -116,14 +243,25 @@ const Stats = () => {
           className="grid grid-cols-1 lg:grid-cols-2 gap-8"
         >
           <motion.div variants={itemVariants} className="bg-github-dark p-6 rounded-xl border border-github-border">
-            <h3 className="text-xl font-bold text-white mb-6">Green Hacker's GitHub Stats</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-bold text-white">Real-time GitHub Stats</h3>
+              {isLoading && (
+                <div className="flex items-center gap-2 text-github-text">
+                  <RefreshCw size={16} className="animate-spin" />
+                  <span className="text-sm">Loading...</span>
+                </div>
+              )}
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
-                <p className="text-sm text-github-text">Total Stars Earned:</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Star className="text-yellow-400" size={16} />
+                  <p className="text-sm text-github-text">Total Stars:</p>
+                </div>
                 <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
@@ -131,14 +269,18 @@ const Stats = () => {
                   transition={{ duration: 1 }}
                   viewport={{ once: true }}
                 >
-                  {githubStats.stars}
+                  {isLoading ? '...' : calculateTotalStars()}
                 </motion.p>
               </motion.div>
+
               <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
-                <p className="text-sm text-github-text">Total Commits (2025):</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <GitFork className="text-blue-400" size={16} />
+                  <p className="text-sm text-github-text">Total Forks:</p>
+                </div>
                 <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
@@ -146,14 +288,18 @@ const Stats = () => {
                   transition={{ duration: 1 }}
                   viewport={{ once: true }}
                 >
-                  {githubStats.commits}
+                  {isLoading ? '...' : calculateTotalForks()}
                 </motion.p>
               </motion.div>
+
               <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
-                <p className="text-sm text-github-text">Total PRs:</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="text-green-400" size={16} />
+                  <p className="text-sm text-github-text">Followers:</p>
+                </div>
                 <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
@@ -161,14 +307,18 @@ const Stats = () => {
                   transition={{ duration: 1 }}
                   viewport={{ once: true }}
                 >
-                  {githubStats.prs}
+                  {isLoading ? '...' : githubProfile?.followers || 0}
                 </motion.p>
               </motion.div>
+
               <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
-                <p className="text-sm text-github-text">Total Issues:</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="text-purple-400" size={16} />
+                  <p className="text-sm text-github-text">Years Coding:</p>
+                </div>
                 <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
@@ -176,14 +326,18 @@ const Stats = () => {
                   transition={{ duration: 1 }}
                   viewport={{ once: true }}
                 >
-                  {githubStats.issues}
+                  {isLoading ? '...' : calculateYearsOfCoding()}
                 </motion.p>
               </motion.div>
+
               <motion.div
                 className="p-4 bg-github-light/50 rounded-lg col-span-2 hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
-                <p className="text-sm text-github-text">Contributed to (last year):</p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Github className="text-neon-green" size={16} />
+                  <p className="text-sm text-github-text">Public Repositories:</p>
+                </div>
                 <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
@@ -191,7 +345,7 @@ const Stats = () => {
                   transition={{ duration: 1 }}
                   viewport={{ once: true }}
                 >
-                  {githubStats.contributions} Open Source Projects
+                  {isLoading ? '...' : githubProfile?.public_repos || 0}
                 </motion.p>
               </motion.div>
             </div>
@@ -318,31 +472,62 @@ const Stats = () => {
                 <h3 className="text-xl font-bold text-white mb-6">Top Repositories</h3>
 
                 <div className="space-y-4">
-                  {repoData.map((repo, index) => (
-                    <motion.div
-                      key={index}
-                      className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light cursor-pointer transition-colors"
-                      whileHover={{ x: 5 }}
-                    >
-                      <div className="flex justify-between items-center">
-                        <h4 className="text-neon-green font-medium">{repo.name}</h4>
-                        <div className="flex space-x-3 text-github-text">
-                          <span className="flex items-center text-sm">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
-                            </svg>
-                            {repo.stars}
-                          </span>
-                          <span className="flex items-center text-sm">
-                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                            </svg>
-                            {repo.forks}
-                          </span>
+                  {isLoading ? (
+                    <div className="text-center py-8">
+                      <RefreshCw className="animate-spin mx-auto mb-2" size={24} />
+                      <p className="text-github-text">Loading repositories...</p>
+                    </div>
+                  ) : (
+                    githubRepos.slice(0, 5).map((repo, index) => (
+                      <motion.div
+                        key={repo.id}
+                        className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light cursor-pointer transition-colors"
+                        whileHover={{ x: 5 }}
+                        onClick={() => window.open(repo.html_url, '_blank')}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="text-neon-green font-medium">{repo.name}</h4>
+                            <p className="text-sm text-github-text mt-1 line-clamp-2">
+                              {repo.description || 'No description available'}
+                            </p>
+                            {repo.language && (
+                              <span className="inline-block mt-2 px-2 py-1 bg-github-dark rounded text-xs text-github-text">
+                                {repo.language}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex space-x-3 text-github-text">
+                            <span className="flex items-center text-sm">
+                              <Star className="w-4 h-4 mr-1 text-yellow-400" />
+                              {repo.stargazers_count}
+                            </span>
+                            <span className="flex items-center text-sm">
+                              <GitFork className="w-4 h-4 mr-1 text-blue-400" />
+                              {repo.forks_count}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                        {repo.topics && repo.topics.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {repo.topics.slice(0, 3).map((topic, topicIndex) => (
+                              <span
+                                key={topicIndex}
+                                className="px-2 py-1 bg-neon-green/10 text-neon-green rounded text-xs"
+                              >
+                                {topic}
+                              </span>
+                            ))}
+                            {repo.topics.length > 3 && (
+                              <span className="px-2 py-1 bg-github-dark text-github-text rounded text-xs">
+                                +{repo.topics.length - 3} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </motion.div>
+                    ))
+                  )}
                 </div>
               </>
             )}

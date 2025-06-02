@@ -138,20 +138,78 @@ const Chatbot = () => {
       return;
     }
 
-    // Simulate an AI-generated response for unknown commands
+    // Generate AI response for unknown commands
     setMessages([...messages, { type: 'user', content: [command] }]);
     setIsTyping(true);
 
-    // Simulate typing delay
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(command);
-      setMessages(prev => [...prev, { type: 'bot', content: aiResponse }]);
-      setIsTyping(false);
+    // Call AI API with proper async handling
+    setTimeout(async () => {
+      try {
+        const aiResponse = await generateAIResponse(command);
+        setMessages(prev => [...prev, { type: 'bot', content: aiResponse }]);
+      } catch (error) {
+        console.error('AI response error:', error);
+        const fallbackResponse = getFallbackResponse(command);
+        setMessages(prev => [...prev, { type: 'bot', content: fallbackResponse }]);
+      } finally {
+        setIsTyping(false);
+      }
     }, 1000 + Math.random() * 1000);
   };
 
-  const generateAIResponse = (input: string) => {
-    // This is a simple simulation - in a real app, you'd call an API like Gemini
+  const generateAIResponse = async (input: string) => {
+    try {
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: input,
+          context: 'Terminal interface - GREENHACKER portfolio inquiry'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Format response for terminal display
+        return formatTerminalResponse(data.response);
+      } else {
+        throw new Error(data.error || 'Failed to get AI response');
+      }
+    } catch (error) {
+      console.error('Terminal AI error:', error);
+      // Fallback to local responses
+      return getFallbackResponse(input);
+    }
+  };
+
+  const formatTerminalResponse = (response: string) => {
+    // Split long responses into multiple lines for better terminal display
+    const maxLineLength = 60;
+    const words = response.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    for (const word of words) {
+      if (currentLine.length + word.length + 1 <= maxLineLength) {
+        currentLine += (currentLine ? ' ' : '') + word;
+      } else {
+        if (currentLine) lines.push(currentLine);
+        currentLine = word;
+      }
+    }
+    if (currentLine) lines.push(currentLine);
+
+    return lines;
+  };
+
+  const getFallbackResponse = (input: string) => {
     const lowercaseInput = input.toLowerCase();
 
     if (lowercaseInput.includes('hi') || lowercaseInput.includes('hello') || lowercaseInput.includes('hey')) {
@@ -159,13 +217,13 @@ const Chatbot = () => {
     } else if (lowercaseInput.includes('thanks') || lowercaseInput.includes('thank you')) {
       return ['You\'re welcome! Anything else you\'d like to know?'];
     } else if (lowercaseInput.includes('experience') || lowercaseInput.includes('work')) {
-      return ['GREENHACKER has over 5 years of experience in full-stack development and machine learning projects.', 'They\'ve worked with startups and enterprise companies on various AI-powered applications.'];
+      return ['GREENHACKER has extensive experience in full-stack', 'development and machine learning projects.', 'They\'ve worked on various AI-powered applications.'];
     } else if (lowercaseInput.includes('education')) {
-      return ['GREENHACKER has a Master\'s degree in Computer Science with a specialization in Artificial Intelligence.', 'They\'re also continually learning through courses and self-study.'];
+      return ['GREENHACKER has strong technical education and', 'continuously learns new technologies.', 'They specialize in AI and web development.'];
     } else if (lowercaseInput.includes('name')) {
       return ['My name is GreenBot! I\'m GREENHACKER\'s AI assistant.'];
     } else {
-      return ['I\'m not sure I understand that query.', 'Type "help" to see what commands are available.'];
+      return ['I\'m not sure I understand that query.', 'Type "help" to see what commands are available.', 'Or ask me about GREENHACKER\'s skills and projects!'];
     }
   };
 

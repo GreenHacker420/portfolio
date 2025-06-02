@@ -1,22 +1,97 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
-import { Download, Eye, FileText, X } from 'lucide-react';
+import { Download, Eye, FileText, X, RefreshCw, ExternalLink, AlertCircle } from 'lucide-react';
+import { trackEvent, portfolioEvents } from '@/components/analytics/GoogleAnalytics';
 
 // Resume URL - replace with your actual resume URL
 const RESUME_URL = '/resume.pdf';
 
+interface PDFViewerState {
+  loading: boolean;
+  error: boolean;
+  loaded: boolean;
+  retryCount: number;
+}
+
 const ResumePreview = () => {
-  const [pdfLoaded, setPdfLoaded] = useState(false);
-  const [iframeKey, setIframeKey] = useState(Date.now()); // Key to force iframe refresh
+  const [pdfState, setPdfState] = useState<PDFViewerState>({
+    loading: true,
+    error: false,
+    loaded: false,
+    retryCount: 0
+  });
+  const [iframeKey, setIframeKey] = useState(Date.now());
+  const [usePdfJs, setUsePdfJs] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout>();
 
   // Function to reload the PDF iframe
   const reloadPdf = () => {
-    setPdfLoaded(false);
+    setPdfState(prev => ({
+      ...prev,
+      loading: true,
+      error: false,
+      retryCount: prev.retryCount + 1
+    }));
     setIframeKey(Date.now());
   };
+
+  // Function to handle iframe load success
+  const handleIframeLoad = () => {
+    setPdfState(prev => ({
+      ...prev,
+      loading: false,
+      error: false,
+      loaded: true
+    }));
+
+    // Track successful resume view
+    trackEvent({
+      ...portfolioEvents.resumeView,
+      label: usePdfJs ? 'pdf_js_viewer' : 'native_iframe'
+    });
+  };
+
+  // Function to handle iframe load error
+  const handleIframeError = () => {
+    setPdfState(prev => ({
+      ...prev,
+      loading: false,
+      error: true,
+      loaded: false
+    }));
+
+    // Track resume loading error
+    trackEvent({
+      ...portfolioEvents.resumeError,
+      label: usePdfJs ? 'pdf_js_failed' : 'iframe_failed'
+    });
+
+    // Auto-retry with PDF.js after first failure
+    if (pdfState.retryCount === 0) {
+      retryTimeoutRef.current = setTimeout(() => {
+        setUsePdfJs(true);
+        reloadPdf();
+      }, 2000);
+    }
+  };
+
+  // Function to handle download tracking
+  const handleDownload = () => {
+    trackEvent(portfolioEvents.resumeDownload);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <motion.div
@@ -60,6 +135,7 @@ const ResumePreview = () => {
                 <a
                   href={RESUME_URL}
                   download="GREENHACKER_Resume.pdf"
+                  onClick={handleDownload}
                   className="flex items-center gap-2 px-3 py-1 bg-neon-green text-black text-sm rounded-md hover:bg-neon-green/90 transition-all"
                 >
                   <Download size={14} />
@@ -67,15 +143,14 @@ const ResumePreview = () => {
                 </a>
                 <button
                   onClick={reloadPdf}
-                  className="p-1 rounded-full hover:bg-github-border/30 transition-colors"
-                  title="Reload PDF"
+                  disabled={pdfState.loading}
+                  className="p-1 rounded-full hover:bg-github-border/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  title={pdfState.loading ? "Loading..." : "Reload PDF"}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 2v6h-6"></path>
-                    <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
-                    <path d="M3 12a9 9 0 0 0 6.7 15L13 21"></path>
-                    <path d="M14.3 19.1L21 12"></path>
-                  </svg>
+                  <RefreshCw
+                    size={18}
+                    className={pdfState.loading ? "animate-spin" : ""}
+                  />
                 </button>
                 <DialogTrigger asChild>
                   <button className="p-1 rounded-full hover:bg-github-border/30 transition-colors">
@@ -84,19 +159,80 @@ const ResumePreview = () => {
                 </DialogTrigger>
               </div>
             </div>
-            <div className="h-full bg-gray-800 overflow-auto">
-              <iframe
-                key={iframeKey}
-                src={RESUME_URL}
-                className="w-full h-full"
-                title="Resume Preview"
-                onLoad={() => setPdfLoaded(true)}
-              />
-              {!pdfLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-github-dark/80">
+            <div className="h-full bg-gray-800 overflow-auto relative">
+              {/* Enhanced PDF Viewer with multiple fallback strategies */}
+              {!usePdfJs ? (
+                // Primary: Native iframe approach
+                <iframe
+                  ref={iframeRef}
+                  key={iframeKey}
+                  src={`${RESUME_URL}#toolbar=1&navpanes=0&scrollbar=1`}
+                  className="w-full h-full border-0"
+                  title="Resume Preview"
+                  onLoad={handleIframeLoad}
+                  onError={handleIframeError}
+                  sandbox="allow-same-origin allow-scripts"
+                />
+              ) : (
+                // Fallback: PDF.js viewer
+                <iframe
+                  ref={iframeRef}
+                  key={`pdfjs-${iframeKey}`}
+                  src={`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(window.location.origin + RESUME_URL)}`}
+                  className="w-full h-full border-0"
+                  title="Resume Preview (PDF.js)"
+                  onLoad={handleIframeLoad}
+                  onError={handleIframeError}
+                  sandbox="allow-same-origin allow-scripts"
+                />
+              )}
+
+              {/* Loading State */}
+              {pdfState.loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-github-dark/90 backdrop-blur-sm">
                   <div className="text-center">
                     <div className="w-16 h-16 border-4 border-neon-green/30 border-t-neon-green rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-github-text">Loading resume...</p>
+                    <p className="text-github-text mb-2">
+                      {usePdfJs ? 'Loading with PDF.js...' : 'Loading resume...'}
+                    </p>
+                    <p className="text-sm text-github-text/70">
+                      {pdfState.retryCount > 0 && 'Trying alternative viewer...'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error State with Recovery Options */}
+              {pdfState.error && !pdfState.loading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-github-dark/90 backdrop-blur-sm">
+                  <div className="text-center max-w-md p-6">
+                    <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                      PDF Preview Unavailable
+                    </h3>
+                    <p className="text-github-text mb-6">
+                      The PDF preview couldn't load in your browser. You can still download or view it directly.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <button
+                        onClick={reloadPdf}
+                        className="flex items-center gap-2 px-4 py-2 bg-neon-green/20 text-neon-green border border-neon-green rounded-md hover:bg-neon-green/30 transition-all"
+                      >
+                        <RefreshCw size={16} />
+                        Try Again
+                      </button>
+
+                      <a
+                        href={RESUME_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 bg-neon-green text-black rounded-md hover:bg-neon-green/90 transition-all"
+                      >
+                        <ExternalLink size={16} />
+                        Open in New Tab
+                      </a>
+                    </div>
                   </div>
                 </div>
               )}
@@ -107,6 +243,7 @@ const ResumePreview = () => {
         <a
           href={RESUME_URL}
           download="GREENHACKER_Resume.pdf"
+          onClick={handleDownload}
           className="flex items-center gap-2 px-4 py-2 bg-transparent border border-neon-green text-neon-green font-medium rounded-md hover:bg-neon-green/10 transition-all"
         >
           <Download size={16} />

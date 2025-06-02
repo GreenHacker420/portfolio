@@ -16,6 +16,7 @@ import Stats from "@/components/sections/Stats";
 import Contact from "@/components/sections/Contact";
 import Resume from "@/components/sections/Resume";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import Chatbot from "@/components/sections/Chatbot";
 import {
   initSmoothScrolling,
   initScrollAnimations,
@@ -125,6 +126,7 @@ export default function HomePage() {
         </SafeSection>
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 }

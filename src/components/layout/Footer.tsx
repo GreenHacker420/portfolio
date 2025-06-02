@@ -3,6 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { Instagram, Linkedin } from 'lucide-react';
+import Image from 'next/image';
 
 const Footer = () => {
   return (
@@ -17,8 +18,14 @@ const Footer = () => {
           {/* Column 1: Logo and info */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-green to-neon-blue flex items-center justify-center">
-                <span className="font-mono font-bold text-white">GH</span>
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-neon-green to-neon-blue flex items-center justify-center">
+                <Image
+                  src="/logo.jpg"
+                  alt="GreenHacker Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <span className="font-bold text-xl text-white">GreenHacker</span>
             </div>

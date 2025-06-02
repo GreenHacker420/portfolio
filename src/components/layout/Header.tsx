@@ -4,6 +4,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -45,8 +46,15 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-green to-neon-blue flex items-center justify-center">
-              <span className="font-mono font-bold text-white">GH</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-neon-green to-neon-blue flex items-center justify-center">
+              <Image
+                src="/logo.jpg"
+                alt="GreenHacker Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover rounded-full"
+                priority
+              />
             </div>
             <span className="font-bold text-xl">GreenHacker</span>
           </Link>

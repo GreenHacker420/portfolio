@@ -1,11 +1,47 @@
 import { NextResponse } from 'next/server';
 
+// Rate limiting store (in production, use Redis or similar)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const userLimit = rateLimitStore.get(ip);
+
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimitStore.set(ip, {
+      count: 1,
+      resetTime: now + RATE_LIMIT_WINDOW
+    });
+    return false;
+  }
+
+  if (userLimit.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+
+  userLimit.count++;
+  return false;
+}
+
 export async function GET(request: Request) {
   try {
+    // Basic rate limiting
+    const ip = request.headers.get('x-forwarded-for') || 'unknown';
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const per_page = Math.min(parseInt(searchParams.get('per_page') || '10'), 100);
-    
+
     const githubToken = process.env.GITHUB_TOKEN;
     const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
 
@@ -27,12 +63,24 @@ export async function GET(request: Request) {
     );
 
     if (!response.ok) {
-      console.error('GitHub API error:', response.status);
+      console.error('GitHub repos API error:', response.status, response.statusText);
+
+      // Check if it's a rate limit error
+      if (response.status === 403) {
+        const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
+        const rateLimitReset = response.headers.get('x-ratelimit-reset');
+
+        console.error('GitHub API rate limit exceeded:', {
+          remaining: rateLimitRemaining,
+          reset: rateLimitReset
+        });
+      }
+
       return getMockRepos();
     }
 
     const repos = await response.json();
-    
+
     // Filter and format repository data
     const formattedRepos = repos
       .filter((repo: any) => !repo.fork && !repo.private) // Only show original public repos
