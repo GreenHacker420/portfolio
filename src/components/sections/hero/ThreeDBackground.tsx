@@ -4,22 +4,15 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import ThreeFallback from './ThreeFallback';
-import dynamic from 'next/dynamic';
 
-// Dynamically import Canvas with no SSR to prevent React version conflicts
-const Canvas = dynamic(
-  () => import('@react-three/fiber').then((mod) => ({ default: mod.Canvas })),
-  { 
-    ssr: false,
-    loading: () => <ThreeFallback />
-  }
+// Lazy load React Three Fiber components
+const Canvas = React.lazy(() => 
+  import('@react-three/fiber').then((mod) => ({ default: mod.Canvas }))
 );
 
-// Dynamically import InteractiveThreeScene with no SSR
-const InteractiveThreeScene = dynamic(() => import('../../3d/InteractiveThreeScene'), {
-  ssr: false,
-  loading: () => <ThreeFallback />
-});
+const InteractiveThreeScene = React.lazy(() => 
+  import('../../3d/InteractiveThreeScene')
+);
 
 interface ThreeDBackgroundProps {
   mounted: boolean;
@@ -60,9 +53,6 @@ const ThreeDBackground = ({ mounted }: ThreeDBackgroundProps) => {
             onCreated={({ gl }) => {
               gl.setClearColor(0x000000, 0);
               console.log('3D Canvas initialized successfully');
-            }}
-            onError={(error) => {
-              console.error('Canvas error:', error);
             }}
           >
             <InteractiveThreeScene />

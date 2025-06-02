@@ -2,15 +2,11 @@
 'use client';
 
 import React, { Suspense, useState, useCallback, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import { Skill, getSkillById } from '../../../../data/skillsData';
 import LoadingScreen from './LoadingScreen';
 
-// Dynamically import Spline with no SSR
-const Spline = dynamic(() => import('@splinetool/react-spline'), {
-  ssr: false,
-  loading: () => <LoadingScreen />
-});
+// Lazy load Spline component
+const Spline = React.lazy(() => import('@splinetool/react-spline'));
 
 interface SplineKeyboardProps {
   onSkillSelect?: (skill: Skill | null) => void;
@@ -62,12 +58,6 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
       }
     }
   }, [onSkillSelect]);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      // Add any additional initialization here
-    }
-  }, []);
 
   if (error) {
     return (
