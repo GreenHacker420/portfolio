@@ -1,4 +1,6 @@
 
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Terminal, Send, X, Maximize2, Minimize2 } from 'lucide-react';
@@ -83,13 +85,13 @@ const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { 
-      type: 'bot', 
+    {
+      type: 'bot',
       content: [
         '👋 Hi there! I\'m GREENHACKER\'s AI assistant.',
         'I can tell you about GREENHACKER, their skills, projects, or how to get in touch.',
         'Type "help" to see what I can do!'
-      ] 
+      ]
     }
   ]);
   const [input, setInput] = useState('');
@@ -119,27 +121,27 @@ const Chatbot = () => {
 
   const processCommand = (command: string) => {
     const lowercaseCommand = command.toLowerCase().trim();
-    
+
     if (lowercaseCommand === 'exit') {
       setMessages([...messages, { type: 'user', content: [command] }, { type: 'bot', content: COMMANDS.exit }]);
       setTimeout(() => setIsOpen(false), 1000);
       return;
     }
-    
+
     if (lowercaseCommand === 'clear') {
       setMessages([]);
       return;
     }
-    
+
     if (COMMANDS[lowercaseCommand as keyof typeof COMMANDS]) {
       setMessages([...messages, { type: 'user', content: [command] }, { type: 'bot', content: COMMANDS[lowercaseCommand as keyof typeof COMMANDS] }]);
       return;
     }
-    
+
     // Simulate an AI-generated response for unknown commands
     setMessages([...messages, { type: 'user', content: [command] }]);
     setIsTyping(true);
-    
+
     // Simulate typing delay
     setTimeout(() => {
       const aiResponse = generateAIResponse(command);
@@ -151,7 +153,7 @@ const Chatbot = () => {
   const generateAIResponse = (input: string) => {
     // This is a simple simulation - in a real app, you'd call an API like Gemini
     const lowercaseInput = input.toLowerCase();
-    
+
     if (lowercaseInput.includes('hi') || lowercaseInput.includes('hello') || lowercaseInput.includes('hey')) {
       return ['Hello! How can I help you today? 😊', 'Type "help" to see what I can do.'];
     } else if (lowercaseInput.includes('thanks') || lowercaseInput.includes('thank you')) {
@@ -186,7 +188,7 @@ const Chatbot = () => {
       >
         <Terminal size={20} />
       </motion.button>
-      
+
       {/* Chatbot Interface */}
       <AnimatePresence>
         {isOpen && (
@@ -204,13 +206,13 @@ const Chatbot = () => {
                 <h3 className="text-neon-green font-mono text-sm">GREENHACKER Terminal</h3>
               </div>
               <div className="flex items-center space-x-2">
-                <button 
+                <button
                   className="text-neon-green hover:text-white transition-colors focus:outline-none"
                   onClick={toggleExpand}
                 >
                   {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                 </button>
-                <button 
+                <button
                   className="text-neon-green hover:text-white transition-colors focus:outline-none"
                   onClick={toggleChat}
                 >
@@ -218,7 +220,7 @@ const Chatbot = () => {
                 </button>
               </div>
             </div>
-            
+
             {/* Chatbot Messages */}
             <div className="flex-grow overflow-y-auto p-4" style={{ backgroundColor: '#0d1117' }}>
               <div className="space-y-4">
@@ -250,7 +252,7 @@ const Chatbot = () => {
                 <div ref={messagesEndRef} />
               </div>
             </div>
-            
+
             {/* Chatbot Input */}
             <form onSubmit={handleSubmit} className="p-3 border-t border-neon-green/30 bg-github-dark">
               <div className="flex items-center">

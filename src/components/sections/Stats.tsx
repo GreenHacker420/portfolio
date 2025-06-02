@@ -1,21 +1,23 @@
 
+'use client';
+
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pie, Cell } from 'recharts';
-import { gsap } from 'gsap';
+
 import { animateGithubGraph } from '../../utils/animation';
 
 const Stats = () => {
   const [activeTab, setActiveTab] = useState('contributions');
   const graphRef = useRef<HTMLDivElement>(null);
-  
+
   // Animate GitHub contributions graph when it comes into view
   useEffect(() => {
     if (graphRef.current) {
       animateGithubGraph();
     }
   }, [graphRef.current]);
-  
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -53,7 +55,7 @@ const Stats = () => {
     { month: 'Mar', contributions: 52 },
     { month: 'Apr', contributions: 49 },
   ];
-  
+
   const languageData = [
     { name: 'JavaScript', value: 38, color: '#f1e05a' },
     { name: 'TypeScript', value: 24, color: '#3178c6' },
@@ -61,7 +63,7 @@ const Stats = () => {
     { name: 'HTML', value: 10, color: '#e34c26' },
     { name: 'CSS', value: 10, color: '#563d7c' },
   ];
-  
+
   const repoData = [
     { name: 'ML-Face-Recognition', stars: 15, forks: 7 },
     { name: 'React-Portfolio', stars: 12, forks: 5 },
@@ -82,23 +84,23 @@ const Stats = () => {
         >
           GitHub Stats
         </motion.h2>
-        
+
         <div className="mb-10 flex justify-center">
           <div className="flex rounded-lg overflow-hidden border border-github-border">
-            <button 
-              onClick={() => setActiveTab('contributions')} 
+            <button
+              onClick={() => setActiveTab('contributions')}
               className={`px-4 py-2 ${activeTab === 'contributions' ? 'bg-neon-green text-black' : 'bg-github-dark text-github-text'}`}
             >
               Contributions
             </button>
-            <button 
-              onClick={() => setActiveTab('languages')} 
+            <button
+              onClick={() => setActiveTab('languages')}
               className={`px-4 py-2 ${activeTab === 'languages' ? 'bg-neon-green text-black' : 'bg-github-dark text-github-text'}`}
             >
               Languages
             </button>
-            <button 
-              onClick={() => setActiveTab('repos')} 
+            <button
+              onClick={() => setActiveTab('repos')}
               className={`px-4 py-2 ${activeTab === 'repos' ? 'bg-neon-green text-black' : 'bg-github-dark text-github-text'}`}
             >
               Top Repos
@@ -115,14 +117,14 @@ const Stats = () => {
         >
           <motion.div variants={itemVariants} className="bg-github-dark p-6 rounded-xl border border-github-border">
             <h3 className="text-xl font-bold text-white mb-6">Green Hacker's GitHub Stats</h3>
-            
+
             <div className="grid grid-cols-2 gap-4">
-              <motion.div 
+              <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
                 <p className="text-sm text-github-text">Total Stars Earned:</p>
-                <motion.p 
+                <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -132,12 +134,12 @@ const Stats = () => {
                   {githubStats.stars}
                 </motion.p>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
                 <p className="text-sm text-github-text">Total Commits (2025):</p>
-                <motion.p 
+                <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -147,12 +149,12 @@ const Stats = () => {
                   {githubStats.commits}
                 </motion.p>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
                 <p className="text-sm text-github-text">Total PRs:</p>
-                <motion.p 
+                <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -162,12 +164,12 @@ const Stats = () => {
                   {githubStats.prs}
                 </motion.p>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
                 <p className="text-sm text-github-text">Total Issues:</p>
-                <motion.p 
+                <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -177,12 +179,12 @@ const Stats = () => {
                   {githubStats.issues}
                 </motion.p>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="p-4 bg-github-light/50 rounded-lg col-span-2 hover:bg-github-light transition-colors"
                 whileHover={{ y: -5 }}
               >
                 <p className="text-sm text-github-text">Contributed to (last year):</p>
-                <motion.p 
+                <motion.p
                   className="text-2xl font-bold text-white"
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
@@ -196,7 +198,7 @@ const Stats = () => {
 
             <div className="mt-8 grid grid-cols-3 gap-4">
               <div className="p-5 flex flex-col items-center justify-center">
-                <motion.p 
+                <motion.p
                   className="text-3xl font-bold text-white"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -210,7 +212,7 @@ const Stats = () => {
               </div>
 
               <div className="p-5 flex flex-col items-center justify-center">
-                <motion.div 
+                <motion.div
                   className="w-20 h-20 rounded-full bg-github-light flex items-center justify-center border-4 border-neon-green/70"
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
@@ -223,7 +225,7 @@ const Stats = () => {
               </div>
 
               <div className="p-5 flex flex-col items-center justify-center">
-                <motion.p 
+                <motion.p
                   className="text-3xl font-bold text-white"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -237,25 +239,25 @@ const Stats = () => {
               </div>
             </div>
           </motion.div>
-          
+
           <motion.div variants={itemVariants} className="bg-github-dark p-6 rounded-xl border border-github-border">
             {activeTab === 'contributions' && (
               <>
                 <h3 className="text-xl font-bold text-white mb-6">Contribution Activity</h3>
-                
+
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={contributionData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                       <XAxis dataKey="month" stroke="#8b949e" />
                       <YAxis stroke="#8b949e" />
-                      <Tooltip 
+                      <Tooltip
                         contentStyle={{ backgroundColor: '#161b22', border: '1px solid #30363d' }}
                         itemStyle={{ color: '#c9d1d9' }}
                         labelStyle={{ color: 'white', fontWeight: 'bold' }}
                       />
                       <Bar dataKey="contributions" fill="#3fb950" radius={[4, 4, 0, 0]}>
                         {contributionData.map((entry, index) => (
-                          <Cell 
+                          <Cell
                             key={`cell-${index}`}
                             fill={entry.contributions > 50 ? '#3fb950' : '#388e3c'}
                           />
@@ -270,7 +272,7 @@ const Stats = () => {
             {activeTab === 'languages' && (
               <>
                 <h3 className="text-xl font-bold text-white mb-6">Most Used Languages</h3>
-                
+
                 <div className="flex">
                   <div className="h-64 w-1/2">
                     <ResponsiveContainer width="100%" height="100%">
@@ -290,14 +292,14 @@ const Stats = () => {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip 
+                        <Tooltip
                           contentStyle={{ backgroundColor: '#161b22', border: '1px solid #30363d' }}
                           formatter={(value) => [`${value}%`, 'Usage']}
                         />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  
+
                   <div className="w-1/2 flex flex-col justify-center space-y-4 pl-4">
                     {languageData.map((lang, index) => (
                       <div key={index} className="flex items-center">
@@ -314,10 +316,10 @@ const Stats = () => {
             {activeTab === 'repos' && (
               <>
                 <h3 className="text-xl font-bold text-white mb-6">Top Repositories</h3>
-                
+
                 <div className="space-y-4">
                   {repoData.map((repo, index) => (
-                    <motion.div 
+                    <motion.div
                       key={index}
                       className="p-4 bg-github-light/50 rounded-lg hover:bg-github-light cursor-pointer transition-colors"
                       whileHover={{ x: 5 }}
@@ -348,7 +350,7 @@ const Stats = () => {
             <div className="mt-8">
               <h4 className="text-lg font-semibold text-white mb-4">Recent Activity</h4>
               <div className="space-y-4">
-                <motion.div 
+                <motion.div
                   className="flex items-start space-x-3"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -365,7 +367,7 @@ const Stats = () => {
                     <p className="text-sm text-github-text">Last week</p>
                   </div>
                 </motion.div>
-                <motion.div 
+                <motion.div
                   className="flex items-start space-x-3"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -383,7 +385,7 @@ const Stats = () => {
                   </div>
                 </motion.div>
               </div>
-              <motion.button 
+              <motion.button
                 className="mt-6 w-full py-2 border border-github-border rounded-md text-github-text hover:bg-github-light transition-colors"
                 whileHover={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                 whileTap={{ scale: 0.98 }}

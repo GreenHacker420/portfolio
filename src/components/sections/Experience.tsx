@@ -1,4 +1,6 @@
 
+'use client';
+
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
@@ -17,7 +19,7 @@ interface ExperienceItem {
 const Experience = () => {
   const [activeTab, setActiveTab] = useState('work');
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
-  
+
   const toggleItem = (id: string) => {
     setExpandedItem(expandedItem === id ? null : id);
   };
@@ -210,7 +212,7 @@ const Experience = () => {
               animate="visible"
               className="space-y-4"
             >
-              <motion.h3 
+              <motion.h3
                 variants={itemVariants}
                 className="text-xl font-bold text-white flex items-center"
               >
@@ -224,8 +226,8 @@ const Experience = () => {
                   variants={itemVariants}
                   className="bg-github-light rounded-lg border border-github-border overflow-hidden transition-all duration-300"
                 >
-                  <Collapsible 
-                    open={expandedItem === exp.id} 
+                  <Collapsible
+                    open={expandedItem === exp.id}
                     onOpenChange={() => toggleItem(exp.id)}
                   >
                     <div className="p-6">
@@ -239,7 +241,7 @@ const Experience = () => {
                           <p className="mt-1 text-github-text text-sm">{exp.period}</p>
                         </div>
                       </div>
-                      
+
                       <CollapsibleTrigger className="mt-4 text-sm text-github-text hover:text-white transition-colors flex items-center">
                         {expandedItem === exp.id ? 'Show less' : 'Show more'}
                         <svg
@@ -258,7 +260,7 @@ const Experience = () => {
                         </svg>
                       </CollapsibleTrigger>
                     </div>
-                    
+
                     <CollapsibleContent>
                       <div className="px-6 pb-6 border-t border-github-border pt-4 mt-4">
                         {exp.description && (
@@ -292,7 +294,7 @@ const Experience = () => {
               animate="visible"
               className="space-y-4"
             >
-              <motion.h3 
+              <motion.h3
                 variants={itemVariants}
                 className="text-xl font-bold text-white flex items-center"
               >
@@ -306,15 +308,15 @@ const Experience = () => {
                   variants={itemVariants}
                   className="bg-github-light rounded-lg border border-github-border overflow-hidden"
                 >
-                  <Collapsible 
-                    open={expandedItem === edu.id} 
+                  <Collapsible
+                    open={expandedItem === edu.id}
                     onOpenChange={() => toggleItem(edu.id)}
                   >
                     <div className="p-6">
                       <h4 className="font-semibold text-white text-lg">{edu.school}</h4>
                       <p className="text-neon-purple">{edu.degree}</p>
                       <p className="mt-2 text-github-text text-sm">{edu.period}</p>
-                      
+
                       <CollapsibleTrigger className="mt-4 text-sm text-github-text hover:text-white transition-colors flex items-center">
                         {expandedItem === edu.id ? 'Show less' : 'Show more'}
                         <svg
@@ -333,7 +335,7 @@ const Experience = () => {
                         </svg>
                       </CollapsibleTrigger>
                     </div>
-                    
+
                     <CollapsibleContent>
                       <div className="px-6 pb-6 border-t border-github-border pt-4 mt-4">
                         {edu.description && (
@@ -367,7 +369,7 @@ const Experience = () => {
               animate="visible"
               className="space-y-4"
             >
-              <motion.h3 
+              <motion.h3
                 variants={itemVariants}
                 className="text-xl font-bold text-white flex items-center"
               >
@@ -408,7 +410,7 @@ const Experience = () => {
               animate="visible"
               className="space-y-4"
             >
-              <motion.h3 
+              <motion.h3
                 variants={itemVariants}
                 className="text-xl font-bold text-white flex items-center"
               >

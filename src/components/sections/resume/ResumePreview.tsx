@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@/components/ui/visually-hidden';
 import { Download, Eye, FileText, X } from 'lucide-react';
 
 // Resume URL - replace with your actual resume URL
@@ -18,9 +19,9 @@ const ResumePreview = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }} 
-      whileInView={{ opacity: 1, y: 0 }} 
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
       className="bg-github-light rounded-lg p-6 border border-github-border card-hover"
@@ -32,12 +33,12 @@ const ResumePreview = () => {
         </div>
         <span className="px-3 py-1 bg-neon-green/20 text-neon-green text-xs rounded-full">PDF</span>
       </div>
-      
+
       <p className="text-github-text mb-6">
         Check out my professional experience, skills, and educational background.
         Download the PDF or view it directly on this page.
       </p>
-      
+
       <div className="flex flex-wrap gap-3">
         <Dialog>
           <DialogTrigger asChild>
@@ -47,19 +48,25 @@ const ResumePreview = () => {
             </button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl w-[90vw] h-[90vh] p-0">
+            <VisuallyHidden>
+              <DialogTitle>Resume Preview</DialogTitle>
+              <DialogDescription>
+                View and download my professional resume in PDF format
+              </DialogDescription>
+            </VisuallyHidden>
             <div className="flex justify-between items-center p-4 border-b border-github-border">
               <h4 className="font-semibold text-lg">Resume Preview</h4>
               <div className="flex items-center gap-2">
-                <a 
-                  href={RESUME_URL} 
+                <a
+                  href={RESUME_URL}
                   download="GREENHACKER_Resume.pdf"
                   className="flex items-center gap-2 px-3 py-1 bg-neon-green text-black text-sm rounded-md hover:bg-neon-green/90 transition-all"
                 >
                   <Download size={14} />
                   Download
                 </a>
-                <button 
-                  onClick={reloadPdf} 
+                <button
+                  onClick={reloadPdf}
                   className="p-1 rounded-full hover:bg-github-border/30 transition-colors"
                   title="Reload PDF"
                 >
@@ -78,10 +85,10 @@ const ResumePreview = () => {
               </div>
             </div>
             <div className="h-full bg-gray-800 overflow-auto">
-              <iframe 
+              <iframe
                 key={iframeKey}
                 src={RESUME_URL}
-                className="w-full h-full" 
+                className="w-full h-full"
                 title="Resume Preview"
                 onLoad={() => setPdfLoaded(true)}
               />
@@ -96,9 +103,9 @@ const ResumePreview = () => {
             </div>
           </DialogContent>
         </Dialog>
-        
-        <a 
-          href={RESUME_URL} 
+
+        <a
+          href={RESUME_URL}
           download="GREENHACKER_Resume.pdf"
           className="flex items-center gap-2 px-4 py-2 bg-transparent border border-neon-green text-neon-green font-medium rounded-md hover:bg-neon-green/10 transition-all"
         >

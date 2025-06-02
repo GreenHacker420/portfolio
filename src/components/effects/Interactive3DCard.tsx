@@ -1,4 +1,6 @@
 
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
@@ -17,16 +19,16 @@ const Interactive3DCard = ({
 }: Interactive3DCardProps) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   // Motion values for rotation
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
-  
+
   // Smooth rotations with springs
   const springConfig = { stiffness: 150, damping: 20 };
   const smoothRotateX = useSpring(rotateX, springConfig);
   const smoothRotateY = useSpring(rotateY, springConfig);
-  
+
   // Transform for shadow and z-translation
   const shadowBlur = useTransform(
     [smoothRotateX, smoothRotateY],
@@ -37,42 +39,42 @@ const Interactive3DCard = ({
       return Math.sqrt(x * x + y * y) * 0.5;
     }
   );
-  
+
   const zTranslate = useSpring(0, springConfig);
-  
+
   // Handle mouse move for 3D effect
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
-    
+
     const rect = cardRef.current.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
-    
+
     // Calculate rotation based on mouse position
     const mouseX = e.clientX - centerX;
     const mouseY = e.clientY - centerY;
-    
+
     // Convert to rotation values (-15 to 15 degrees)
     const rotX = (mouseY / (rect.height / 2)) * -10;
     const rotY = (mouseX / (rect.width / 2)) * 10;
-    
+
     rotateX.set(rotX);
     rotateY.set(rotY);
   };
-  
+
   // Handle mouse enter/leave
   const handleMouseEnter = () => {
     setIsHovered(true);
     zTranslate.set(depth);
   };
-  
+
   const handleMouseLeave = () => {
     setIsHovered(false);
     rotateX.set(0);
     rotateY.set(0);
     zTranslate.set(0);
   };
-  
+
   // Clean up effect when component unmounts
   useEffect(() => {
     return () => {
@@ -81,7 +83,7 @@ const Interactive3DCard = ({
       zTranslate.set(0);
     };
   }, [rotateX, rotateY, zTranslate]);
-  
+
   return (
     <motion.div
       ref={cardRef}
@@ -109,7 +111,7 @@ const Interactive3DCard = ({
         className="h-full w-full transition-colors duration-300"
       >
         {children}
-        
+
         {/* Visual effect for edges */}
         <motion.div
           className="absolute inset-0 rounded-lg pointer-events-none border border-neon-green"

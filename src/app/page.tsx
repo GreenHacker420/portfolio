@@ -1,29 +1,31 @@
+'use client';
 
 import { useEffect } from "react";
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import Header from "../components/layout/Header";
-import Footer from "../components/layout/Footer";
-import Hero from "../components/sections/Hero";
-import About from "../components/sections/About";
-import Skills from "../components/sections/Skills";
-import Projects from "../components/sections/Projects";
-import Experience from "../components/sections/Experience";
-import Stats from "../components/sections/Stats";
-import Contact from "../components/sections/Contact";
-import Resume from "../components/sections/Resume";
-import Chatbot from "../components/sections/Chatbot";
-import ErrorBoundary from "../components/common/ErrorBoundary";
-import { 
-  initSmoothScrolling, 
-  initScrollAnimations, 
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import Hero from "@/components/sections/Hero";
+import About from "@/components/sections/About";
+import Skills from "@/components/sections/Skills";
+import Projects from "@/components/sections/Projects";
+import Experience from "@/components/sections/Experience";
+import Stats from "@/components/sections/Stats";
+import Contact from "@/components/sections/Contact";
+import Resume from "@/components/sections/Resume";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
+import {
+  initSmoothScrolling,
+  initScrollAnimations,
   neonFlickerEffect,
   createParallaxEffect
-} from "../utils/animation";
+} from "@/utils/animation";
 
 // Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+}
 
 // Simple error fallback component
 const SectionErrorFallback = ({ section }: { section: string }) => {
@@ -39,33 +41,36 @@ const SectionErrorFallback = ({ section }: { section: string }) => {
   );
 };
 
-// Wrap each section in an error boundary to prevent full app crash
+// Safe section wrapper with error boundary
 const SafeSection = ({ children, name }: { children: React.ReactNode; name: string }) => {
   return (
     <ErrorBoundary fallback={<SectionErrorFallback section={name} />}>
-      {children}
+      <section id={name.toLowerCase()}>
+        {children}
+      </section>
     </ErrorBoundary>
   );
 };
 
-const Index = () => {
+export default function HomePage() {
   useEffect(() => {
-    document.title = "GREENHACKER | Developer Portfolio";
-    
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+
     // Initialize GSAP animations
     initSmoothScrolling();
     initScrollAnimations();
     createParallaxEffect();
-    
+
     // Apply neon flicker effect to specific elements
     const sectionTitles = document.querySelectorAll('.section-title');
     sectionTitles.forEach(title => {
       neonFlickerEffect(title as HTMLElement);
     });
-    
+
     // Set up scroll trigger animations for sections
     const sections = document.querySelectorAll('section');
-    sections.forEach((section, i) => {
+    sections.forEach((section) => {
       // Create section animations
       gsap.fromTo(
         section,
@@ -82,7 +87,7 @@ const Index = () => {
         }
       );
     });
-    
+
     // Clean up ScrollTrigger on unmount
     return () => {
       ScrollTrigger.getAll().forEach(trigger => trigger.kill());
@@ -118,10 +123,7 @@ const Index = () => {
           <Contact />
         </SafeSection>
       </main>
-      <Chatbot />
       <Footer />
     </div>
   );
-};
-
-export default Index;
+}

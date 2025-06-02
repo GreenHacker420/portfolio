@@ -1,4 +1,6 @@
 
+'use client';
+
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { projectCardHover } from '../../utils/animation';
@@ -17,7 +19,7 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ project, delay = 0 }: ProjectCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -26,7 +28,7 @@ const ProjectCard = ({ project, delay = 0 }: ProjectCardProps) => {
       viewport={{ once: true }}
     >
       <Interactive3DCard className="h-full">
-        <div 
+        <div
           className="bg-github-dark border border-github-border rounded-lg overflow-hidden h-full transition-all duration-300"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -36,23 +38,23 @@ const ProjectCard = ({ project, delay = 0 }: ProjectCardProps) => {
               src={project.imageUrl}
               alt={project.title}
               className="w-full h-full object-cover object-center"
-              animate={{ 
+              animate={{
                 scale: isHovered ? 1.05 : 1,
               }}
               transition={{ duration: 0.4 }}
             />
           </div>
-          
+
           <div className="p-6">
             <div className="flex justify-between items-start">
-              <motion.h3 
+              <motion.h3
                 className="text-xl font-bold text-white"
                 animate={{ x: isHovered ? 3 : 0 }}
                 transition={{ duration: 0.2 }}
               >
                 {project.title}
               </motion.h3>
-              
+
               <div className="flex flex-wrap gap-2">
                 {project.tags.map((tag, tagIndex) => (
                   <span
@@ -84,10 +86,10 @@ const ProjectCard = ({ project, delay = 0 }: ProjectCardProps) => {
                 ))}
               </div>
             </div>
-            
+
             <p className="mt-4 text-github-text">{project.description}</p>
-            
-            <motion.div 
+
+            <motion.div
               className="mt-6 flex gap-3"
               animate={{ y: isHovered ? 0 : 10, opacity: isHovered ? 1 : 0.8 }}
               transition={{ duration: 0.3 }}

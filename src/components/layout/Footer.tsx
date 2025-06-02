@@ -1,4 +1,6 @@
 
+'use client';
+
 import { motion } from 'framer-motion';
 import { Instagram, Linkedin } from 'lucide-react';
 
@@ -63,14 +65,14 @@ const Footer = () => {
                 <Linkedin className="w-5 h-5 text-github-text hover:text-white" />
               </a>
             </div>
-            
+
             <div className="mt-4">
               <p className="text-sm text-github-text">harsh_hirawat</p>
               <p className="text-sm text-github-text mt-1">Pune, Maharashtra</p>
             </div>
           </div>
         </div>
-        
+
         <div className="mt-8 pt-8 border-t border-github-border text-center">
           <p className="text-sm text-github-text">
             © {new Date().getFullYear()} GreenHacker. All rights reserved.

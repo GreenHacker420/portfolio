@@ -1,4 +1,6 @@
 
+'use client';
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
@@ -33,14 +35,16 @@ const LoadingScreen = () => {
         const { text, duration } = loadingSteps[step];
         setLoadingText(text);
         setLoadingProgress(Math.min(100, Math.round((step + 1) / loadingSteps.length * 100)));
-        
+
         step++;
         setTimeout(runStep, duration);
       } else {
         setCommandComplete(true);
         setTimeout(() => {
-          const event = new Event('loadingComplete');
-          window.dispatchEvent(event);
+          if (typeof window !== 'undefined') {
+            const event = new Event('loadingComplete');
+            window.dispatchEvent(event);
+          }
         }, 1000);
       }
     }, 500);
@@ -63,7 +67,7 @@ const LoadingScreen = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.6, ease: "easeInOut" }}
     >
-      <motion.div 
+      <motion.div
         className="w-full max-w-3xl bg-black border border-neon-green p-6 rounded-md shadow-neon-green terminal-window"
         variants={terminalVariants}
         initial="hidden"
@@ -84,7 +88,7 @@ const LoadingScreen = () => {
             <span className="text-white">load portfolio --env=production --secure</span>
           </div>
 
-          <motion.div 
+          <motion.div
             className="line text-neon-green"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -93,7 +97,7 @@ const LoadingScreen = () => {
             {loadingText}{showCursor ? '▋' : ' '}
           </motion.div>
 
-          <motion.div 
+          <motion.div
             className="line"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -101,7 +105,7 @@ const LoadingScreen = () => {
           >
             <div className="text-github-text">Progress: {loadingProgress}%</div>
             <div className="w-full bg-github-dark rounded-full h-2 mt-1">
-              <motion.div 
+              <motion.div
                 className="h-2 rounded-full bg-neon-green"
                 initial={{ width: 0 }}
                 animate={{ width: `${loadingProgress}%` }}
@@ -112,7 +116,7 @@ const LoadingScreen = () => {
 
           {commandComplete && (
             <>
-              <motion.div 
+              <motion.div
                 className="line"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -121,7 +125,7 @@ const LoadingScreen = () => {
                 <span className="text-neon-blue">$ </span>
                 <span className="text-white">launch --mode=interactive</span>
               </motion.div>
-              <motion.div 
+              <motion.div
                 className="line text-neon-purple"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -134,7 +138,7 @@ const LoadingScreen = () => {
         </div>
 
         <div className="ascii-art mt-8 text-neon-green font-mono text-xs whitespace-pre">
-{` ██████╗ ██████╗ ███████╗███████╗███╗   ██╗██╗  ██╗ █████╗  ██████╗██╗  ██╗███████╗██████╗ 
+{` ██████╗ ██████╗ ███████╗███████╗███╗   ██╗██╗  ██╗ █████╗  ██████╗██╗  ██╗███████╗██████╗
 ██╔════╝ ██╔══██╗██╔════╝██╔════╝████╗  ██║██║  ██║██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
 ██║  ███╗██████╔╝█████╗  █████╗  ██╔██╗ ██║███████║███████║██║     █████╔╝ █████╗  ██████╔╝
 ██║   ██║██╔══██╗██╔══╝  ██╔══╝  ██║╚██╗██║██╔══██║██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
@@ -143,7 +147,7 @@ const LoadingScreen = () => {
         </div>
 
         {commandComplete && (
-          <motion.div 
+          <motion.div
             className="mt-6 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -160,12 +164,12 @@ const LoadingScreen = () => {
         .terminal-window {
           box-shadow: 0 0 10px rgba(63, 185, 80, 0.3), 0 0 20px rgba(63, 185, 80, 0.2);
         }
-        
+
         @keyframes scan {
           from { top: 0; }
           to { top: 100%; }
         }
-        
+
         .terminal-window::before {
           content: '';
           position: absolute;

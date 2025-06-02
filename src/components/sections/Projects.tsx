@@ -1,4 +1,6 @@
 
+'use client';
+
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import ProjectFilters from './projects/ProjectFilters';

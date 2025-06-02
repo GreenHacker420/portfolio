@@ -3,16 +3,20 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+// Register GSAP plugins only on client side
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+}
 
 // Initialize smooth scrolling with GSAP
 export const initSmoothScrolling = () => {
+  if (typeof window === 'undefined') return;
+
   // Add smooth scrolling to all anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       e.preventDefault();
-      
+
       const target = document.querySelector(this.getAttribute('href') || '');
       if (target) {
         gsap.to(window, {
@@ -27,6 +31,8 @@ export const initSmoothScrolling = () => {
 
 // Initialize scroll animations for various elements
 export const initScrollAnimations = () => {
+  if (typeof window === 'undefined') return;
+
   // Animate section headings on scroll
   gsap.utils.toArray('.section-title').forEach((heading: any) => {
     gsap.fromTo(
@@ -45,11 +51,11 @@ export const initScrollAnimations = () => {
       }
     );
   });
-  
+
   // Staggered animation for skills items
   gsap.utils.toArray('.skills-grid').forEach((grid: any) => {
     const items = gsap.utils.toArray('.skill-item', grid);
-    
+
     gsap.fromTo(
       items,
       { y: 30, opacity: 0 },
@@ -67,7 +73,7 @@ export const initScrollAnimations = () => {
       }
     );
   });
-  
+
   // Project cards animation
   gsap.utils.toArray('.project-card').forEach((card: any) => {
     gsap.fromTo(
@@ -92,7 +98,7 @@ export const initScrollAnimations = () => {
 export const terminalTextEffect = (element: HTMLElement, text: string, speed: number = 30) => {
   let i = 0;
   element.innerHTML = '';
-  
+
   const typeNextChar = () => {
     if (i < text.length) {
       element.innerHTML += text.charAt(i);
@@ -100,14 +106,16 @@ export const terminalTextEffect = (element: HTMLElement, text: string, speed: nu
       setTimeout(typeNextChar, speed);
     }
   };
-  
+
   typeNextChar();
 };
 
 // Reveal animation for GitHub contributions graph
 export const animateGithubGraph = () => {
+  if (typeof window === 'undefined') return;
+
   const cells = document.querySelectorAll('.github-cell');
-  
+
   gsap.fromTo(
     cells,
     { opacity: 0, scale: 0.8 },
@@ -131,19 +139,21 @@ export const animateGithubGraph = () => {
 // Neon flicker effect for hero text
 export const neonFlickerEffect = (element: HTMLElement) => {
   const timeline = gsap.timeline({ repeat: -1, repeatDelay: 5 });
-  
+
   timeline
     .to(element, { textShadow: '0 0 10px rgba(63, 185, 80, 0.8), 0 0 20px rgba(63, 185, 80, 0.5)', duration: 0.1 })
     .to(element, { textShadow: 'none', duration: 0.1 })
     .to(element, { textShadow: '0 0 10px rgba(63, 185, 80, 0.8), 0 0 20px rgba(63, 185, 80, 0.5)', duration: 0.1 })
     .to(element, { textShadow: 'none', duration: 0.1 })
     .to(element, { textShadow: '0 0 10px rgba(63, 185, 80, 0.8), 0 0 20px rgba(63, 185, 80, 0.5)', duration: 0.1 });
-    
+
   return timeline;
 };
 
 // Parallax effect for sections
 export const createParallaxEffect = () => {
+  if (typeof window === 'undefined') return;
+
   gsap.utils.toArray('section').forEach((section: any) => {
     const bg = section.querySelector('.section-bg');
     if (bg) {

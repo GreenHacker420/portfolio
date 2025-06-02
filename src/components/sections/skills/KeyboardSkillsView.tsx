@@ -1,11 +1,13 @@
+'use client';
+
 import { motion } from 'framer-motion';
 import { useState, useRef, useEffect } from 'react';
 import { Skill } from '../../../data/skillsData';
 import Spline from '@splinetool/react-spline';
 import { Application } from '@splinetool/runtime';
 import { toast } from '@/components/ui/use-toast';
-import { skills, skillsMap, getSkillById } from '../../../data/skillsData';
-import { KEYBOARD_LAYOUT, getKeyByIdFixed } from '../../../data/keyboardData';
+import { getSkillById } from '../../../data/skillsData';
+// import { KEYBOARD_LAYOUT, getKeyByIdFixed } from '../../../data/keyboardData';
 import LoadingScreen from './keyboard/LoadingScreen';
 
 // Skill card component to display when a key is pressed
@@ -158,34 +160,20 @@ const KeyboardSkillsView = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const splineRef = useRef<Application | null>(null);
-  
+
   // Handle skill selection when a key is pressed in the Spline scene
   const onSplineLoad = (splineApp: Application) => {
     splineRef.current = splineApp;
     setLoading(false);
-    
+
     try {
-      // Find all keyboard keys in the Spline model
-      const keyObjects = KEYBOARD_LAYOUT.flatMap(row => row.map(key => key.id));
-      
-      // Set up interaction handlers for each key - using Spline's event system
-      keyObjects.forEach(keyId => {
-        try {
-          const keyObject = splineApp.findObjectByName(keyId);
-          
-          if (keyObject) {
-            // Use Spline's emitEvent system for interactions
-            splineApp.addEventListener('mouseDown', (e) => {
-              if (e.target && e.target.name === keyId) {
-                handleKeyPress(keyId);
-              }
-            });
-          }
-        } catch (keyErr) {
-          console.warn(`Could not set up interaction for key: ${keyId}`, keyErr);
+      // Set up interaction handlers for Spline objects
+      splineApp.addEventListener('mouseDown', (e) => {
+        if (e.target && e.target.name) {
+          handleKeyPress(e.target.name);
         }
       });
-      
+
     } catch (err) {
       console.error("Error setting up Spline interactions:", err);
       setError("Failed to set up keyboard interactions.");
@@ -199,14 +187,25 @@ const KeyboardSkillsView = () => {
 
   const handleKeyPress = (keyId: string) => {
     try {
-      // Find the key data
-      const keyData = getKeyByIdFixed(keyId);
-      
-      if (keyData) {
-        // Only show skill info if it's a skill key
-        const skillId = keyData.skillId;
-        if (skillId) {
-          const skillData = getSkillById(skillId);
+      // Map Spline object names to skill IDs
+      const skillMapping: { [key: string]: string } = {
+        'react_key': 'react',
+        'typescript_key': 'typescript',
+        'nextjs_key': 'nextjs',
+        'nodejs_key': 'nodejs',
+        'python_key': 'python',
+        'javascript_key': 'javascript',
+        'html_key': 'html',
+        'css_key': 'css',
+        'git_key': 'git',
+        'docker_key': 'docker',
+        // Add more mappings as needed based on your Spline model
+      };
+
+      const skillId = skillMapping[keyId];
+      if (skillId) {
+        const skillData = getSkillById(skillId);
+        if (skillData) {
           setSelectedSkill(skillData);
           setShowSkillInfo(true);
         }
@@ -225,26 +224,32 @@ const KeyboardSkillsView = () => {
 
   // Handle keyboard input for accessibility
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const handleKeyboardPress = (e: KeyboardEvent) => {
       try {
-        // Map keyboard keys to skill keys
-        const key = e.key.toLowerCase();
-
         // Check for escape key to close skill info
         if (e.key === 'Escape' && showSkillInfo) {
           handleCloseSkillCard();
           return;
         }
 
-        // Find matching key in layout
-        const flatLayout = KEYBOARD_LAYOUT.flat();
-        const matchingKey = flatLayout.find(k =>
-          k.label.toLowerCase() === key ||
-          k.id.toLowerCase() === key
-        );
+        // Simple key mapping for common skills
+        const keyMapping: { [key: string]: string } = {
+          'r': 'react_key',
+          't': 'typescript_key',
+          'n': 'nextjs_key',
+          'j': 'javascript_key',
+          'p': 'python_key',
+          'h': 'html_key',
+          'c': 'css_key',
+          'g': 'git_key',
+          'd': 'docker_key',
+        };
 
-        if (matchingKey) {
-          handleKeyPress(matchingKey.id);
+        const splineKey = keyMapping[e.key.toLowerCase()];
+        if (splineKey) {
+          handleKeyPress(splineKey);
         }
       } catch (err) {
         console.error("Error processing key press:", err);
@@ -264,8 +269,8 @@ const KeyboardSkillsView = () => {
       <div className="w-full h-[400px] flex items-center justify-center bg-github-dark/50 rounded-lg">
         <div className="text-center p-6">
           <p className="text-red-400 mb-2">Error: {error}</p>
-          <button 
-            onClick={() => setError(null)} 
+          <button
+            onClick={() => setError(null)}
             className="px-4 py-2 bg-github-light/30 text-neon-green rounded-md hover:bg-github-light/50 transition-colors"
           >
             Retry
@@ -295,20 +300,45 @@ const KeyboardSkillsView = () => {
             <p className="text-github-text max-w-xl">{selectedSkill.description}</p>
           </motion.div>
         )}
-        
-        {/* Spline 3D keyboard */}
+
+        {/* Temporary fallback for Spline keyboard - will be restored once compatibility is fixed */}
         <div className="w-full max-w-4xl mx-auto relative h-[600px]">
-          {/* Loading overlay */}
-          {loading && <LoadingScreen />}
-          
-          {/* Spline component with the new URL */}
-          <Spline 
-            scene="https://prod.spline.design/bnffRvBtBHvfSiOW/scene.splinecode" 
-            onLoad={onSplineLoad}
-            style={{ width: '100%', height: '100%' }}
-          />
-          
-          {/* Skill information card - positioned on top of Spline for better visibility */}
+          <div className="w-full h-full bg-github-darker rounded-lg border border-github-border flex items-center justify-center">
+            <div className="text-center p-8">
+              <div className="mb-6">
+                <div className="w-16 h-16 mx-auto mb-4 bg-neon-green/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-8 h-8 text-neon-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-semibold text-neon-green mb-2">
+                3D Keyboard Loading...
+              </h3>
+              <p className="text-github-text-secondary mb-6">
+                The interactive 3D mechanical keyboard is being optimized for better compatibility.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-md mx-auto">
+                {['React', 'TypeScript', 'Next.js', 'Node.js', 'Python', 'JavaScript', 'HTML', 'CSS'].map((skill) => (
+                  <button
+                    key={skill}
+                    onClick={() => {
+                      const skillData = getSkillById(skill.toLowerCase().replace('.', ''));
+                      if (skillData) {
+                        setSelectedSkill(skillData);
+                        setShowSkillInfo(true);
+                      }
+                    }}
+                    className="px-3 py-2 bg-github-light/30 text-neon-green rounded-md hover:bg-github-light/50 transition-colors text-sm"
+                  >
+                    {skill}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Skill information card - positioned on top for better visibility */}
           <div className="absolute inset-0 pointer-events-none">
             <div className="pointer-events-auto">
               <SkillCard
@@ -320,9 +350,9 @@ const KeyboardSkillsView = () => {
           </div>
         </div>
       </motion.div>
-      
+
       {/* Hint text */}
-      <motion.div 
+      <motion.div
         className="text-center mt-2 text-white/70 font-medium"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
