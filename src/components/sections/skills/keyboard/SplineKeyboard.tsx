@@ -1,149 +1,114 @@
-import React, { Suspense, useState, useCallback } from 'react';
-import Spline from '@splinetool/react-spline';
-import { motion } from 'framer-motion';
+
+'use client';
+
+import React, { Suspense, useState, useCallback, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+import { Skill, getSkillById } from '../../../../data/skillsData';
 import LoadingScreen from './LoadingScreen';
 
+// Dynamically import Spline with no SSR
+const Spline = dynamic(() => import('@splinetool/react-spline'), {
+  ssr: false,
+  loading: () => <LoadingScreen />
+});
+
 interface SplineKeyboardProps {
-  selectedSkill: string | null;
-  onSkillSelect: (skill: string | null) => void;
-  theme: string;
-  showSkillInfo: boolean;
-  onToggleSkillInfo: () => void;
+  onSkillSelect?: (skill: Skill | null) => void;
 }
 
-const SplineKeyboard: React.FC<SplineKeyboardProps> = ({
-  selectedSkill,
-  onSkillSelect,
-  theme,
-  showSkillInfo,
-  onToggleSkillInfo
-}) => {
-  const [isLoading, setIsLoading] = useState(true);
+const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
   const handleSplineLoad = useCallback(() => {
+    setLoading(false);
     console.log('Spline keyboard loaded successfully');
-    setIsLoading(false);
   }, []);
 
   const handleSplineError = useCallback((error: any) => {
-    console.error('Spline keyboard error:', error);
+    console.error('Spline loading error:', error);
     setError('Failed to load 3D keyboard');
-    setIsLoading(false);
+    setLoading(false);
   }, []);
 
-  const handleSplineMouseDown = useCallback((e: any) => {
-    // Handle interactions with the Spline scene
-    if (e.target && e.target.name) {
-      const keyName = e.target.name;
-      console.log('Spline object clicked:', keyName);
+  const handleObjectClick = useCallback((event: any) => {
+    if (event.target && event.target.name) {
+      const objectName = event.target.name.toLowerCase();
       
-      // Map Spline object names to skills
+      // Map Spline object names to skill IDs
       const skillMapping: { [key: string]: string } = {
-        'react_key': 'React',
-        'typescript_key': 'TypeScript',
-        'nextjs_key': 'Next.js',
-        'nodejs_key': 'Node.js',
-        'python_key': 'Python',
-        'javascript_key': 'JavaScript',
-        'html_key': 'HTML',
-        'css_key': 'CSS',
-        'git_key': 'Git',
-        'docker_key': 'Docker',
-        // Add more mappings as needed
+        'react_key': 'react',
+        'typescript_key': 'typescript',
+        'nextjs_key': 'nextjs',
+        'nodejs_key': 'nodejs',
+        'python_key': 'python',
+        'javascript_key': 'javascript',
+        'html_key': 'html',
+        'css_key': 'css',
+        'git_key': 'git',
+        'docker_key': 'docker',
       };
 
-      const skill = skillMapping[keyName];
-      if (skill) {
-        onSkillSelect(selectedSkill === skill ? null : skill);
+      const skillId = skillMapping[objectName];
+      if (skillId) {
+        const skill = getSkillById(skillId);
+        if (skill) {
+          setSelectedSkill(skill);
+          if (onSkillSelect) {
+            onSkillSelect(skill);
+          }
+        }
       }
     }
-  }, [selectedSkill, onSkillSelect]);
+  }, [onSkillSelect]);
 
-  const retryLoad = useCallback(() => {
-    setError(null);
-    setIsLoading(true);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Add any additional initialization here
+    }
   }, []);
 
-  const ErrorFallback = () => (
-    <div className="flex items-center justify-center h-96 bg-github-darker rounded-lg border border-github-border">
-      <div className="text-center p-6">
-        <h3 className="text-lg font-semibold text-red-400 mb-2">
-          3D Keyboard Error
-        </h3>
-        <p className="text-github-text-secondary text-sm mb-4">
-          Failed to load 3D keyboard from Spline
-        </p>
-        <button
-          onClick={retryLoad}
-          className="px-4 py-2 bg-neon-green text-github-dark rounded-md hover:bg-neon-green/80 transition-colors"
-        >
-          Retry
-        </button>
-      </div>
-    </div>
-  );
-
   if (error) {
-    return <ErrorFallback />;
+    return (
+      <div className="w-full h-[600px] flex items-center justify-center bg-github-dark/50 rounded-lg">
+        <div className="text-center p-6">
+          <p className="text-red-400 mb-4">Error: {error}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              setLoading(true);
+            }}
+            className="px-4 py-2 bg-github-light/30 text-neon-green rounded-md hover:bg-github-light/50 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="relative w-full h-96 bg-black rounded-lg border border-github-border overflow-hidden"
-    >
-      {isLoading && <LoadingScreen />}
+    <div className="relative w-full h-[600px]">
+      {loading && <LoadingScreen />}
       
       <Suspense fallback={<LoadingScreen />}>
         <Spline
           scene="https://prod.spline.design/bnffRvBtBHvfSiOW/scene.splinecode"
           onLoad={handleSplineLoad}
           onError={handleSplineError}
-          onMouseDown={handleSplineMouseDown}
-          style={{
-            width: '100%',
-            height: '100%',
-            background: 'black'
-          }}
+          onClick={handleObjectClick}
+          style={{ width: '100%', height: '100%' }}
         />
       </Suspense>
 
-      {/* Skill information overlay */}
-      {selectedSkill && showSkillInfo && (
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 20 }}
-          className="absolute top-4 right-4 bg-github-dark/90 backdrop-blur-sm border border-github-border rounded-lg p-4 max-w-xs z-10"
-        >
-          <h3 className="text-neon-green font-semibold mb-2">{selectedSkill}</h3>
-          <p className="text-github-text-secondary text-sm">
-            Click on keyboard keys to explore different skills and technologies.
-          </p>
-          <button
-            onClick={() => onSkillSelect(null)}
-            className="mt-2 text-xs text-github-text-secondary hover:text-neon-green transition-colors"
-          >
-            Close
-          </button>
-        </motion.div>
+      {selectedSkill && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-github-dark/95 border border-github-border rounded-lg p-4 max-w-sm">
+          <h3 className="text-white font-semibold mb-2">{selectedSkill.name}</h3>
+          <p className="text-github-text text-sm">{selectedSkill.description}</p>
+        </div>
       )}
-
-      {/* Instructions overlay */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.5 }}
-        className="absolute bottom-4 left-4 bg-github-dark/80 backdrop-blur-sm border border-github-border rounded-lg p-3 max-w-sm"
-      >
-        <p className="text-github-text-secondary text-xs">
-          🖱️ Click and drag to rotate • 🔍 Scroll to zoom • ⌨️ Click keys to see skills
-        </p>
-      </motion.div>
-    </motion.div>
+    </div>
   );
 };
 

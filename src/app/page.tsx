@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from "react";
@@ -22,7 +23,7 @@ import {
   createParallaxEffect
 } from "@/utils/animation";
 
-// Register GSAP plugins
+// Register GSAP plugins only on client side
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 }

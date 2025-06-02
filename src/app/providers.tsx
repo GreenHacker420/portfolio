@@ -1,3 +1,4 @@
+
 'use client';
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,9 +8,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useState, useEffect } from "react";
 import LoadingScreen from "@/components/sections/LoadingScreen";
-import AnimatedCursor from "@/components/effects/AnimatedCursor";
-import ReactiveBackground from "@/components/effects/ReactiveBackground";
-import Chatbot from "@/components/sections/Chatbot";
+import dynamic from "next/dynamic";
+
+// Dynamically import client-only components
+const AnimatedCursor = dynamic(() => import("@/components/effects/AnimatedCursor"), {
+  ssr: false
+});
+
+const ReactiveBackground = dynamic(() => import("@/components/effects/ReactiveBackground"), {
+  ssr: false
+});
+
+const Chatbot = dynamic(() => import("@/components/sections/Chatbot"), {
+  ssr: false
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,8 +35,11 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     // Check if user is on mobile device
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -66,6 +81,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       window.removeEventListener('resize', checkMobile);
     };
   }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <ThemeProvider>
