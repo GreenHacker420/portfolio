@@ -26,6 +26,25 @@ rm -rf node_modules/.cache
 echo "📦 Installing dependencies..."
 npm ci --legacy-peer-deps --prefer-offline --no-audit
 
+# Verify critical packages are installed
+echo "🔍 Verifying critical packages..."
+if [ ! -d "node_modules/prisma" ]; then
+    echo "⚠️ Prisma not found in node_modules, installing..."
+    npm install prisma --legacy-peer-deps
+fi
+
+if [ ! -d "node_modules/tailwindcss" ]; then
+    echo "⚠️ TailwindCSS not found in node_modules, installing..."
+    npm install tailwindcss autoprefixer postcss --legacy-peer-deps
+fi
+
+# Verify Prisma CLI is available
+echo "🔍 Checking Prisma CLI availability..."
+if ! npx prisma --version; then
+    echo "❌ Prisma CLI not available, installing globally..."
+    npm install -g prisma
+fi
+
 # Generate Prisma client for Netlify environment
 echo "🗄️ Generating Prisma client..."
 if ! npx prisma generate --no-engine; then

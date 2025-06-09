@@ -13,6 +13,8 @@
   NODE_OPTIONS = "--max-old-space-size=4096"
   # Disable Prisma telemetry
   CHECKPOINT_DISABLE = "1"
+  # Ensure dev dependencies are installed
+  NPM_CONFIG_PRODUCTION = "false"
 
 # Next.js specific configuration
 [[plugins]]

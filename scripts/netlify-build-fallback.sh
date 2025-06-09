@@ -11,14 +11,19 @@ echo "🔄 Running fallback build process..."
 export NEXT_TELEMETRY_DISABLED=1
 export SKIP_TYPE_CHECK=true
 export CHECKPOINT_DISABLE=1
+export NPM_CONFIG_PRODUCTION=false
 
-# Install dependencies
-echo "📦 Installing dependencies..."
+# Install dependencies including dev dependencies
+echo "📦 Installing all dependencies..."
 npm ci --legacy-peer-deps
+
+# Ensure critical packages are available
+echo "🔧 Ensuring critical packages are installed..."
+npm install prisma tailwindcss autoprefixer postcss --legacy-peer-deps --save-dev || echo "⚠️ Package installation failed, continuing..."
 
 # Try Prisma generation
 echo "🗄️ Attempting Prisma generation..."
-npx prisma generate --no-engine || echo "⚠️ Prisma generation failed, continuing..."
+npx prisma generate --no-engine || npx prisma generate || echo "⚠️ Prisma generation failed, continuing..."
 
 # Build with Next.js
 echo "🏗️ Building with Next.js..."
