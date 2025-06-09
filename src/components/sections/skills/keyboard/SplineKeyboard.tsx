@@ -2,7 +2,8 @@
 'use client';
 
 import React, { Suspense, useState, useCallback, useEffect } from 'react';
-import { Skill, getSkillById } from '../../../../data/skillsData';
+import { Skill } from '../../../../types/skills';
+import { getSkillByIdSync } from '../../../../services/skillsDataService';
 import LoadingScreen from './LoadingScreen';
 import '../../../../styles/spline-overrides.css';
 
@@ -110,7 +111,7 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
       console.log('Mapped skill ID:', skillId);
 
       if (skillId) {
-        const skill = getSkillById(skillId);
+        const skill = getSkillByIdSync(skillId);
         console.log('Found skill:', skill);
 
         if (skill) {

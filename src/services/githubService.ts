@@ -138,24 +138,8 @@ export const calculateLanguageDistribution = async (repos: GithubRepo[]): Promis
   return languageData;
 };
 
-// Generate mock contribution data (since the actual contribution calendar requires authentication)
-// In a real app, you might use a GitHub token to fetch actual contribution data
-export const generateContributionData = (): { month: string; contributions: number }[] => {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const currentMonth = new Date().getMonth();
-  
-  // Reorder months to start from current month - 11 (to show last 12 months)
-  const orderedMonths = [];
-  for (let i = 0; i < 12; i++) {
-    const monthIndex = (currentMonth - 11 + i + 12) % 12;
-    orderedMonths.push(months[monthIndex]);
-  }
-  
-  return orderedMonths.map(month => ({
-    month,
-    contributions: Math.floor(Math.random() * 50) + 20 // Random number between 20-70
-  }));
-};
+// Note: Contribution data requires GitHub GraphQL API with authentication
+// This would need to be implemented separately with proper GitHub tokens
 
 // Fetch all GitHub stats in one call
 export const fetchAllGithubStats = async (): Promise<{
@@ -163,7 +147,6 @@ export const fetchAllGithubStats = async (): Promise<{
   repos: GithubRepo[];
   topRepos: GithubRepo[];
   languageData: GithubLanguage[];
-  contributionData: { month: string; contributions: number }[];
   stats: GithubStats;
 }> => {
   try {
@@ -172,31 +155,29 @@ export const fetchAllGithubStats = async (): Promise<{
       fetchGithubUser(),
       fetchGithubRepos()
     ]);
-    
+
     // Process the data
     const topRepos = getTopRepos(repos);
     const languageData = await calculateLanguageDistribution(repos);
-    const contributionData = generateContributionData();
-    
+
     // Calculate stats
     const totalStars = calculateTotalStars(repos);
-    
+
     // For commits, PRs, and issues, we're using placeholder values
     // In a real app with authentication, you could fetch these from the GitHub API
     const stats: GithubStats = {
       stars: totalStars,
-      commits: 430, // Placeholder - would need GitHub auth for real data
-      prs: 28,      // Placeholder
-      issues: 15,    // Placeholder
+      commits: 0, // Would need GitHub auth for real data
+      prs: 0,     // Would need GitHub auth for real data
+      issues: 0,  // Would need GitHub auth for real data
       contributions: repos.length // Use repo count as a proxy for contributions
     };
-    
+
     return {
       user,
       repos,
       topRepos,
       languageData,
-      contributionData,
       stats
     };
   } catch (error) {

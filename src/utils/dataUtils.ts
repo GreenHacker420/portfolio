@@ -1,23 +1,28 @@
 
-import data from '../data/data.json';
 import { fetchSkills, transformSkillsForLegacyComponents } from '../services/skillsService';
 
-// Legacy function for backward compatibility
-export const getSkillsData = () => {
-  return data.skills;
-};
-
-// New function that fetches from database
+// Function that fetches skills from database
 export const getSkillsDataFromDB = async () => {
   try {
     const { skills } = await fetchSkills();
     return transformSkillsForLegacyComponents(skills);
   } catch (error) {
-    console.error('Failed to fetch skills from database, falling back to static data:', error);
-    return data.skills;
+    console.error('Failed to fetch skills from database:', error);
+    throw error;
   }
 };
 
-export const getProjectsData = () => {
-  return data.projects;
+// Function to fetch projects from API
+export const getProjectsDataFromAPI = async () => {
+  try {
+    const response = await fetch('/api/projects');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch projects: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.projects || [];
+  } catch (error) {
+    console.error('Failed to fetch projects from API:', error);
+    throw error;
+  }
 };

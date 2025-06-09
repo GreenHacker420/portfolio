@@ -42,8 +42,11 @@ export async function GET(request: Request) {
     const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
 
     if (!githubToken) {
-      console.warn('GitHub token not configured, using mock data');
-      return getMockData();
+      console.error('GitHub token not configured');
+      return NextResponse.json(
+        { error: 'GitHub API not configured' },
+        { status: 503 }
+      );
     }
 
     // Fetch real GitHub data
@@ -68,7 +71,10 @@ export async function GET(request: Request) {
 
     if (!userResponse.ok || !reposResponse.ok) {
       console.error('GitHub API error:', userResponse.status, reposResponse.status);
-      return getMockData();
+      return NextResponse.json(
+        { error: 'GitHub API rate limit exceeded' },
+        { status: 429 }
+      );
     }
 
     const userData = await userResponse.json();
@@ -98,55 +104,14 @@ export async function GET(request: Request) {
     return NextResponse.json(realStats, { status: 200 });
   } catch (error) {
     console.error('GitHub API error:', error);
-    return getMockData();
+    return NextResponse.json(
+      { error: 'Failed to fetch GitHub statistics' },
+      { status: 500 }
+    );
   }
 }
 
-function getMockData() {
-  const mockStats = {
-    user: {
-      login: 'GreenHacker420',
-      name: 'GreenHacker',
-      bio: 'Full-stack developer passionate about AI and open source',
-      public_repos: 47,
-      followers: 123,
-      following: 89,
-      created_at: '2021-01-15T00:00:00Z',
-      avatar_url: 'https://avatars.githubusercontent.com/u/placeholder',
-      html_url: 'https://github.com/GreenHacker420',
-    },
-    stats: {
-      totalStars: 47,
-      totalCommits: 430,
-      totalPRs: 28,
-      totalIssues: 15,
-      contributedRepos: 12,
-    },
-    languages: [
-      { name: 'JavaScript', percentage: 38, color: '#f1e05a' },
-      { name: 'TypeScript', percentage: 24, color: '#3178c6' },
-      { name: 'Python', percentage: 18, color: '#3572A5' },
-      { name: 'HTML', percentage: 10, color: '#e34c26' },
-      { name: 'CSS', percentage: 10, color: '#563d7c' },
-    ],
-    recentActivity: [
-      {
-        type: 'push',
-        repo: 'portfolio-nextjs',
-        message: 'Updated portfolio with new projects',
-        date: new Date().toISOString(),
-      },
-      {
-        type: 'star',
-        repo: 'awesome-react-components',
-        message: 'Starred repository',
-        date: new Date(Date.now() - 86400000).toISOString(),
-      },
-    ],
-  };
 
-  return NextResponse.json(mockStats, { status: 200 });
-}
 
 function calculateStats(repos: any[]) {
   const totalStars = repos.reduce((sum, repo) => sum + repo.stargazers_count, 0);

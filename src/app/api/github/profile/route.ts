@@ -43,8 +43,11 @@ export async function GET(request: Request) {
     const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
 
     if (!githubToken) {
-      console.warn('GitHub token not configured, using mock data');
-      return getMockProfile();
+      console.error('GitHub token not configured');
+      return NextResponse.json(
+        { error: 'GitHub API not configured' },
+        { status: 503 }
+      );
     }
 
     // Fetch real GitHub profile data
@@ -71,7 +74,10 @@ export async function GET(request: Request) {
         });
       }
       
-      return getMockProfile();
+      return NextResponse.json(
+        { error: 'GitHub API rate limit exceeded' },
+        { status: 429 }
+      );
     }
 
     const userData = await response.json();
@@ -102,40 +108,11 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('GitHub profile API error:', error);
-    return getMockProfile();
+    return NextResponse.json(
+      { error: 'Failed to fetch GitHub profile' },
+      { status: 500 }
+    );
   }
 }
 
-function getMockProfile() {
-  const mockProfile = {
-    login: 'GreenHacker420',
-    name: 'Green Hacker',
-    bio: 'Full-stack developer passionate about AI, machine learning, and creating innovative web experiences. Always learning, always building.',
-    avatar_url: 'https://avatars.githubusercontent.com/u/placeholder',
-    html_url: 'https://github.com/GreenHacker420',
-    public_repos: 25,
-    followers: 150,
-    following: 75,
-    created_at: '2020-01-15T00:00:00Z',
-    updated_at: new Date().toISOString(),
-    location: 'San Francisco, CA',
-    blog: 'https://greenhacker420.dev',
-    twitter_username: 'greenhacker420',
-    company: 'Independent Developer',
-  };
 
-  return NextResponse.json({
-    success: true,
-    data: mockProfile,
-    cached: false,
-    mock: true,
-    timestamp: new Date().toISOString()
-  });
-}
-
-export async function POST() {
-  return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
-  );
-}

@@ -25,17 +25,17 @@ async function main() {
   
   console.log('✅ Admin user created:', admin.email)
 
-  // Create sample personal info
+  // Create personal info (will be updated through admin panel)
   const personalInfo = await prisma.personalInfo.upsert({
     where: { id: 'default' },
     update: {},
     create: {
       id: 'default',
-      fullName: 'Your Name',
+      fullName: 'Portfolio Owner',
       title: 'Full Stack Developer',
-      bio: 'Passionate developer with expertise in modern web technologies.',
+      bio: 'Update your bio through the admin panel.',
       email: adminEmail,
-      location: 'Your Location',
+      location: 'Update location through admin panel',
     },
   })
   
@@ -254,20 +254,19 @@ async function main() {
   
   console.log('✅ Sample skills created')
 
-  // Create sample project
+  // Create initial project (update through admin panel)
   const sampleProject = {
     title: 'Portfolio Admin Dashboard',
-    description: 'Comprehensive admin dashboard for managing portfolio content',
-    longDescription: 'A full-featured admin dashboard built with Next.js, TypeScript, and Prisma. Features include CRUD operations, role-based authentication, audit logging, and responsive design.',
+    description: 'Admin dashboard for managing portfolio content',
+    longDescription: 'Update project details through the admin panel.',
     category: 'web-app',
-    technologies: JSON.stringify(['Next.js', 'TypeScript', 'Prisma', 'Tailwind CSS', 'PostgreSQL']),
-    status: 'published' as const,
-    featured: true,
-    githubUrl: 'https://github.com/yourusername/portfolio-admin',
-    imageUrl: 'https://via.placeholder.com/600x400/3B82F6/FFFFFF?text=Admin+Dashboard',
+    technologies: JSON.stringify(['Next.js', 'TypeScript', 'Prisma']),
+    status: 'draft' as const,
+    featured: false,
+    githubUrl: '',
+    imageUrl: '',
     highlights: JSON.stringify([
-      'Role-based authentication',
-      'CRUD operations for all content',
+      'Add project highlights through admin panel',
       'Audit logging system',
       'Responsive design',
       'Real-time validation'
@@ -287,15 +286,15 @@ async function main() {
   
   console.log('✅ Sample project created')
 
-  // Create sample work experience
+  // Create initial work experience (update through admin panel)
   const sampleExperience = {
-    company: 'Tech Company',
-    position: 'Full Stack Developer',
+    company: 'Update Company Name',
+    position: 'Update Position Title',
     startDate: new Date('2022-01-01'),
-    endDate: null, // Current position
-    description: 'Developing and maintaining web applications using modern technologies. Leading frontend development and collaborating with cross-functional teams.',
-    companyLogo: 'https://via.placeholder.com/100x100/6366F1/FFFFFF?text=TC',
-    isVisible: true,
+    endDate: null,
+    description: 'Update job description through the admin panel.',
+    companyLogo: '',
+    isVisible: false,
     displayOrder: 1,
   }
 

@@ -7,7 +7,6 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pi
 import { RefreshCw, Github, Star, GitFork, Users, Calendar } from 'lucide-react';
 
 import { animateGithubGraph } from '../../utils/animation';
-import GitHubStatsAI from './GitHubStatsAI';
 
 interface GitHubProfile {
   login: string;
@@ -79,19 +78,29 @@ const Stats = () => {
         fetch('/api/github/repos')
       ]);
 
-      if (!profileResponse.ok || !reposResponse.ok) {
-        throw new Error('Failed to fetch GitHub data');
+      // Handle profile response
+      if (profileResponse.ok) {
+        const profileData = await profileResponse.json();
+        if (profileData.success) {
+          setGithubProfile(profileData.data);
+        }
+      } else {
+        console.warn('GitHub profile API failed:', profileResponse.status);
       }
 
-      const profileData = await profileResponse.json();
-      const reposData = await reposResponse.json();
-
-      if (profileData.success) {
-        setGithubProfile(profileData.data);
+      // Handle repos response
+      if (reposResponse.ok) {
+        const reposData = await reposResponse.json();
+        if (reposData.repos) {
+          setGithubRepos(reposData.repos);
+        }
+      } else {
+        console.warn('GitHub repos API failed:', reposResponse.status);
       }
 
-      if (reposData.repos) {
-        setGithubRepos(reposData.repos);
+      // If both APIs failed, show error
+      if (!profileResponse.ok && !reposResponse.ok) {
+        throw new Error('GitHub API is currently unavailable');
       }
 
       setLastUpdated(new Date());
@@ -125,31 +134,6 @@ const Stats = () => {
     return githubRepos.reduce((total, repo) => total + repo.forks_count, 0);
   };
 
-  const calculateLanguageStats = () => {
-    const languageMap: Record<string, number> = {};
-    githubRepos.forEach(repo => {
-      if (repo.language) {
-        languageMap[repo.language] = (languageMap[repo.language] || 0) + repo.size;
-      }
-    });
-    return languageMap;
-  };
-
-  const calculateTotalCommits = () => {
-    // Estimate based on repositories (this would need GitHub API commits endpoint for accuracy)
-    return githubRepos.length * 15; // Rough estimate
-  };
-
-  const getContributionYears = () => {
-    const currentYear = new Date().getFullYear();
-    const accountCreated = githubProfile?.created_at ? new Date(githubProfile.created_at).getFullYear() : currentYear - 3;
-    const years = [];
-    for (let year = accountCreated; year <= currentYear; year++) {
-      years.push(year);
-    }
-    return years;
-  };
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -165,44 +149,70 @@ const Stats = () => {
     visible: { opacity: 1, y: 0 }
   };
 
-  const githubStats = {
-    stars: 47,
-    commits: 430,
-    prs: 28,
-    issues: 15,
-    contributions: 12,
+  // Calculate stats from real GitHub data
+  const githubStats = githubProfile && githubRepos ? {
+    stars: githubRepos.reduce((total, repo) => total + repo.stargazers_count, 0),
+    commits: 0, // Would need additional API calls for accurate count
+    prs: 0, // Would need additional API calls
+    issues: 0, // Would need additional API calls
+    contributions: githubRepos.length,
+  } : {
+    stars: 0,
+    commits: 0,
+    prs: 0,
+    issues: 0,
+    contributions: 0,
   };
 
+  // Generate contribution data (placeholder since GitHub API requires auth for real data)
   const contributionData = [
-    { month: 'May', contributions: 42 },
-    { month: 'Jun', contributions: 38 },
-    { month: 'Jul', contributions: 56 },
-    { month: 'Aug', contributions: 72 },
-    { month: 'Sep', contributions: 48 },
-    { month: 'Oct', contributions: 62 },
-    { month: 'Nov', contributions: 54 },
-    { month: 'Dec', contributions: 38 },
-    { month: 'Jan', contributions: 45 },
-    { month: 'Feb', contributions: 67 },
-    { month: 'Mar', contributions: 52 },
-    { month: 'Apr', contributions: 49 },
+    { month: 'Jan', contributions: 0 },
+    { month: 'Feb', contributions: 0 },
+    { month: 'Mar', contributions: 0 },
+    { month: 'Apr', contributions: 0 },
+    { month: 'May', contributions: 0 },
+    { month: 'Jun', contributions: 0 },
+    { month: 'Jul', contributions: 0 },
+    { month: 'Aug', contributions: 0 },
+    { month: 'Sep', contributions: 0 },
+    { month: 'Oct', contributions: 0 },
+    { month: 'Nov', contributions: 0 },
+    { month: 'Dec', contributions: 0 },
   ];
 
-  const languageData = [
-    { name: 'JavaScript', value: 38, color: '#f1e05a' },
-    { name: 'TypeScript', value: 24, color: '#3178c6' },
-    { name: 'Python', value: 18, color: '#3572A5' },
-    { name: 'HTML', value: 10, color: '#e34c26' },
-    { name: 'CSS', value: 10, color: '#563d7c' },
-  ];
+  // Calculate language distribution from repos
+  const languageData = githubRepos ? (() => {
+    const languageCount: { [key: string]: number } = {};
+    const languageColors: { [key: string]: string } = {
+      JavaScript: '#f1e05a',
+      TypeScript: '#3178c6',
+      Python: '#3572A5',
+      HTML: '#e34c26',
+      CSS: '#563d7c',
+      Java: '#b07219',
+      'C++': '#f34b7d',
+      Go: '#00ADD8',
+      Rust: '#dea584',
+      PHP: '#4F5D95',
+    };
 
-  const repoData = [
-    { name: 'ML-Face-Recognition', stars: 15, forks: 7 },
-    { name: 'React-Portfolio', stars: 12, forks: 5 },
-    { name: 'UI-Component-Library', stars: 8, forks: 3 },
-    { name: 'Python-Data-Analysis', stars: 7, forks: 2 },
-    { name: 'Mobile-App-Template', stars: 5, forks: 1 },
-  ];
+    githubRepos.forEach(repo => {
+      if (repo.language) {
+        languageCount[repo.language] = (languageCount[repo.language] || 0) + 1;
+      }
+    });
+
+    const total = Object.values(languageCount).reduce((sum, count) => sum + count, 0);
+
+    return Object.entries(languageCount)
+      .map(([name, count]) => ({
+        name,
+        value: Math.round((count / total) * 100),
+        color: languageColors[name] || '#858585',
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 5);
+  })() : [];
 
   return (
     <section id="stats" className="py-20 bg-github-light">
@@ -605,27 +615,6 @@ const Stats = () => {
               </motion.button>
             </div>
           </motion.div>
-        </motion.div>
-
-        {/* AI-Powered GitHub Analysis */}
-        <motion.div
-          variants={itemVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="mt-8"
-        >
-          <GitHubStatsAI
-            githubData={
-              githubProfile && githubRepos.length > 0 ? {
-                profile: githubProfile,
-                repositories: githubRepos,
-                languages: calculateLanguageStats(),
-                totalCommits: calculateTotalCommits(),
-                contributionYears: getContributionYears()
-              } : null
-            }
-          />
         </motion.div>
       </div>
     </section>
