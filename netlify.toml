@@ -7,7 +7,8 @@
   NPM_VERSION = "10"
   NEXT_TELEMETRY_DISABLED = "1"
   SKIP_TYPE_CHECK = "true"
-  PRISMA_CLI_BINARY_TARGETS = "native,rhel-openssl-1.0.x,rhel-openssl-3.0.x,linux-musl,debian-openssl-1.1.x,debian-openssl-3.0.x"
+  PRISMA_CLI_BINARY_TARGETS = "debian-openssl-1.1.x,debian-openssl-3.0.x,rhel-openssl-1.0.x,rhel-openssl-3.0.x,linux-musl"
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # Next.js specific configuration
 [[plugins]]

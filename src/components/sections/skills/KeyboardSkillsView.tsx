@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Skill } from '../../../data/skillsData';
+import { Skill } from '../../../types/skills';
 import SplineKeyboard from './keyboard/SplineKeyboard';
 
 const KeyboardSkillsView = () => {
@@ -32,18 +32,17 @@ const KeyboardSkillsView = () => {
         </motion.div>
       )}
 
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SplineKeyboard onSkillSelect={handleSkillSelect} />
       </div>
 
       <motion.div
-        className="text-center mt-6 text-white/70 font-medium"
+        className="text-center mt-4 text-white/70 font-medium"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
       >
-        <p className="text-lg mb-2">🎹 Interactive 3D Keyboard</p>
-        <p className="text-sm">Click on any key to explore my technical skills and experience</p>
+        <p>Click on a key to explore my skills</p>
       </motion.div>
     </motion.div>
   );

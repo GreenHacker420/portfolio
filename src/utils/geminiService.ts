@@ -1,3 +1,4 @@
+
 // Gemini AI Service for generating resume highlights
 // This service provides AI-powered highlight generation for resume/portfolio content
 
@@ -16,7 +17,7 @@ export const generateResumeHighlightWithGemini = async (resumeContext?: string):
   }
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

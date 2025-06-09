@@ -29,11 +29,26 @@ div[style*="position: fixed"][style*="bottom"] {
   z-index: -1 !important;
 }
 
-/* Ensure Spline canvas takes full space */
-.spline-container {
+/* Ensure Spline canvas takes full space and is responsive */
+.spline-container,
+.spline-keyboard-container {
   width: 100% !important;
   height: 100% !important;
-  min-width: 800px !important;
+  min-width: auto !important;
+  overflow: hidden !important;
+}
+
+/* Responsive design for Spline keyboard */
+@media (max-width: 768px) {
+  .spline-keyboard-container {
+    min-height: 400px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .spline-keyboard-container {
+    min-height: 350px !important;
+  }
 }
 
 /* Override any Spline default styles that might interfere */
