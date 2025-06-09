@@ -128,11 +128,12 @@ export async function PUT(
     // Log the action
     await prisma.auditLog.create({
       data: {
-        action: 'UPDATE',
-        entity: 'Project',
-        entityId: project.id,
         userId: session.user.id,
-        details: `Updated project: ${project.title}`
+        action: 'UPDATE',
+        resource: 'projects',
+        resourceId: project.id,
+        oldData: JSON.stringify(existingProject),
+        newData: JSON.stringify(project),
       }
     })
 
@@ -188,11 +189,11 @@ export async function DELETE(
     // Log the action
     await prisma.auditLog.create({
       data: {
-        action: 'DELETE',
-        entity: 'Project',
-        entityId: params.id,
         userId: session.user.id,
-        details: `Deleted project: ${existingProject.title}`
+        action: 'DELETE',
+        resource: 'projects',
+        resourceId: params.id,
+        oldData: JSON.stringify(existingProject),
       }
     })
 

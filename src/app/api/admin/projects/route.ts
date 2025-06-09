@@ -86,11 +86,11 @@ export async function POST(request: NextRequest) {
     // Log the action
     await prisma.auditLog.create({
       data: {
-        action: 'CREATE',
-        entity: 'Project',
-        entityId: project.id,
         userId: session.user.id,
-        details: `Created project: ${project.title}`
+        action: 'CREATE',
+        resource: 'projects',
+        resourceId: project.id,
+        newData: JSON.stringify(project),
       }
     })
 

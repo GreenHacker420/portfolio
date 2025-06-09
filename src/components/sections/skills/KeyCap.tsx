@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import { Mesh, MeshStandardMaterial, Color } from 'three';
 import { KeyboardKey } from '../../../data/keyboardData';
-import { Skill } from '../../../data/skillsData';
+import { Skill } from '../../../types/skills';
 import { calculateSpringAnimation, DEFAULT_SPRING } from '../../../utils/keyboardUtils';
 import '../../../types/three-jsx';
 

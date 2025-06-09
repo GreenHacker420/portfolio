@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Admin User model for authentication
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  auditLogs      AuditLog[]
+  contactReplies ContactReply[]
+
+  @@map("admin_users")
+}
+
+// Skills management
+model Skill {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String
+  level       Int      // 1-100 proficiency level
+  color       String
+  logo        String?
+  experience  Int?     // years of experience
+  projects    String?  // JSON array of project names
+  strengths   String?  // JSON array of strengths
+  displayOrder Int     @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("skills")
+}
+
+// Projects management
+model Project {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  longDescription String?
+  category        String
+  technologies    String   // JSON array of technologies
+  status          String   @default("draft") // draft, published, archived
+  featured        Boolean  @default(false)
+  githubUrl       String?
+  liveUrl         String?
+  imageUrl        String?
+  screenshots     String?  // JSON array of screenshot URLs
+  startDate       DateTime?
+  endDate         DateTime?
+  highlights      String?  // JSON array of highlights
+  displayOrder    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("projects")
+}
+
+// Personal Information
+model PersonalInfo {
+  id          String   @id @default(cuid())
+  fullName    String
+  title       String
+  bio         String?
+  email       String
+  phone       String?
+  location    String?
+  profilePhoto String?
+  resumeUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("personal_info")
+}
+
+// Social Media Links
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String   // linkedin, github, twitter, etc.
+  url       String
+  isVisible Boolean  @default(true)
+  displayOrder Int   @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("social_links")
+}
+
+// Work Experience
+model WorkExperience {
+  id          String   @id @default(cuid())
+  company     String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  description String?
+  companyLogo String?
+  isVisible   Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("work_experience")
+}
+
+// Education
+model Education {
+  id          String   @id @default(cuid())
+  institution String
+  degree      String
+  fieldOfStudy String?
+  startDate   DateTime
+  endDate     DateTime?
+  gpa         String?
+  honors      String?
+  isVisible   Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("education")
+}
+
+// Contact Form Submissions
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String   @db.Text
+  status    String   @default("pending") // pending, responded, archived
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  replies   ContactReply[]
+
+  @@map("contacts")
+}
+
+// Contact Replies
+model ContactReply {
+  id            String   @id @default(cuid())
+  contactId     String
+  userId        String
+  subject       String
+  message       String   @db.Text
+  isAiGenerated Boolean  @default(false)
+  aiMode        String?  // auto-generate, enhance-draft, manual
+  emailSent     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  contact       Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user          AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("contact_replies")
+}
+
+// Audit Log for tracking admin actions
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String   // CREATE, UPDATE, DELETE
+  resource  String   // skills, projects, contacts, etc.
+  resourceId String?
+  oldData   String?  // JSON of old data
+  newData   String?  // JSON of new data
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}

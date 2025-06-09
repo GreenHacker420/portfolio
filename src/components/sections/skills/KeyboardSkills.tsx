@@ -1,6 +1,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Skill, getSkillById } from '../../../data/skillsData';
+import { Skill } from '../../../types/skills';
+import { getSkillByIdSync, initializeWithLegacyData } from '../../../services/skillsDataService';
 import { getKeyByIdFixed } from '../../../data/keyboardData';
 import { motion } from 'framer-motion';
 import SkillCard from './keyboard/SkillCard';
@@ -18,7 +19,12 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [showSkillInfo, setShowSkillInfo] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
+  // Initialize with legacy data on mount
+  useEffect(() => {
+    initializeWithLegacyData();
+  }, []);
+
   // Use device performance detection hook
   const performanceMode = useDevicePerformance();
 
@@ -73,7 +79,7 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
     const keyData = getKeyByIdFixed(selectedKey);
     if (!keyData || !keyData.skillId) return null;
 
-    return getSkillById(keyData.skillId) || null;
+    return getSkillByIdSync(keyData.skillId) || null;
   }, [selectedKey]);
 
   // Effect to notify parent component when skill changes

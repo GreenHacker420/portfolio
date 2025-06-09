@@ -13,13 +13,33 @@ import KeyboardSkillsView from './skills/KeyboardSkillsView';
 const Skills = () => {
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
   const [displayStyle, setDisplayStyle] = useState<'tabs' | 'keyboard'>('tabs');
+  const [skillsData, setSkillsData] = useState(() => getSkillsData()); // Fallback to static data
+  const [isLoading, setIsLoading] = useState(true);
   const skillsRef = useRef<HTMLDivElement>(null);
-  const { categories, topSkills } = getSkillsData();
+
+  // Load skills data from database
+  useEffect(() => {
+    const loadSkillsData = async () => {
+      try {
+        const dbSkillsData = await getSkillsDataFromDB();
+        setSkillsData(dbSkillsData);
+      } catch (error) {
+        console.error('Failed to load skills from database:', error);
+        // Keep the static data as fallback
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSkillsData();
+  }, []);
 
   // Initialize GSAP animations when component mounts
   useEffect(() => {
     initScrollAnimations();
   }, []);
+
+  const { categories, topSkills } = skillsData;
 
   // Handle skill hover
   const onSkillHover = (element: HTMLElement, skill: string, isEntering: boolean) => {

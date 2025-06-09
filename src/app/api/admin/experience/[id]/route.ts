@@ -94,11 +94,12 @@ export async function PUT(
     // Log the action
     await prisma.auditLog.create({
       data: {
-        action: 'UPDATE',
-        entity: 'WorkExperience',
-        entityId: experience.id,
         userId: session.user.id,
-        details: `Updated work experience: ${experience.position} at ${experience.company}`
+        action: 'UPDATE',
+        resource: 'experience',
+        resourceId: experience.id,
+        oldData: JSON.stringify(existingExperience),
+        newData: JSON.stringify(experience),
       }
     })
 
@@ -146,11 +147,11 @@ export async function DELETE(
     // Log the action
     await prisma.auditLog.create({
       data: {
-        action: 'DELETE',
-        entity: 'WorkExperience',
-        entityId: params.id,
         userId: session.user.id,
-        details: `Deleted work experience: ${existingExperience.position} at ${existingExperience.company}`
+        action: 'DELETE',
+        resource: 'experience',
+        resourceId: params.id,
+        oldData: JSON.stringify(existingExperience),
       }
     })
 

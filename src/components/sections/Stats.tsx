@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, PieChart, Pi
 import { RefreshCw, Github, Star, GitFork, Users, Calendar } from 'lucide-react';
 
 import { animateGithubGraph } from '../../utils/animation';
+import GitHubStatsAI from './GitHubStatsAI';
 
 interface GitHubProfile {
   login: string;
@@ -122,6 +123,31 @@ const Stats = () => {
 
   const calculateTotalForks = () => {
     return githubRepos.reduce((total, repo) => total + repo.forks_count, 0);
+  };
+
+  const calculateLanguageStats = () => {
+    const languageMap: Record<string, number> = {};
+    githubRepos.forEach(repo => {
+      if (repo.language) {
+        languageMap[repo.language] = (languageMap[repo.language] || 0) + repo.size;
+      }
+    });
+    return languageMap;
+  };
+
+  const calculateTotalCommits = () => {
+    // Estimate based on repositories (this would need GitHub API commits endpoint for accuracy)
+    return githubRepos.length * 15; // Rough estimate
+  };
+
+  const getContributionYears = () => {
+    const currentYear = new Date().getFullYear();
+    const accountCreated = githubProfile?.created_at ? new Date(githubProfile.created_at).getFullYear() : currentYear - 3;
+    const years = [];
+    for (let year = accountCreated; year <= currentYear; year++) {
+      years.push(year);
+    }
+    return years;
   };
 
   const containerVariants = {
@@ -579,6 +605,25 @@ const Stats = () => {
               </motion.button>
             </div>
           </motion.div>
+        </motion.div>
+
+        {/* AI-Powered GitHub Analysis */}
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="mt-8"
+        >
+          <GitHubStatsAI
+            githubData={{
+              profile: githubProfile,
+              repositories: githubRepos,
+              languages: calculateLanguageStats(),
+              totalCommits: calculateTotalCommits(),
+              contributionYears: getContributionYears()
+            }}
+          />
         </motion.div>
       </div>
     </section>

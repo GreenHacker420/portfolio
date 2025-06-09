@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Skill } from '../../../data/skillsData';
+import { Skill } from '../../../types/skills';
 import SplineKeyboard from './keyboard/SplineKeyboard';
 
 const KeyboardSkillsView = () => {

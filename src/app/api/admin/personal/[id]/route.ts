@@ -58,11 +58,12 @@ export async function PUT(
     // Log the action
     await prisma.auditLog.create({
       data: {
-        action: 'UPDATE',
-        entity: 'PersonalInfo',
-        entityId: personalInfo.id,
         userId: session.user.id,
-        details: `Updated personal information for ${personalInfo.fullName}`
+        action: 'UPDATE',
+        resource: 'personal_info',
+        resourceId: personalInfo.id,
+        oldData: JSON.stringify(existingInfo),
+        newData: JSON.stringify(personalInfo),
       }
     })
 

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Skill } from '../../../data/skillsData';
+import { Skill } from '../../../types/skills';
 import styled from 'styled-components';
 
 interface SkillInfoProps {

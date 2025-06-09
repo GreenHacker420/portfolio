@@ -26,14 +26,15 @@ export async function GET() {
     })
 
     // Create CSV content
-    const csvHeaders = ['Date', 'Time', 'Action', 'Entity', 'Entity ID', 'Details', 'User Name', 'User Email']
+    const csvHeaders = ['Date', 'Time', 'Action', 'Resource', 'Resource ID', 'Old Data', 'New Data', 'User Name', 'User Email']
     const csvRows = logs.map(log => [
       new Date(log.createdAt).toLocaleDateString(),
       new Date(log.createdAt).toLocaleTimeString(),
       log.action,
-      log.entity,
-      log.entityId,
-      `"${log.details.replace(/"/g, '""')}"`, // Escape quotes in details
+      log.resource,
+      log.resourceId || '',
+      log.oldData ? `"${log.oldData.replace(/"/g, '""')}"` : '', // Escape quotes
+      log.newData ? `"${log.newData.replace(/"/g, '""')}"` : '', // Escape quotes
       log.user.name,
       log.user.email
     ])

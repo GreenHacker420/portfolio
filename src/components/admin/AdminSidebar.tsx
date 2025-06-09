@@ -20,13 +20,15 @@ import {
   Image,
   Link as LinkIcon,
   GraduationCap,
-  Building
+  Building,
+  MessageSquare
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Skills', href: '/admin/skills', icon: BarChart3 },
   { name: 'Projects', href: '/admin/projects', icon: Briefcase },
+  { name: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
   { name: 'Personal Info', href: '/admin/personal', icon: User },
   { name: 'Social Links', href: '/admin/social', icon: LinkIcon },
   { name: 'Experience', href: '/admin/experience', icon: Building },

@@ -4,13 +4,14 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/db'
 import { z } from 'zod'
 
-const experienceSchema = z.object({
-  company: z.string().min(1).max(100),
-  position: z.string().min(1).max(100),
+const educationSchema = z.object({
+  institution: z.string().min(1).max(100),
+  degree: z.string().min(1).max(100),
+  fieldOfStudy: z.string().optional(),
   startDate: z.string(),
   endDate: z.string().optional(),
-  description: z.string().optional(),
-  companyLogo: z.string().url().optional().or(z.literal('')),
+  gpa: z.string().optional(),
+  honors: z.string().optional(),
   isVisible: z.boolean().default(true),
   displayOrder: z.number().default(0),
 })
@@ -23,18 +24,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const experiences = await prisma.workExperience.findMany({
+    const education = await prisma.education.findMany({
       orderBy: [
         { displayOrder: 'asc' },
         { startDate: 'desc' }
       ]
     })
 
-    return NextResponse.json({ experiences })
+    return NextResponse.json({ education })
   } catch (error) {
-    console.error('Error fetching work experiences:', error)
+    console.error('Error fetching education:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch work experiences' },
+      { error: 'Failed to fetch education' },
       { status: 500 }
     )
   }
@@ -49,18 +50,17 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const validatedData = experienceSchema.parse(body)
+    const validatedData = educationSchema.parse(body)
 
     // Convert date strings to Date objects
-    const experienceData = {
+    const educationData = {
       ...validatedData,
       startDate: new Date(validatedData.startDate),
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
-      companyLogo: validatedData.companyLogo || null,
     }
 
-    const experience = await prisma.workExperience.create({
-      data: experienceData
+    const education = await prisma.education.create({
+      data: educationData
     })
 
     // Log the action
@@ -68,13 +68,14 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         action: 'CREATE',
-        resource: 'experience',
-        resourceId: experience.id,
-        newData: JSON.stringify(experience),
+        resource: 'education',
+        resourceId: education.id,
+        newData: JSON.stringify(education),
       }
     })
 
-    return NextResponse.json({ experience }, { status: 201 })
+    return NextResponse.json({ education }, { status: 201 })
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -83,9 +84,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.error('Error creating work experience:', error)
+    console.error('Education create error:', error)
     return NextResponse.json(
-      { error: 'Failed to create work experience' },
+      { error: 'Failed to create education' },
       { status: 500 }
     )
   }

@@ -27,9 +27,10 @@ import { toast } from 'sonner'
 interface AuditLog {
   id: string
   action: string
-  entity: string
-  entityId: string
-  details: string
+  resource: string
+  resourceId: string | null
+  oldData: string | null
+  newData: string | null
   createdAt: string
   user: {
     name: string
@@ -42,7 +43,7 @@ export default function AuditLogsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [actionFilter, setActionFilter] = useState<string>('all')
-  const [entityFilter, setEntityFilter] = useState<string>('all')
+  const [resourceFilter, setResourceFilter] = useState<string>('all')
 
   useEffect(() => {
     fetchAuditLogs()
@@ -89,15 +90,19 @@ export default function AuditLogsPage() {
   }
 
   const filteredLogs = logs.filter(log => {
-    const matchesSearch = 
-      log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.entity.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.user.name.toLowerCase().includes(searchTerm.toLowerCase())
-    
+    const searchableContent = [
+      log.resource,
+      log.resourceId,
+      log.user.name,
+      log.oldData,
+      log.newData
+    ].filter(Boolean).join(' ').toLowerCase()
+
+    const matchesSearch = searchableContent.includes(searchTerm.toLowerCase())
     const matchesAction = actionFilter === 'all' || log.action === actionFilter
-    const matchesEntity = entityFilter === 'all' || log.entity === entityFilter
-    
-    return matchesSearch && matchesAction && matchesEntity
+    const matchesResource = resourceFilter === 'all' || log.resource === resourceFilter
+
+    return matchesSearch && matchesAction && matchesResource
   })
 
   const getActionColor = (action: string) => {
@@ -114,7 +119,7 @@ export default function AuditLogsPage() {
   }
 
   const uniqueActions = [...new Set(logs.map(log => log.action))]
-  const uniqueEntities = [...new Set(logs.map(log => log.entity))]
+  const uniqueResources = [...new Set(logs.map(log => log.resource))]
 
   if (isLoading) {
     return (
@@ -184,13 +189,13 @@ export default function AuditLogsPage() {
             </select>
 
             <select
-              value={entityFilter}
-              onChange={(e) => setEntityFilter(e.target.value)}
+              value={resourceFilter}
+              onChange={(e) => setResourceFilter(e.target.value)}
               className="flex h-10 w-[140px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <option value="all">All Entities</option>
-              {uniqueEntities.map(entity => (
-                <option key={entity} value={entity}>{entity}</option>
+              <option value="all">All Resources</option>
+              {uniqueResources.map(resource => (
+                <option key={resource} value={resource}>{resource}</option>
               ))}
             </select>
           </div>
@@ -200,7 +205,7 @@ export default function AuditLogsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Action</TableHead>
-                  <TableHead>Entity</TableHead>
+                  <TableHead>Resource</TableHead>
                   <TableHead>Details</TableHead>
                   <TableHead>User</TableHead>
                   <TableHead>Date</TableHead>
@@ -218,12 +223,29 @@ export default function AuditLogsPage() {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <Activity className="h-4 w-4 text-muted-foreground" />
-                          <span>{log.entity}</span>
+                          <span>{log.resource}</span>
+                          {log.resourceId && (
+                            <span className="text-xs text-muted-foreground">
+                              ({log.resourceId.slice(0, 8)}...)
+                            </span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="max-w-md truncate" title={log.details}>
-                          {log.details}
+                        <div className="max-w-md">
+                          {log.newData ? (
+                            <div className="text-sm">
+                              <span className="text-green-600">Created/Updated</span>
+                            </div>
+                          ) : log.oldData ? (
+                            <div className="text-sm">
+                              <span className="text-red-600">Deleted</span>
+                            </div>
+                          ) : (
+                            <div className="text-sm text-muted-foreground">
+                              No details
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -256,7 +278,7 @@ export default function AuditLogsPage() {
                   <TableRow>
                     <TableCell colSpan={5} className="text-center py-8">
                       <div className="text-muted-foreground">
-                        {searchTerm || actionFilter !== 'all' || entityFilter !== 'all'
+                        {searchTerm || actionFilter !== 'all' || resourceFilter !== 'all'
                           ? 'No audit logs found matching your criteria'
                           : 'No audit logs yet'
                         }
