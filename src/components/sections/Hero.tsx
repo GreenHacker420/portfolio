@@ -14,12 +14,10 @@ const Hero = () => {
   const heroRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    // Delay mounting to ensure DOM is ready
     const timer = setTimeout(() => {
       setMounted(true);
     }, 100);
 
-    // Fix hero height to properly fill viewport
     const updateHeight = () => {
       if (typeof window !== 'undefined' && heroRef.current) {
         const windowHeight = window.innerHeight;
@@ -27,10 +25,8 @@ const Hero = () => {
       }
     };
 
-    // Initial height set
     updateHeight();
 
-    // Update on resize
     if (typeof window !== 'undefined') {
       window.addEventListener('resize', updateHeight);
     }
@@ -45,21 +41,19 @@ const Hero = () => {
 
   return (
     <section id="home" ref={heroRef} className="relative flex items-center overflow-hidden">
-      {/* Always show fallback background */}
       <ThreeFallback />
-
-      {/* Three.js Background with Error Boundary - overlaid on top */}
       {mounted && <ThreeDBackground mounted={mounted} />}
 
-      <div className="section-container relative z-10">
-        <IntroMessage />
-        <CTAButtons />
-        <TypewriterEffect />
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="flex flex-col justify-center min-h-[80vh] md:min-h-[70vh] py-8 md:py-12">
+          <IntroMessage />
+          <CTAButtons />
+          <TypewriterEffect />
+        </div>
       </div>
 
       <ScrollPrompt />
 
-      {/* Add CSS for animations */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes expand {
           to { width: 100%; }

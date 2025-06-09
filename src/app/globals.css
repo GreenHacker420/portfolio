@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
 
@@ -47,15 +48,25 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html {
     scroll-behavior: smooth;
+    font-size: 16px;
+  }
+
+  /* Mobile responsive font scaling */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px;
+    }
   }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   ::-webkit-scrollbar-track {
@@ -64,11 +75,18 @@
 
   ::-webkit-scrollbar-thumb {
     background: #30363d;
-    border-radius: 4px;
+    border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: #484f58;
+  }
+
+  /* Mobile scrollbar */
+  @media (max-width: 768px) {
+    ::-webkit-scrollbar {
+      width: 3px;
+    }
   }
 
   /* Neon glow effects */
@@ -101,7 +119,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Custom button styles */
+  /* Mobile-optimized button styles */
   .btn-neon {
     position: relative;
     background: transparent;
@@ -113,6 +131,16 @@
     letter-spacing: 1px;
     transition: all 0.3s ease;
     overflow: hidden;
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+
+  @media (max-width: 640px) {
+    .btn-neon {
+      padding: 14px 20px;
+      font-size: 14px;
+      min-height: 44px;
+    }
   }
 
   .btn-neon:before {
@@ -140,19 +168,39 @@
   .section-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .section-container {
+      padding: 0 2rem;
+    }
   }
 
   .section-title {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 700;
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     background: linear-gradient(135deg, #3fb950, #1f6feb);
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     position: relative;
+    line-height: 1.2;
+  }
+
+  @media (min-width: 640px) {
+    .section-title {
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .section-title {
+      font-size: 3rem;
+    }
   }
 
   .section-title:after {
@@ -161,10 +209,16 @@
     bottom: -10px;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px;
+    width: 60px;
     height: 3px;
     background: linear-gradient(135deg, #3fb950, #1f6feb);
     border-radius: 2px;
+  }
+
+  @media (min-width: 640px) {
+    .section-title:after {
+      width: 100px;
+    }
   }
 
   /* Card styles */
@@ -211,14 +265,17 @@
     animation: float 3s ease-in-out infinite;
   }
 
-  /* Responsive design helpers */
-  @media (max-width: 768px) {
-    .section-container {
-      padding: 0 1rem;
-    }
+  /* Mobile touch improvements */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
 
-    .section-title {
-      font-size: 2rem;
+  /* Ensure minimum touch target size on mobile */
+  @media (max-width: 768px) {
+    button, a[href], input, select, textarea {
+      min-height: 44px;
+      min-width: 44px;
     }
   }
 
@@ -237,12 +294,74 @@
     outline: 2px solid #3fb950;
     outline-offset: 2px;
   }
+
+  /* Mobile safe area padding */
+  @supports (padding: max(0px)) {
+    .safe-area-top {
+      padding-top: max(1rem, env(safe-area-inset-top));
+    }
+    
+    .safe-area-bottom {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+  }
+
+  /* Prevent zoom on input focus on iOS */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="password"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"],
+    input[type="number"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="color"] {
+      font-size: 16px;
+    }
+  }
 }
 
 @layer components {
-  /* Component-specific styles can go here */
+  /* Mobile-first responsive grid */
+  .responsive-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .responsive-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .responsive-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+  }
 }
 
 @layer utilities {
-  /* Utility classes can go here */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-responsive {
+    font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+  }
+  
+  .heading-responsive {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+  }
 }

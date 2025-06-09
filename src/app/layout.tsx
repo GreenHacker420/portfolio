@@ -1,5 +1,4 @@
-
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
@@ -8,6 +7,15 @@ import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import WebVitals from '@/components/performance/WebVitals';
 
 const inter = Inter({ subsets: ['latin'] });
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#0d1117',
+  viewportFit: 'cover'
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NETLIFY_URL
@@ -102,8 +110,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="manifest" href="/site.webmanifest" />
-        <meta name="theme-color" content="#0d1117" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="msapplication-TileColor" content="#0d1117" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
         <link rel="canonical" href="https://greenhacker.tech" />
@@ -119,7 +125,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//www.googletagmanager.com" />
         <link rel="dns-prefetch" href="//www.google-analytics.com" />
 
-        {/* Server-side Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
