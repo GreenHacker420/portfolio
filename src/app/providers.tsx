@@ -36,12 +36,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   useEffect(() => {
     setMounted(true);
 
     // Only run on client side
     if (typeof window === 'undefined') return;
+
+    // Check if current route is an admin route
+    const checkAdminRoute = () => {
+      setIsAdminRoute(window.location.pathname.startsWith('/admin'));
+    };
+
+    checkAdminRoute();
 
     // Check if user is on mobile device
     const checkMobile = () => {
@@ -50,6 +58,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
+
+    // Skip loading screen for admin routes
+    if (window.location.pathname.startsWith('/admin')) {
+      setIsLoading(false);
+      return () => {
+        window.removeEventListener('resize', checkMobile);
+      };
+    }
 
     // Check if user has already seen the loading screen
     const hasLoadingBeenShown = sessionStorage.getItem('loadingShown');
@@ -96,17 +112,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <Toaster />
           <Sonner />
 
-          {isLoading && <LoadingScreen />}
+          {/* Only show GreenHacker loading screen on non-admin routes */}
+          {!isAdminRoute && isLoading && <LoadingScreen />}
 
-          {/* Add reactive background for global effect */}
-          <ReactiveBackground />
+          {/* Only show portfolio effects on non-admin routes */}
+          {!isAdminRoute && <ReactiveBackground />}
 
-          {/* Only show custom cursor on desktop */}
-          {!isMobile && <AnimatedCursor />}
+          {/* Only show custom cursor on desktop and non-admin routes */}
+          {!isAdminRoute && !isMobile && <AnimatedCursor />}
 
           {children}
 
-          <Chatbot />
+          {/* Only show chatbot on non-admin routes */}
+          {!isAdminRoute && <Chatbot />}
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>

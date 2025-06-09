@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { handleSkillHover } from '../../utils/animation';
 import { initScrollAnimations } from '../../utils/animation';
-import { getSkillsData } from '../../utils/dataUtils';
+import { getSkillsData, getSkillsDataFromDB } from '../../utils/dataUtils';
 import DisplayToggle from './skills/DisplayToggle';
 import TabSkillsView from './skills/TabSkillsView';
 import KeyboardSkillsView from './skills/KeyboardSkillsView';
