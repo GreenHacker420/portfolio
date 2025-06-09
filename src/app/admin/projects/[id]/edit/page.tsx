@@ -43,10 +43,11 @@ const projectCategories = [
   'other'
 ]
 
-export default function EditProjectPage({ params }: { params: { id: string } }) {
+export default function EditProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [projectId, setProjectId] = useState<string>('')
   const [technologies, setTechnologies] = useState<string[]>([])
   const [newTechnology, setNewTechnology] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
@@ -63,12 +64,17 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
   })
 
   useEffect(() => {
-    fetchProject()
-  }, [params.id])
+    const initializeParams = async () => {
+      const resolvedParams = await params
+      setProjectId(resolvedParams.id)
+      fetchProject(resolvedParams.id)
+    }
+    initializeParams()
+  }, [params])
 
-  const fetchProject = async () => {
+  const fetchProject = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/projects/${params.id}`)
+      const response = await fetch(`/api/admin/projects/${id}`)
       if (response.ok) {
         const data = await response.json()
         const project = data.project
@@ -142,7 +148,7 @@ export default function EditProjectPage({ params }: { params: { id: string } }) 
         endDate: data.endDate || undefined,
       }
 
-      const response = await fetch(`/api/admin/projects/${params.id}`, {
+      const response = await fetch(`/api/admin/projects/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

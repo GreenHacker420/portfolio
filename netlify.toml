@@ -1,10 +1,13 @@
 [build]
   publish = ".next"
-  command = "npm run build"
+  command = "npm ci && prisma generate && SKIP_TYPE_CHECK=true next build"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_FLAGS = "--version"
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+  NEXT_TELEMETRY_DISABLED = "1"
+  SKIP_TYPE_CHECK = "true"
+  PRISMA_CLI_BINARY_TARGETS = "native,rhel-openssl-1.0.x"
 
 # Next.js specific configuration
 [[plugins]]

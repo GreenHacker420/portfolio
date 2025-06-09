@@ -1,0 +1,48 @@
+/* Spline component overrides */
+
+/* Hide Spline watermark and branding */
+.spline-watermark,
+[class*="watermark"],
+[class*="spline-logo"],
+[class*="spline-brand"],
+a[href*="spline.design"],
+a[href*="spline.com"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Hide common Spline branding elements */
+[data-spline-watermark],
+[data-spline-logo] {
+  display: none !important;
+}
+
+/* Additional selectors for common watermark patterns */
+div[style*="position: absolute"][style*="bottom"],
+div[style*="position: fixed"][style*="bottom"] {
+  z-index: -1 !important;
+}
+
+/* Ensure Spline canvas takes full space */
+.spline-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 800px !important;
+}
+
+/* Override any Spline default styles that might interfere */
+canvas[data-engine="three.js r152"] + div,
+canvas + div[style*="position: absolute"] {
+  display: none !important;
+}
+
+/* Hide any overlay divs that might contain branding */
+div[style*="pointer-events: none"][style*="position: absolute"] {
+  display: none !important;
+}

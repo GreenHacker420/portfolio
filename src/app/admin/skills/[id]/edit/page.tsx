@@ -37,10 +37,11 @@ const skillCategories = [
   'other'
 ]
 
-export default function EditSkillPage({ params }: { params: { id: string } }) {
+export default function EditSkillPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [skillId, setSkillId] = useState<string>('')
   const [formData, setFormData] = useState<SkillFormData>({
     name: '',
     description: '',
@@ -58,12 +59,17 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
   const [newStrength, setNewStrength] = useState('')
 
   useEffect(() => {
-    fetchSkill()
-  }, [params.id])
+    const initializeParams = async () => {
+      const resolvedParams = await params
+      setSkillId(resolvedParams.id)
+      fetchSkill(resolvedParams.id)
+    }
+    initializeParams()
+  }, [params])
 
-  const fetchSkill = async () => {
+  const fetchSkill = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/skills/${params.id}`)
+      const response = await fetch(`/api/admin/skills/${id}`)
       if (response.ok) {
         const data = await response.json()
         setFormData({
@@ -144,7 +150,7 @@ export default function EditSkillPage({ params }: { params: { id: string } }) {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`/api/admin/skills/${params.id}`, {
+      const response = await fetch(`/api/admin/skills/${skillId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

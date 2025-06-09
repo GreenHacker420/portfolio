@@ -28,10 +28,11 @@ const experienceSchema = z.object({
 
 type ExperienceFormData = z.infer<typeof experienceSchema>
 
-export default function EditExperiencePage({ params }: { params: { id: string } }) {
+export default function EditExperiencePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [experienceId, setExperienceId] = useState<string>('')
 
   const {
     register,
@@ -47,12 +48,17 @@ export default function EditExperiencePage({ params }: { params: { id: string } 
   const watchEndDate = watch('endDate')
 
   useEffect(() => {
-    fetchExperience()
-  }, [params.id])
+    const initializeParams = async () => {
+      const resolvedParams = await params
+      setExperienceId(resolvedParams.id)
+      fetchExperience(resolvedParams.id)
+    }
+    initializeParams()
+  }, [params])
 
-  const fetchExperience = async () => {
+  const fetchExperience = async (id: string) => {
     try {
-      const response = await fetch(`/api/admin/experience/${params.id}`)
+      const response = await fetch(`/api/admin/experience/${id}`)
       if (response.ok) {
         const data = await response.json()
         const experience = data.experience
@@ -92,7 +98,7 @@ export default function EditExperiencePage({ params }: { params: { id: string } 
         endDate: data.endDate || undefined,
       }
 
-      const response = await fetch(`/api/admin/experience/${params.id}`, {
+      const response = await fetch(`/api/admin/experience/${experienceId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

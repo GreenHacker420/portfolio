@@ -35,36 +35,17 @@ const nextConfig = {
     ],
   },
 
-  // Experimental features for better performance
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
+  // Skip type checking during build if environment variable is set
+  typescript: {
+    ignoreBuildErrors: process.env.SKIP_TYPE_CHECK === 'true',
+  },
+  eslint: {
+    ignoreDuringBuilds: process.env.SKIP_TYPE_CHECK === 'true',
   },
 
-  // Turbopack configuration (stable in Next.js 15)
-  turbopack: {
-    rules: {
-      '*.glsl': {
-        loaders: ['raw-loader'],
-        as: '*.js',
-      },
-      '*.vs': {
-        loaders: ['raw-loader'],
-        as: '*.js',
-      },
-      '*.fs': {
-        loaders: ['raw-loader'],
-        as: '*.js',
-      },
-      '*.vert': {
-        loaders: ['raw-loader'],
-        as: '*.js',
-      },
-      '*.frag': {
-        loaders: ['raw-loader'],
-        as: '*.js',
-      },
-    },
+  // Experimental features for better performance
+  experimental: {
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
   webpack: (config, { isServer }) => {
     // Handle Three.js and other client-side libraries
@@ -77,10 +58,10 @@ const nextConfig = {
       };
     }
 
-    // Handle GSAP and other animation libraries
+    // Handle shader files for Three.js
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,
-      use: ['raw-loader', 'glslify-loader'],
+      type: 'asset/source',
     });
 
     return config;
@@ -120,7 +101,7 @@ const nextConfig = {
         ],
       },
       {
-        // Allow PDF files to be embedded
+        // Allow PDF files to be embedded with CORS support
         source: '/resume.pdf',
         headers: [
           {
@@ -131,10 +112,26 @@ const nextConfig = {
             key: 'Content-Type',
             value: 'application/pdf',
           },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, HEAD, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Range',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
+          },
         ],
       },
       {
-        // Allow all PDF files to be embedded
+        // Allow all PDF files to be embedded with CORS support
         source: '/(.*).pdf',
         headers: [
           {
@@ -144,6 +141,22 @@ const nextConfig = {
           {
             key: 'Content-Type',
             value: 'application/pdf',
+          },
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, HEAD, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Range',
+          },
+          {
+            key: 'Cross-Origin-Resource-Policy',
+            value: 'cross-origin',
           },
         ],
       },

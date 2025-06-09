@@ -14,22 +14,23 @@ const replySchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const resolvedParams = await params;
     const body = await request.json();
     const validatedData = replySchema.parse(body);
     const { replyMessage, subject, isAiGenerated, aiMode } = validatedData;
 
     // Fetch the contact from database
     const contact = await prisma.contact.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     });
 
     if (!contact) {
@@ -63,7 +64,7 @@ export async function POST(
 
     // Update contact status to 'responded'
     await prisma.contact.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: { status: 'responded' }
     });
 
