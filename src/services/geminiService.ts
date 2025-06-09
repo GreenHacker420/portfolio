@@ -110,7 +110,7 @@ export async function generateGitHubStatsOverview(
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Prepare GitHub data summary for analysis
     const dataContext = `
@@ -139,7 +139,7 @@ ${githubData.repositories
 Repository Statistics:
 - Total Repositories: ${githubData.repositories.length}
 - Average Stars per Repo: ${(githubData.repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0) / githubData.repositories.length).toFixed(1)}
-- Most Used Topics: ${[...new Set(githubData.repositories.flatMap(r => r.topics))].slice(0, 10).join(', ')}
+- Most Used Topics: ${Array.from(new Set(githubData.repositories.flatMap(r => r.topics))).slice(0, 10).join(', ')}
 `;
 
     const prompt = `
@@ -207,7 +207,7 @@ export async function generateContactReply(
       };
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     let prompt: string;
 

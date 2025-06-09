@@ -616,13 +616,15 @@ const Stats = () => {
           className="mt-8"
         >
           <GitHubStatsAI
-            githubData={{
-              profile: githubProfile,
-              repositories: githubRepos,
-              languages: calculateLanguageStats(),
-              totalCommits: calculateTotalCommits(),
-              contributionYears: getContributionYears()
-            }}
+            githubData={
+              githubProfile && githubRepos.length > 0 ? {
+                profile: githubProfile,
+                repositories: githubRepos,
+                languages: calculateLanguageStats(),
+                totalCommits: calculateTotalCommits(),
+                contributionYears: getContributionYears()
+              } : null
+            }
           />
         </motion.div>
       </div>

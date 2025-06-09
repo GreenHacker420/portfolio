@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
     // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     // Create a context-aware prompt
     const systemPrompt = `You are an AI assistant for Green Hacker's portfolio website. You are knowledgeable about:

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -53,7 +53,7 @@ export default function ContactReplyDialog({
   const [sendSuccess, setSendSuccess] = useState(false)
 
   // Reset form when contact changes
-  useState(() => {
+  useEffect(() => {
     if (contact) {
       setReplySubject(`Re: ${contact.subject}`)
       setReplyMessage('')

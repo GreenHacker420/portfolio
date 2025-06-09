@@ -118,8 +118,8 @@ export default function AuditLogsPage() {
     }
   }
 
-  const uniqueActions = [...new Set(logs.map(log => log.action))]
-  const uniqueResources = [...new Set(logs.map(log => log.resource))]
+  const uniqueActions = Array.from(new Set(logs.map(log => log.action)))
+  const uniqueResources = Array.from(new Set(logs.map(log => log.resource)))
 
   if (isLoading) {
     return (
