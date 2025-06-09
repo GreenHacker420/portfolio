@@ -94,13 +94,15 @@ model PersonalInfo {
 
 // Social Media Links
 model SocialLink {
-  id        String   @id @default(cuid())
-  platform  String   // linkedin, github, twitter, etc.
-  url       String
-  isVisible Boolean  @default(true)
-  displayOrder Int   @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  platform    String   // linkedin, github, twitter, etc.
+  url         String
+  username    String?
+  icon        String?  // Icon name or URL
+  isVisible   Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("social_links")
 }
@@ -177,6 +179,26 @@ model ContactReply {
   user          AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("contact_replies")
+}
+
+
+
+// Media Files
+model Media {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int      // File size in bytes
+  url         String   // File URL or path
+  alt         String?  // Alt text for images
+  category    String   @default("general") // profile, project, gallery, etc.
+  isVisible   Boolean  @default(true)
+  uploadedBy  String?  // Admin user ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("media")
 }
 
 // Audit Log for tracking admin actions
