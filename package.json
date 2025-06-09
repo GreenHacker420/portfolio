@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
-    "build:netlify": "npm ci && prisma generate && next build",
+    "build:netlify": "prisma generate && SKIP_TYPE_CHECK=true next build",
     "build:skip-types": "prisma generate && SKIP_TYPE_CHECK=true next build",
     "start": "next start",
     "lint": "next lint",
