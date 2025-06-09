@@ -5,16 +5,18 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
-    "build:netlify": "prisma generate --no-engine && SKIP_TYPE_CHECK=true next build",
+    "build:netlify": "npm run db:generate:netlify && SKIP_TYPE_CHECK=true next build",
     "build:skip-types": "prisma generate && SKIP_TYPE_CHECK=true next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:generate": "prisma generate",
+    "db:generate:netlify": "prisma generate --no-engine",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "npm run db:generate:safe",
+    "db:generate:safe": "prisma generate --no-engine || prisma generate || echo 'Prisma generation failed, continuing...'"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

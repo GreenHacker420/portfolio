@@ -101,7 +101,7 @@ const nextConfig = {
         ],
       },
       {
-        // Allow PDF files to be embedded with CORS support
+        // Allow PDF files to be embedded
         source: '/resume.pdf',
         headers: [
           {
@@ -112,26 +112,10 @@ const nextConfig = {
             key: 'Content-Type',
             value: 'application/pdf',
           },
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, HEAD, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Range',
-          },
-          {
-            key: 'Cross-Origin-Resource-Policy',
-            value: 'cross-origin',
-          },
         ],
       },
       {
-        // Allow all PDF files to be embedded with CORS support
+        // Allow all PDF files to be embedded
         source: '/(.*).pdf',
         headers: [
           {
@@ -141,22 +125,6 @@ const nextConfig = {
           {
             key: 'Content-Type',
             value: 'application/pdf',
-          },
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, HEAD, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Range',
-          },
-          {
-            key: 'Cross-Origin-Resource-Policy',
-            value: 'cross-origin',
           },
         ],
       },
