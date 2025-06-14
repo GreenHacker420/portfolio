@@ -129,6 +129,11 @@
   function = "geolocation"
   path = "/api/location"
 
+# GitHub caching edge functions
+[[edge_functions]]
+  function = "github-cache"
+  path = "/api/edge/github/*"
+
 # Security headers for enhanced protection
 [[headers]]
   for = "/.well-known/*"

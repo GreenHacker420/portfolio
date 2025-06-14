@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { githubService } from '@/services/githubService';
+import { getGitHubService } from '@/services/githubService';
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();

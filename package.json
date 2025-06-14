@@ -18,7 +18,12 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "postinstall": "npm run db:generate:safe",
-    "db:generate:safe": "prisma generate --no-engine || prisma generate || echo 'Prisma generation failed, continuing...'"
+    "db:generate:safe": "prisma generate --no-engine || prisma generate || echo 'Prisma generation failed, continuing...'",
+    "cache:setup": "tsx scripts/setup-github-cache.ts",
+    "cache:migrate": "npx prisma db push && npx prisma generate",
+    "cache:stats": "curl \"$NETLIFY_URL/api/admin/github-cache?action=stats\" | jq",
+    "cache:health": "curl \"$NETLIFY_URL/api/admin/github-cache?action=health\" | jq",
+    "cache:invalidate": "curl -X POST \"$NETLIFY_URL/api/admin/github-cache\" -H \"Content-Type: application/json\" -d '{\"action\":\"invalidate\"}' | jq"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

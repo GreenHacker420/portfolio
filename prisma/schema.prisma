@@ -253,3 +253,116 @@ model AuditLog {
 
   @@map("audit_logs")
 }
+
+// GitHub Cache Models for Netlify Edge Functions with Neon PostgreSQL
+
+// GitHub Profile Cache
+model GitHubProfileCache {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  profileData String   @db.Text // JSON data of GitHub profile
+  dataHash    String   // Hash of the data for change detection
+  expiresAt   DateTime // Cache expiration timestamp
+  lastFetch   DateTime @default(now()) // Last successful fetch from GitHub API
+  fetchCount  Int      @default(1) // Number of times fetched
+  isStale     Boolean  @default(false) // Whether cache is stale but still usable
+  errorCount  Int      @default(0) // Consecutive error count
+  lastError   String?  // Last error message if any
+  rateLimit   String?  @db.Text // JSON of rate limit info
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("github_profile_cache")
+}
+
+// GitHub Repositories Cache
+model GitHubRepoCache {
+  id          String   @id @default(cuid())
+  username    String
+  page        Int      @default(1)
+  perPage     Int      @default(30)
+  reposData   String   @db.Text // JSON array of repositories
+  dataHash    String   // Hash of the data for change detection
+  totalCount  Int?     // Total number of repositories
+  expiresAt   DateTime // Cache expiration timestamp
+  lastFetch   DateTime @default(now())
+  fetchCount  Int      @default(1)
+  isStale     Boolean  @default(false)
+  errorCount  Int      @default(0)
+  lastError   String?
+  rateLimit   String?  @db.Text // JSON of rate limit info
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([username, page, perPage])
+  @@map("github_repo_cache")
+}
+
+// GitHub Contributions Cache
+model GitHubContributionCache {
+  id              String   @id @default(cuid())
+  username        String
+  year            Int
+  contributionData String  @db.Text // JSON of contribution calendar data
+  dataHash        String   // Hash of the data for change detection
+  totalContributions Int   @default(0)
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  expiresAt       DateTime // Cache expiration timestamp
+  lastFetch       DateTime @default(now())
+  fetchCount      Int      @default(1)
+  isStale         Boolean  @default(false)
+  errorCount      Int      @default(0)
+  lastError       String?
+  rateLimit       String?  @db.Text // JSON of rate limit info
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([username, year])
+  @@map("github_contribution_cache")
+}
+
+// GitHub Statistics Cache
+model GitHubStatsCache {
+  id              String   @id @default(cuid())
+  username        String   @unique
+  statsData       String   @db.Text // JSON of computed statistics
+  dataHash        String   // Hash of the data for change detection
+  totalStars      Int      @default(0)
+  totalForks      Int      @default(0)
+  totalRepos      Int      @default(0)
+  totalCommits    Int      @default(0)
+  languagesData   String?  @db.Text // JSON of language statistics
+  expiresAt       DateTime // Cache expiration timestamp
+  lastFetch       DateTime @default(now())
+  fetchCount      Int      @default(1)
+  isStale         Boolean  @default(false)
+  errorCount      Int      @default(0)
+  lastError       String?
+  rateLimit       String?  @db.Text // JSON of rate limit info
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("github_stats_cache")
+}
+
+// GitHub Cache Analytics for monitoring and optimization
+model GitHubCacheAnalytics {
+  id            String   @id @default(cuid())
+  cacheType     String   // profile, repos, contributions, stats
+  operation     String   // hit, miss, refresh, error
+  username      String
+  responseTime  Int?     // Response time in milliseconds
+  cacheAge      Int?     // Age of cached data in seconds
+  dataSize      Int?     // Size of cached data in bytes
+  userAgent     String?
+  ipAddress     String?
+  edgeLocation  String?  // Netlify edge location
+  errorMessage  String?
+  metadata      String?  @db.Text // Additional metadata as JSON
+  createdAt     DateTime @default(now())
+
+  @@index([cacheType, operation, createdAt])
+  @@index([username, createdAt])
+  @@map("github_cache_analytics")
+}

@@ -71,7 +71,16 @@ export class GitHubAPIService {
   constructor(token?: string, username?: string) {
     this.token = token || process.env.GITHUB_TOKEN || '';
     this.username = username || process.env.GITHUB_USERNAME || 'GreenHacker420';
-    
+
+    // Debug logging for token availability
+    console.log('GitHub Service initialized:', {
+      hasToken: !!this.token,
+      tokenLength: this.token ? this.token.length : 0,
+      username: this.username,
+      envTokenExists: !!process.env.GITHUB_TOKEN,
+      envUsernameExists: !!process.env.GITHUB_USERNAME
+    });
+
     if (!this.token) {
       console.warn('GitHub token not provided. API calls will be limited.');
     }
@@ -492,7 +501,21 @@ export class GitHubAPIService {
 }
 
 // Create a singleton instance of the GitHub API service
-export const githubService = new GitHubAPIService();
+// Use a factory function to ensure environment variables are available
+let _githubServiceInstance: GitHubAPIService | null = null;
+
+export function getGitHubService(): GitHubAPIService {
+  if (!_githubServiceInstance) {
+    _githubServiceInstance = new GitHubAPIService(
+      process.env.GITHUB_TOKEN,
+      process.env.GITHUB_USERNAME
+    );
+  }
+  return _githubServiceInstance;
+}
+
+// Export the service instance for backward compatibility
+export const githubService = getGitHubService();
 
 // Utility functions
 export const calculateTotalStars = (repos: GitHubRepo[]): number => {

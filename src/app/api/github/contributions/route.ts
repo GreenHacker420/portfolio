@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { GitHubContributionCalendar, GitHubContribution } from '@/types/github';
 import { githubService } from '@/services/githubService';
+import { createGitHubCacheService } from '@/services/githubCacheService';
+import { PrismaClient } from '@prisma/client';
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
@@ -16,8 +21,34 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
     const forceRefresh = searchParams.get('refresh') === 'true';
+    const useEdgeCache = searchParams.get('edge') !== 'false'; // Default to true
 
-    // Use the new GitHub service to fetch real contribution data
+    // Initialize cache service
+    const cacheService = createGitHubCacheService(prisma);
+
+    // Try cache service first (with edge cache support)
+    const cacheResult = await cacheService.getContributions(year, {
+      forceRefresh,
+      useEdgeCache,
+      fallbackToAPI: false, // We'll handle API fallback manually
+    });
+
+    // If cache service has data, return it
+    if (cacheResult.data) {
+      return NextResponse.json({
+        success: true,
+        contributions: cacheResult.data,
+        year,
+        cached: cacheResult.cached,
+        stale: cacheResult.stale,
+        age: cacheResult.age,
+        source: cacheResult.source,
+        rateLimit: cacheResult.rateLimit,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Fallback to existing GitHub service for fresh data
     const result = await githubService.fetchContributions(year, forceRefresh);
 
     if (!result.success) {
@@ -50,6 +81,7 @@ export async function GET(request: Request) {
       year,
       cached: result.cached || false,
       cacheAge: result.cacheAge,
+      source: 'api',
       rateLimit: result.rateLimit,
       timestamp: new Date().toISOString()
     });
@@ -57,6 +89,9 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('GitHub contributions API error:', error);
     return getMockContributions(new Date().getFullYear());
+  } finally {
+    // Clean up Prisma connection
+    await prisma.$disconnect().catch(console.error);
   }
 }
 
