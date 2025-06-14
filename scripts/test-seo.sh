@@ -6,7 +6,7 @@
 echo "🔍 Testing SEO Implementation for GreenHacker Portfolio"
 echo "=================================================="
 
-BASE_URL="http://localhost:3000"
+BASE_URL="${1:-http://localhost:3001}"
 
 # Test if development server is running
 echo "📡 Checking if development server is running..."

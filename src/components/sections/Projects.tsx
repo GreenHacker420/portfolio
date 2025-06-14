@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import ProjectFilters from './projects/ProjectFilters';
 import ProjectGrid from './projects/ProjectGrid';
 import ProjectCTA from './projects/ProjectCTA';
+import ProjectStructuredData from '../seo/ProjectStructuredData';
 import { getProjectsDataFromAPI } from '../../utils/dataUtils';
 
 const Projects = () => {
@@ -61,6 +62,7 @@ const Projects = () => {
           </div>
         ) : (
           <>
+            <ProjectStructuredData projects={projects} />
             <ProjectFilters filter={filter} setFilter={setFilter} />
             <ProjectGrid projects={projects} filter={filter} />
             <ProjectCTA />

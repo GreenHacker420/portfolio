@@ -61,16 +61,18 @@ interface OrganizationSchema {
 
 const StructuredData = () => {
   useEffect(() => {
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://greenhacker.dev';
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://greenhacker.tech';
 
     // Person Schema
     const personSchema: PersonSchema = {
       "@context": "https://schema.org",
       "@type": "Person",
-      name: "GreenHacker",
+      name: "Harsh Hirawat",
+      alternateName: "GreenHacker",
       jobTitle: "Full-Stack Developer & AI Specialist",
-      description: "Experienced full-stack developer specializing in modern web technologies, AI integration, and innovative software solutions. Proficient in React, Next.js, TypeScript, Python, and machine learning.",
+      description: "Harsh Hirawat (GreenHacker) is an experienced full-stack developer specializing in modern web technologies, AI integration, and innovative software solutions. Proficient in React, Next.js, TypeScript, Python, and machine learning.",
       url: baseUrl,
+      email: "harsh@greenhacker.tech",
       sameAs: [
         "https://github.com/GreenHacker420",
         "https://linkedin.com/in/harsh-hirawat-b657061b7",
@@ -96,6 +98,16 @@ const StructuredData = () => {
       alumniOf: {
         "@type": "EducationalOrganization",
         name: "Computer Science Education"
+      },
+      hasOccupation: {
+        "@type": "Occupation",
+        name: "Full Stack Developer",
+        description: "Develops both frontend and backend components of web applications with expertise in AI integration",
+        skills: "JavaScript, TypeScript, React, Next.js, Python, AI/ML, Database Design, Cloud Services"
+      },
+      workLocation: {
+        "@type": "Place",
+        name: "Remote / India"
       }
     };
 
@@ -103,12 +115,14 @@ const StructuredData = () => {
     const websiteSchema: WebSiteSchema = {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      name: "GreenHacker Portfolio",
-      description: "Professional portfolio showcasing full-stack development projects, AI integrations, and modern web technologies.",
+      name: "Harsh Hirawat Portfolio",
+      alternateName: "GreenHacker Portfolio",
+      description: "Professional portfolio showcasing full-stack development projects, AI integrations, and modern web technologies by Harsh Hirawat (GreenHacker).",
       url: baseUrl,
       author: {
         "@type": "Person",
-        name: "GreenHacker"
+        name: "Harsh Hirawat",
+        alternateName: "GreenHacker"
       },
       potentialAction: {
         "@type": "SearchAction",
@@ -125,17 +139,20 @@ const StructuredData = () => {
       "@context": "https://schema.org",
       "@type": "Organization",
       name: "GreenHacker Development",
-      description: "Professional software development services specializing in full-stack web applications and AI-powered solutions.",
+      alternateName: "Harsh Hirawat Development Services",
+      description: "Professional software development services specializing in full-stack web applications and AI-powered solutions by Harsh Hirawat (GreenHacker).",
       url: baseUrl,
       logo: `${baseUrl}/logo.jpg`,
       founder: {
         "@type": "Person",
-        name: "GreenHacker"
+        name: "Harsh Hirawat",
+        alternateName: "GreenHacker"
       },
       contactPoint: {
         "@type": "ContactPoint",
         email: "harsh@greenhacker.tech",
-        contactType: "Professional Inquiries"
+        contactType: "Professional Inquiries",
+        availableLanguage: ["English", "Hindi"]
       }
     };
 

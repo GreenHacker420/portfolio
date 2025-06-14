@@ -50,8 +50,9 @@ const ProjectCard = ({ project, delay = 0 }: ProjectCardProps) => {
           <div className="aspect-video w-full overflow-hidden">
             <motion.img
               src={project.image_url || project.imageUrl || '/images/placeholder-project.svg'}
-              alt={project.title}
+              alt={`${project.title} - ${project.category} project by Harsh Hirawat showcasing ${project.technologies?.slice(0, 3).join(', ') || project.tags?.slice(0, 3).join(', ') || 'modern web technologies'}`}
               className="w-full h-full object-cover object-center"
+              loading="lazy"
               animate={{
                 scale: isHovered ? 1.05 : 1,
               }}

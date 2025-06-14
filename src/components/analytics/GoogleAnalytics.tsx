@@ -115,7 +115,7 @@ const GoogleAnalytics: React.FC<GoogleAnalyticsProps> = ({
 
     window.gtag('js', new Date());
     window.gtag('config', measurementId, {
-      page_title: 'GreenHacker Portfolio',
+      page_title: 'Harsh Hirawat (GreenHacker) Portfolio',
       page_location: window.location.href,
       send_page_view: true,
       // Enhanced measurement for better insights

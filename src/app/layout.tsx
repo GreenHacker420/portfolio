@@ -3,6 +3,8 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import StructuredData from '@/components/seo/StructuredData';
+import FAQStructuredData from '@/components/seo/FAQStructuredData';
+import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import WebVitals from '@/components/performance/WebVitals';
 
@@ -206,6 +208,8 @@ export default function RootLayout({
       <body className={inter.className} suppressHydrationWarning>
         <GoogleAnalytics />
         <StructuredData />
+        <FAQStructuredData />
+        <BreadcrumbStructuredData />
         <WebVitals />
         <Providers>
           {children}

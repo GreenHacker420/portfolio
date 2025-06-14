@@ -64,8 +64,9 @@ const About = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-green/20 to-neon-purple/20 z-10"></div>
                 <img
                   src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8dGVjaHx8fHx8fDE2MjM2MzYyODE&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080"
-                  alt="Code on screen"
+                  alt="Programming code on computer screen - representing Harsh Hirawat's full-stack development expertise in modern web technologies"
                   className="w-full h-full object-cover object-center"
+                  loading="lazy"
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-github-dark to-transparent h-1/3 z-20"></div>
               </div>

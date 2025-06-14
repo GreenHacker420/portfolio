@@ -9,6 +9,7 @@ import { getSkillsDataFromDB } from '../../utils/dataUtils';
 import DisplayToggle from './skills/DisplayToggle';
 import TabSkillsView from './skills/TabSkillsView';
 import KeyboardSkillsView from './skills/KeyboardSkillsView';
+import SkillsStructuredData from '../seo/SkillsStructuredData';
 
 const Skills = () => {
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
@@ -86,16 +87,19 @@ const Skills = () => {
             </button>
           </div>
         ) : skillsData ? (
-          displayStyle === 'tabs' ? (
-            <TabSkillsView
-              categories={skillsData.categories || []}
-              topSkills={skillsData.topSkills || []}
-              hoveredSkill={hoveredSkill}
-              onSkillHover={onSkillHover}
-            />
-          ) : (
-            <KeyboardSkillsView />
-          )
+          <>
+            <SkillsStructuredData skills={skillsData.allSkills || []} />
+            {displayStyle === 'tabs' ? (
+              <TabSkillsView
+                categories={skillsData.categories || []}
+                topSkills={skillsData.topSkills || []}
+                hoveredSkill={hoveredSkill}
+                onSkillHover={onSkillHover}
+              />
+            ) : (
+              <KeyboardSkillsView />
+            )}
+          </>
         ) : null}
       </div>
     </section>
