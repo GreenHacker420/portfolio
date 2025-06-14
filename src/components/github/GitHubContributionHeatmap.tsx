@@ -1,183 +1,256 @@
 /**
  * GitHub Contribution Heatmap Component
- * Uses Cal-Heatmap library to display GitHub-style contribution calendar
+ * Uses D3.js to display GitHub-style contribution calendar
  */
 
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
+import { Calendar, AlertCircle, RefreshCw, ChevronDown } from 'lucide-react';
+import * as d3 from 'd3';
 import { GitHubContributionHeatmapProps, GITHUB_COLORS } from '@/types/github';
 import { transformContributionsForHeatmap, formatNumber, getContributionLevelColor } from '@/utils/githubCalculations';
-
-// Dynamic import for Cal-Heatmap to avoid SSR issues
-let CalHeatmap: any = null;
-let Tooltip: any = null;
+import { useGitHubContributions } from '@/hooks/useGitHubContributions';
 
 /**
- * GitHub Contribution Heatmap Component
+ * GitHub Contribution Heatmap Component with Year Selector
  */
 export function GitHubContributionHeatmap({
-  contributions,
-  isLoading,
-  error,
-  year = new Date().getFullYear(),
+  contributions: propContributions,
+  isLoading: propIsLoading,
+  error: propError,
+  year: propYear,
   className = '',
 }: GitHubContributionHeatmapProps) {
-  const calendarRef = useRef<HTMLDivElement>(null);
-  const calInstanceRef = useRef<any>(null);
-  const [isCalHeatmapLoaded, setIsCalHeatmapLoaded] = useState(false);
-  const [calError, setCalError] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [heatmapError, setHeatmapError] = useState<string | null>(null);
+
+  // Year selector state
+  const currentYear = new Date().getFullYear();
+  const [selectedYear, setSelectedYear] = useState(propYear || currentYear);
+  const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+
+  // Available years (current year and 4 years back)
+  const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
+
+  // Use the hook to fetch data for the selected year
+  const {
+    contributions: hookContributions,
+    isLoading: hookIsLoading,
+    error: hookError
+  } = useGitHubContributions(selectedYear);
+
+  // Use prop data if provided, otherwise use hook data
+  const contributions = propContributions || hookContributions;
+  const isLoading = propIsLoading !== undefined ? propIsLoading : hookIsLoading;
+  const error = propError || hookError;
+
+
 
   /**
-   * Load Cal-Heatmap dynamically
+   * Create D3.js GitHub-style contribution calendar
    */
-  useEffect(() => {
-    const loadCalHeatmap = async () => {
-      try {
-        // Dynamic import to avoid SSR issues
-        const CalHeatmapModule = await import('cal-heatmap');
-        const TooltipModule = await import('cal-heatmap/plugins/Tooltip');
+  const createD3Heatmap = (heatmapData: Record<number, number>) => {
+    if (!svgRef.current) return;
 
-        CalHeatmap = CalHeatmapModule.default || CalHeatmapModule;
-        Tooltip = TooltipModule.default || TooltipModule;
+    // Clear existing content
+    d3.select(svgRef.current).selectAll('*').remove();
 
-        if (!CalHeatmap || !Tooltip) {
-          throw new Error('Cal-Heatmap modules not loaded correctly');
-        }
+    // Convert heatmap data to array format
+    const dataArray = Object.entries(heatmapData).map(([timestamp, value]) => ({
+      date: new Date(parseInt(timestamp) * 1000),
+      value: value,
+      timestamp: parseInt(timestamp)
+    })).sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        setIsCalHeatmapLoaded(true);
-      } catch (err) {
-        console.error('Failed to load Cal-Heatmap:', err);
-        setCalError('Failed to load calendar component. Using fallback display.');
-      }
-    };
+    if (dataArray.length === 0) return;
 
-    loadCalHeatmap();
-  }, []);
+    // Calendar dimensions
+    const cellSize = 11;
+    const cellPadding = 2;
+    const weekWidth = cellSize + cellPadding;
+    const dayHeight = cellSize + cellPadding;
+    const margin = { top: 30, right: 20, bottom: 30, left: 50 };
+
+    // SVG dimensions
+    const svgWidth = 53 * weekWidth + margin.left + margin.right;
+    const svgHeight = 7 * dayHeight + margin.top + margin.bottom;
+
+    const svg = d3.select(svgRef.current)
+      .attr('width', svgWidth)
+      .attr('height', svgHeight);
+
+    // Color scale (GitHub style)
+    const colorScale = d3.scaleThreshold<number, string>()
+      .domain([1, 3, 6, 10])
+      .range([
+        GITHUB_COLORS.level0,
+        GITHUB_COLORS.level1,
+        GITHUB_COLORS.level2,
+        GITHUB_COLORS.level3,
+        GITHUB_COLORS.level4,
+      ]);
+
+    // Group data by week
+    const weeks = d3.groups(dataArray, d => d3.timeWeek(d.date));
+
+    // Create main group
+    const g = svg.append('g')
+      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+
+    // Draw calendar
+    const weekGroups = g.selectAll('.week')
+      .data(weeks)
+      .enter().append('g')
+      .attr('class', 'week')
+      .attr('transform', (_, i) => `translate(${i * weekWidth}, 0)`);
+
+    weekGroups.selectAll('.day')
+      .data(d => d[1])
+      .enter().append('rect')
+      .attr('class', 'day')
+      .attr('x', 0)
+      .attr('y', d => d.date.getDay() * dayHeight)
+      .attr('width', cellSize)
+      .attr('height', cellSize)
+      .attr('rx', 2)
+      .attr('fill', d => colorScale(d.value))
+      .attr('stroke', '#21262d')
+      .attr('stroke-width', 1)
+      .style('cursor', 'pointer')
+      .on('mouseover', function(event, d) {
+        if (!tooltipRef.current) return;
+
+        const contributionText = d.value === 1 ? 'contribution' : 'contributions';
+        const dateStr = d.date.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        });
+
+        tooltipRef.current.innerHTML = `
+          <div style="color: #10b981; font-weight: 500; font-size: 12px;">${d.value} ${contributionText}</div>
+          <div style="color: #9ca3af; margin-top: 4px; font-size: 11px;">${dateStr}</div>
+        `;
+
+        // Show tooltip immediately
+        tooltipRef.current.style.visibility = 'visible';
+        tooltipRef.current.style.opacity = '1';
+        tooltipRef.current.style.transform = 'translateY(0)';
+
+        // Position tooltip after it's visible to get correct dimensions
+        setTimeout(() => {
+          if (!tooltipRef.current) return;
+
+          const rect = (event.target as Element).getBoundingClientRect();
+          const tooltipRect = tooltipRef.current.getBoundingClientRect();
+
+          // Calculate position to keep tooltip in viewport
+          let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+          let top = rect.top - tooltipRect.height - 8;
+
+          // Adjust if tooltip would go off screen
+          if (left < 8) left = 8;
+          if (left + tooltipRect.width > window.innerWidth - 8) {
+            left = window.innerWidth - tooltipRect.width - 8;
+          }
+          if (top < 8) {
+            top = rect.bottom + 8;
+          }
+
+          tooltipRef.current.style.left = left + 'px';
+          tooltipRef.current.style.top = top + 'px';
+        }, 0);
+      })
+      .on('mouseout', function() {
+        if (!tooltipRef.current) return;
+        tooltipRef.current.style.visibility = 'hidden';
+        tooltipRef.current.style.opacity = '0';
+        tooltipRef.current.style.transform = 'translateY(-4px)';
+      });
+
+    // Add month labels
+    const months = d3.timeMonths(new Date(selectedYear, 0, 1), new Date(selectedYear, 11, 31));
+    g.selectAll('.month-label')
+      .data(months)
+      .enter().append('text')
+      .attr('class', 'month-label')
+      .attr('x', (_, i) => i * (53 / 12) * weekWidth)
+      .attr('y', -10)
+      .attr('fill', '#7d8590')
+      .attr('font-size', '12px')
+      .attr('font-family', 'system-ui, -apple-system, sans-serif')
+      .text(d => d3.timeFormat('%b')(d));
+
+    // Add day labels
+    const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    g.selectAll('.day-label')
+      .data(dayLabels.filter((_, i) => i % 2 === 1)) // Show only Mon, Wed, Fri
+      .enter().append('text')
+      .attr('class', 'day-label')
+      .attr('x', -10)
+      .attr('y', (_, i) => (i * 2 + 1) * dayHeight + cellSize/2 + 4)
+      .attr('fill', '#7d8590')
+      .attr('font-size', '10px')
+      .attr('font-family', 'system-ui, -apple-system, sans-serif')
+      .attr('text-anchor', 'end')
+      .text(d => d);
+  };
 
   /**
-   * Initialize Cal-Heatmap instance
+   * Initialize D3.js heatmap
    */
   useEffect(() => {
-    if (!isCalHeatmapLoaded || !CalHeatmap || !calendarRef.current || !contributions) {
+    if (!contributions || isLoading) {
       return;
     }
 
-    // Destroy existing instance
-    if (calInstanceRef.current) {
-      calInstanceRef.current.destroy();
-    }
-
     try {
-      // Transform contribution data for Cal-Heatmap
-      const heatmapData = transformContributionsForHeatmap(
-        contributions.weeks.flatMap(week => week.contributionDays)
-      );
+      // Transform contribution data for D3.js heatmap
+      const contributionDays = contributions.weeks.flatMap(week => week.contributionDays);
+      const heatmapData = transformContributionsForHeatmap(contributionDays);
 
-      // Create new Cal-Heatmap instance
-      const cal = new CalHeatmap();
-      
-      cal.paint({
-        // Container element
-        itemSelector: calendarRef.current,
-        
-        // Data configuration
-        data: {
-          source: heatmapData,
-          type: 'json',
-        },
-        
-        // Date configuration
-        date: {
-          start: new Date(year, 0, 1),
-          min: new Date(year, 0, 1),
-          max: new Date(year, 11, 31),
-        },
-        
-        // Range and scale
-        range: 12, // 12 months
-        scale: {
-          color: {
-            type: 'threshold',
-            range: [
-              GITHUB_COLORS.level0,
-              GITHUB_COLORS.level1,
-              GITHUB_COLORS.level2,
-              GITHUB_COLORS.level3,
-              GITHUB_COLORS.level4,
-            ],
-            domain: [1, 3, 6, 10],
-          },
-        },
-        
-        // Domain configuration
-        domain: {
-          type: 'month',
-          gutter: 4,
-          label: {
-            text: 'MMM',
-            textAlign: 'start',
-            position: 'top',
-          },
-        },
-        
-        // Subdomain configuration (days)
-        subDomain: {
-          type: 'ghDay',
-          radius: 2,
-          width: 11,
-          height: 11,
-          gutter: 2,
-        },
-        
-        // Theme
-        theme: 'dark',
-        
-        // Animation
-        animationDuration: 300,
-      }, [
-        // Plugins
-        [
-          Tooltip,
-          {
-            text: function (date: Date | number, value: number) {
-              // Convert timestamp to Date object if needed
-              const dateObj = typeof date === 'number' ? new Date(date * 1000) : date;
-              const dateStr = dateObj.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              });
+      // Create D3.js heatmap
+      createD3Heatmap(heatmapData);
 
-              const contributionText = value === 1 ? 'contribution' : 'contributions';
-              return `<div class="text-sm">
-                <div class="font-medium">${value} ${contributionText}</div>
-                <div class="text-gray-300">${dateStr}</div>
-              </div>`;
-            },
-          },
-        ],
-      ]);
-
-      calInstanceRef.current = cal;
+      setHeatmapError(null);
     } catch (err) {
-      console.error('Error initializing Cal-Heatmap:', err);
-      setCalError('Failed to initialize contribution calendar');
+      console.error('Error creating D3 heatmap:', err);
+      setHeatmapError('Failed to create contribution calendar');
     }
+  }, [contributions, selectedYear, isLoading]);
 
-    // Cleanup function
-    return () => {
-      if (calInstanceRef.current) {
-        calInstanceRef.current.destroy();
-        calInstanceRef.current = null;
+  /**
+   * Handle click outside dropdown to close it
+   */
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsYearDropdownOpen(false);
       }
     };
-  }, [isCalHeatmapLoaded, contributions, year]);
 
-  if (calError) {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsYearDropdownOpen(false);
+      }
+    };
+
+    if (isYearDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isYearDropdownOpen]);
+
+  if (heatmapError) {
     return (
       <div className={`bg-github-dark p-6 rounded-xl border border-github-border ${className}`}>
         <div className="flex items-center gap-3 mb-6">
@@ -185,7 +258,7 @@ export function GitHubContributionHeatmap({
           <div>
             <h3 className="text-xl font-bold text-white">Contribution Activity</h3>
             <p className="text-github-text text-sm">
-              {contributions ? `${formatNumber(contributions.totalContributions)} contributions in ${year}` : 'Loading...'}
+              {contributions ? `${formatNumber(contributions.totalContributions)} contributions in ${selectedYear}` : 'Loading...'}
             </p>
           </div>
         </div>
@@ -195,7 +268,7 @@ export function GitHubContributionHeatmap({
             <AlertCircle className="text-yellow-400" size={20} />
             <h4 className="font-semibold text-yellow-300">Calendar Display Issue</h4>
           </div>
-          <p className="text-yellow-400 text-sm">{calError}</p>
+          <p className="text-yellow-400 text-sm">{heatmapError}</p>
         </div>
 
         {/* Fallback simple grid display */}
@@ -205,7 +278,7 @@ export function GitHubContributionHeatmap({
               <div className="text-3xl font-bold text-white mb-2">
                 {formatNumber(contributions.totalContributions)}
               </div>
-              <div className="text-github-text">Total Contributions in {year}</div>
+              <div className="text-github-text">Total Contributions in {selectedYear}</div>
             </div>
 
             <div className="grid grid-cols-7 gap-1 max-w-md mx-auto">
@@ -255,11 +328,11 @@ export function GitHubContributionHeatmap({
           <div>
             <h3 className="text-xl font-bold text-white">Contribution Activity</h3>
             <p className="text-github-text text-sm">
-              {contributions ? `${formatNumber(contributions.totalContributions)} contributions in ${year}` : 'Loading...'}
+              {contributions ? `${formatNumber(contributions.totalContributions)} contributions in ${selectedYear}` : 'Loading...'}
             </p>
           </div>
         </div>
-        
+
         {error && (
           <div className="flex items-center gap-2 text-yellow-400 text-sm">
             <AlertCircle size={16} />
@@ -268,8 +341,72 @@ export function GitHubContributionHeatmap({
         )}
       </div>
 
+      {/* Year Selector */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="text-sm text-github-text">
+          Select year to view contribution history
+        </div>
+
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
+            className="flex items-center gap-2 px-4 py-2 bg-github-dark border border-github-border rounded-lg text-white hover:border-neon-green/50 transition-colors focus:outline-none focus:ring-2 focus:ring-neon-green/20"
+            aria-label="Select year"
+            aria-expanded={isYearDropdownOpen}
+            aria-haspopup="listbox"
+          >
+            <span className="font-medium">{selectedYear}</span>
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${isYearDropdownOpen ? 'rotate-180' : ''}`}
+            />
+          </button>
+
+          {isYearDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 top-full mt-2 bg-github-dark border border-github-border rounded-lg shadow-xl z-50 min-w-[120px]"
+              role="listbox"
+              aria-label="Year options"
+            >
+              {availableYears.map((year) => (
+                <button
+                  key={year}
+                  onClick={() => {
+                    setSelectedYear(year);
+                    setIsYearDropdownOpen(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setSelectedYear(year);
+                      setIsYearDropdownOpen(false);
+                    }
+                  }}
+                  className={`w-full px-4 py-2 text-left hover:bg-github-border transition-colors first:rounded-t-lg last:rounded-b-lg focus:outline-none focus:bg-github-border ${
+                    year === selectedYear
+                      ? 'bg-neon-green/10 text-neon-green'
+                      : 'text-white hover:text-neon-green'
+                  }`}
+                  role="option"
+                  aria-selected={year === selectedYear}
+                  tabIndex={0}
+                >
+                  {year}
+                  {year === currentYear && (
+                    <span className="ml-2 text-xs text-github-text">(current)</span>
+                  )}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </div>
+
       {/* Loading state */}
-      {(isLoading || !isCalHeatmapLoaded) && (
+      {isLoading && (
         <div className="flex items-center justify-center py-16">
           <div className="flex items-center gap-3 text-github-text">
             <RefreshCw size={20} className="animate-spin" />
@@ -278,25 +415,45 @@ export function GitHubContributionHeatmap({
         </div>
       )}
 
-      {/* Cal-Heatmap container */}
-      {!isLoading && isCalHeatmapLoaded && (
+      {/* D3.js Heatmap container */}
+      {!isLoading && contributions && (
         <div className="contribution-calendar">
-          <div ref={calendarRef} className="w-full overflow-x-auto" />
-          
-          {/* Legend */}
-          <div className="flex items-center justify-between mt-4 text-sm text-github-text">
-            <span>Less</span>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GITHUB_COLORS.level0 }} />
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GITHUB_COLORS.level1 }} />
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GITHUB_COLORS.level2 }} />
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GITHUB_COLORS.level3 }} />
-              <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: GITHUB_COLORS.level4 }} />
+          <div className="w-full overflow-x-auto flex justify-center">
+            <div className="inline-block">
+              <svg ref={svgRef} className="block" />
             </div>
-            <span>More</span>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center justify-center mt-6 text-sm text-github-text">
+            <div className="flex items-center gap-3">
+              <span>Less</span>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level0 }} />
+                <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level1 }} />
+                <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level2 }} />
+                <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level3 }} />
+                <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level4 }} />
+              </div>
+              <span>More</span>
+            </div>
           </div>
         </div>
       )}
+
+      {/* Tooltip */}
+      <div
+        ref={tooltipRef}
+        className="fixed pointer-events-none z-50 bg-gray-900 text-white rounded-lg px-3 py-2 shadow-xl border border-gray-700 transition-all duration-200"
+        style={{
+          visibility: 'hidden',
+          opacity: 0,
+          transform: 'translateY(-4px)',
+          maxWidth: '280px',
+          fontSize: '12px',
+          lineHeight: '1.4',
+        }}
+      />
 
       {/* Statistics summary */}
       {contributions && !isLoading && (
@@ -329,7 +486,7 @@ export function GitHubContributionHeatmap({
           
           <div className="text-center">
             <div className="text-2xl font-bold text-white">
-              {year}
+              {selectedYear}
             </div>
             <div className="text-sm text-github-text">Year</div>
           </div>

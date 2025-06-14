@@ -10,11 +10,11 @@ import {
   UseGitHubContributionsReturn, 
   GITHUB_API_ENDPOINTS 
 } from '@/types/github';
-import { 
-  generateMockContributions, 
-  calculateTotalContributions, 
-  calculateContributionStreaks 
+import {
+  calculateTotalContributions,
+  calculateContributionStreaks
 } from '@/utils/githubCalculations';
+import { githubService } from '@/services/githubService';
 
 /**
  * Hook for managing GitHub contribution data
@@ -28,20 +28,31 @@ export function useGitHubContributions(year?: number): UseGitHubContributionsRet
   const targetYear = year || new Date().getFullYear();
 
   /**
-   * Fetch contribution data from API
+   * Fetch contribution data using GitHub service
    */
   const fetchContributions = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
 
+      // Try to use the GitHub service first
+      const result = await githubService.fetchContributions(targetYear);
+
+      if (result.success && result.data) {
+        setContributions(result.data);
+        setLastUpdated(new Date());
+        setError(null);
+        return;
+      }
+
+      // Fallback to API endpoint if service fails
       const response = await fetch(
         `${GITHUB_API_ENDPOINTS.CONTRIBUTIONS}?year=${targetYear}`
       );
 
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.success && data.contributions) {
           setContributions(data.contributions);
           setLastUpdated(new Date());
@@ -50,24 +61,13 @@ export function useGitHubContributions(year?: number): UseGitHubContributionsRet
         }
       }
 
-      // Fallback to mock data if API fails or returns error
-      console.warn('GitHub contributions API unavailable, using mock data');
-      const mockContributions = generateMockContributions(targetYear);
-      const mockCalendar = transformContributionsToCalendar(mockContributions, targetYear);
-      
-      setContributions(mockCalendar);
-      setLastUpdated(new Date());
-      setError('Using simulated contribution data');
+      // If both fail, set error state
+      console.warn('GitHub contributions API unavailable');
+      setError('Unable to fetch contribution data. Please check your connection.');
 
     } catch (err) {
       console.error('Error fetching GitHub contributions:', err);
-      
-      // Fallback to mock data on error
-      const mockContributions = generateMockContributions(targetYear);
-      const mockCalendar = transformContributionsToCalendar(mockContributions, targetYear);
-      
-      setContributions(mockCalendar);
-      setError('Failed to fetch real contribution data, showing simulated data');
+      setError('Failed to fetch contribution data');
     } finally {
       setIsLoading(false);
     }
@@ -260,18 +260,14 @@ export function useGitHubContributionsMultiYear(years: number[]): {
             }
           }
 
-          // Fallback to mock data
-          const mockContributions = generateMockContributions(year);
-          const mockCalendar = transformContributionsToCalendar(mockContributions, year);
-          newContributions[year] = mockCalendar;
-          newErrors[year] = 'Using simulated data';
+          // Set error state if API fails
+          newContributions[year] = null;
+          newErrors[year] = 'Unable to fetch contribution data';
 
         } catch (error) {
           console.error(`Error fetching contributions for ${year}:`, error);
-          const mockContributions = generateMockContributions(year);
-          const mockCalendar = transformContributionsToCalendar(mockContributions, year);
-          newContributions[year] = mockCalendar;
-          newErrors[year] = 'Failed to fetch real data';
+          newContributions[year] = null;
+          newErrors[year] = 'Failed to fetch contribution data';
         }
       })
     );

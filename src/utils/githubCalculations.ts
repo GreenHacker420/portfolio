@@ -195,13 +195,24 @@ export function calculateContributionStreaks(contributions: GitHubContribution[]
 
 /**
  * Transform contribution data for Cal-Heatmap
+ * Cal-Heatmap v4+ expects data as an array of objects or timestamp-value pairs
  */
-export function transformContributionsForHeatmap(contributions: GitHubContribution[]): Record<string, number> {
-  const heatmapData: Record<string, number> = {};
-  
+export function transformContributionsForHeatmap(contributions: GitHubContribution[]): Record<number, number> {
+  const heatmapData: Record<number, number> = {};
+
   contributions.forEach(contribution => {
-    // Cal-Heatmap expects timestamp in seconds
-    const timestamp = Math.floor(new Date(contribution.date).getTime() / 1000);
+    // Validate date format
+    const date = new Date(contribution.date);
+    if (isNaN(date.getTime())) {
+      console.warn(`Invalid date format: ${contribution.date}`);
+      return;
+    }
+
+    // Cal-Heatmap expects timestamp in seconds (not milliseconds)
+    // Set time to noon UTC to avoid timezone issues
+    const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0));
+    const timestamp = Math.floor(utcDate.getTime() / 1000);
+
     heatmapData[timestamp] = contribution.count;
   });
 
@@ -209,26 +220,44 @@ export function transformContributionsForHeatmap(contributions: GitHubContributi
 }
 
 /**
- * Generate mock contribution data for fallback
+ * Transform contribution data for Cal-Heatmap as array format
+ * Alternative format that some versions of Cal-Heatmap prefer
  */
-export function generateMockContributions(year: number = new Date().getFullYear()): GitHubContribution[] {
-  const contributions: GitHubContribution[] = [];
-  const startDate = new Date(year, 0, 1);
-  const endDate = new Date(year, 11, 31);
+export function transformContributionsForHeatmapArray(contributions: GitHubContribution[]): Array<{timestamp: number, value: number}> {
+  return contributions
+    .filter(contribution => {
+      const date = new Date(contribution.date);
+      return !isNaN(date.getTime());
+    })
+    .map(contribution => {
+      const date = new Date(contribution.date);
+      const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0));
+      const timestamp = Math.floor(utcDate.getTime() / 1000);
 
-  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-    const count = Math.floor(Math.random() * 15);
-    const level = count === 0 ? 0 : Math.min(Math.floor(count / 3) + 1, 4);
-    
-    contributions.push({
-      date: date.toISOString().split('T')[0],
-      count,
-      level,
+      return {
+        timestamp,
+        value: contribution.count
+      };
     });
-  }
-
-  return contributions;
 }
+
+/**
+ * Transform contribution data for Cal-Heatmap with timestamp format
+ * Alternative format for Cal-Heatmap that expects timestamps
+ */
+export function transformContributionsForHeatmapTimestamp(contributions: GitHubContribution[]): Array<{ date: string; value: number }> {
+  return contributions
+    .filter(contribution => {
+      const date = new Date(contribution.date);
+      return !isNaN(date.getTime());
+    })
+    .map(contribution => ({
+      date: contribution.date,
+      value: contribution.count,
+    }));
+}
+
+// Mock data generation functions removed - using real GitHub API data only
 
 /**
  * Calculate total contributions from contribution data

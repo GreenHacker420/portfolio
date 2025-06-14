@@ -1,0 +1,3342 @@
+{
+  "test_info": {
+    "description": "GitHub API Test Results",
+    "timestamp": "2025-06-14T08:42:39.240Z",
+    "github_username": "GreenHacker420",
+    "test_status": "completed"
+  },
+  "actual_responses": {
+    "restAPI": {
+      "profile": {
+        "login": "GreenHacker420",
+        "id": 106510913,
+        "node_id": "U_kgDOBlk6QQ",
+        "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/GreenHacker420",
+        "html_url": "https://github.com/GreenHacker420",
+        "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+        "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+        "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+        "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+        "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+        "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false,
+        "name": "Green Hacker",
+        "company": "Evergreen Classic",
+        "blog": "https://portfolio.greenhacker.tech/",
+        "location": "Pune, Maharastra",
+        "email": null,
+        "hireable": null,
+        "bio": null,
+        "twitter_username": null,
+        "public_repos": 46,
+        "public_gists": 0,
+        "followers": 7,
+        "following": 8,
+        "created_at": "2022-05-30T06:35:35Z",
+        "updated_at": "2025-06-08T06:02:01Z"
+      },
+      "repositories": [
+        {
+          "id": 959906617,
+          "node_id": "R_kgDOOTcDOQ",
+          "name": "portfolio---nitya",
+          "full_name": "GreenHacker420/portfolio---nitya",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/portfolio---nitya",
+          "description": null,
+          "fork": true,
+          "url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/portfolio---nitya/deployments",
+          "created_at": "2025-04-03T14:42:41Z",
+          "updated_at": "2025-06-12T10:04:18Z",
+          "pushed_at": "2025-06-12T10:04:15Z",
+          "git_url": "git://github.com/GreenHacker420/portfolio---nitya.git",
+          "ssh_url": "git@github.com:GreenHacker420/portfolio---nitya.git",
+          "clone_url": "https://github.com/GreenHacker420/portfolio---nitya.git",
+          "svn_url": "https://github.com/GreenHacker420/portfolio---nitya",
+          "homepage": "https://curiouscoder.live/",
+          "size": 5520,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": "JavaScript",
+          "has_issues": false,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "main",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 998221397,
+          "node_id": "R_kgDOO3-mVQ",
+          "name": "stock-analysis-platform",
+          "full_name": "GreenHacker420/stock-analysis-platform",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/stock-analysis-platform",
+          "description": "AI-powered Indian stock analysis platform integrating Google Gemini for intelligent investment recommendations with real-time NSE/BSE data. Features portfolio management with INR support, technical indicators, interactive visualizations, and role-based access for analysts and investors. Built with Next.js, React, MongoDB, and NextAuth.js.",
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/stock-analysis-platform/deployments",
+          "created_at": "2025-06-08T06:02:26Z",
+          "updated_at": "2025-06-12T09:34:44Z",
+          "pushed_at": "2025-06-12T09:34:40Z",
+          "git_url": "git://github.com/GreenHacker420/stock-analysis-platform.git",
+          "ssh_url": "git@github.com:GreenHacker420/stock-analysis-platform.git",
+          "clone_url": "https://github.com/GreenHacker420/stock-analysis-platform.git",
+          "svn_url": "https://github.com/GreenHacker420/stock-analysis-platform",
+          "homepage": "https://stock.greenhacker.tech/",
+          "size": 1545,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": "TypeScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [
+            "ai-powered-an",
+            "gemini-ai",
+            "nextauth",
+            "nextjs",
+            "nse-bse-integration",
+            "portfolio-management",
+            "stock-analysis"
+          ],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "master",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 985953953,
+          "node_id": "R_kgDOOsR2oQ",
+          "name": "task-manager-server",
+          "full_name": "GreenHacker420/task-manager-server",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/task-manager-server",
+          "description": "A robust RESTful API for managing tasks and subtasks with user authentication, built with Node.js and Express. This backend service provides comprehensive task organization features and is deployed as serverless functions on Netlify.",
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/task-manager-server",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/task-manager-server/deployments",
+          "created_at": "2025-05-18T21:29:39Z",
+          "updated_at": "2025-06-10T05:58:28Z",
+          "pushed_at": "2025-06-10T05:58:25Z",
+          "git_url": "git://github.com/GreenHacker420/task-manager-server.git",
+          "ssh_url": "git@github.com:GreenHacker420/task-manager-server.git",
+          "clone_url": "https://github.com/GreenHacker420/task-manager-server.git",
+          "svn_url": "https://github.com/GreenHacker420/task-manager-server",
+          "homepage": "https://task.greenhacker.tech/",
+          "size": 46,
+          "stargazers_count": 1,
+          "watchers_count": 1,
+          "language": "JavaScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [
+            "express",
+            "jwt-authentication",
+            "mongodb",
+            "nodejs",
+            "rest-api",
+            "taskmanagement"
+          ],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 1,
+          "default_branch": "main",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 986128819,
+          "node_id": "R_kgDOOschsw",
+          "name": "task-manager-frontend",
+          "full_name": "GreenHacker420/task-manager-frontend",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/task-manager-frontend",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/task-manager-frontend/deployments",
+          "created_at": "2025-05-19T06:42:31Z",
+          "updated_at": "2025-06-10T05:55:28Z",
+          "pushed_at": "2025-06-10T05:55:25Z",
+          "git_url": "git://github.com/GreenHacker420/task-manager-frontend.git",
+          "ssh_url": "git@github.com:GreenHacker420/task-manager-frontend.git",
+          "clone_url": "https://github.com/GreenHacker420/task-manager-frontend.git",
+          "svn_url": "https://github.com/GreenHacker420/task-manager-frontend",
+          "homepage": null,
+          "size": 43815,
+          "stargazers_count": 1,
+          "watchers_count": 1,
+          "language": "TypeScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 1,
+          "default_branch": "main",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 977885711,
+          "node_id": "R_kgDOOklaDw",
+          "name": "gesture-canvas",
+          "full_name": "GreenHacker420/gesture-canvas",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/gesture-canvas",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/gesture-canvas",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/gesture-canvas/deployments",
+          "created_at": "2025-05-05T06:05:22Z",
+          "updated_at": "2025-06-10T03:39:55Z",
+          "pushed_at": "2025-05-22T07:21:58Z",
+          "git_url": "git://github.com/GreenHacker420/gesture-canvas.git",
+          "ssh_url": "git@github.com:GreenHacker420/gesture-canvas.git",
+          "clone_url": "https://github.com/GreenHacker420/gesture-canvas.git",
+          "svn_url": "https://github.com/GreenHacker420/gesture-canvas",
+          "homepage": "https://gesture-canva.netlify.app/",
+          "size": 8740,
+          "stargazers_count": 1,
+          "watchers_count": 1,
+          "language": "TypeScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": true,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [
+            "gesture-control",
+            "gesture-detection",
+            "gesture-drawing",
+            "mediapipe",
+            "react",
+            "tensorflowjs"
+          ],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 1,
+          "default_branch": "master",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 954116124,
+          "node_id": "R_kgDOON6oHA",
+          "name": "GreenHacker420",
+          "full_name": "GreenHacker420/GreenHacker420",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/GreenHacker420",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/GreenHacker420",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/GreenHacker420/deployments",
+          "created_at": "2025-03-24T15:29:51Z",
+          "updated_at": "2025-06-09T18:15:12Z",
+          "pushed_at": "2025-06-09T18:15:09Z",
+          "git_url": "git://github.com/GreenHacker420/GreenHacker420.git",
+          "ssh_url": "git@github.com:GreenHacker420/GreenHacker420.git",
+          "clone_url": "https://github.com/GreenHacker420/GreenHacker420.git",
+          "svn_url": "https://github.com/GreenHacker420/GreenHacker420",
+          "homepage": null,
+          "size": 43,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": null,
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "main",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 998036124,
+          "node_id": "R_kgDOO3zSnA",
+          "name": "Tally_sync",
+          "full_name": "GreenHacker420/Tally_sync",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/Tally_sync",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/Tally_sync",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/Tally_sync/deployments",
+          "created_at": "2025-06-07T18:21:15Z",
+          "updated_at": "2025-06-08T07:36:54Z",
+          "pushed_at": "2025-06-08T07:36:51Z",
+          "git_url": "git://github.com/GreenHacker420/Tally_sync.git",
+          "ssh_url": "git@github.com:GreenHacker420/Tally_sync.git",
+          "clone_url": "https://github.com/GreenHacker420/Tally_sync.git",
+          "svn_url": "https://github.com/GreenHacker420/Tally_sync",
+          "homepage": null,
+          "size": 1099,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": "JavaScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "master",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 995272628,
+          "node_id": "R_kgDOO1KntA",
+          "name": "foundry",
+          "full_name": "GreenHacker420/foundry",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/foundry",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/foundry",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/foundry/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/foundry/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/foundry/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/foundry/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/foundry/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/foundry/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/foundry/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/foundry/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/foundry/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/foundry/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/foundry/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/foundry/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/foundry/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/foundry/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/foundry/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/foundry/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/foundry/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/foundry/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/foundry/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/foundry/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/foundry/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/foundry/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/foundry/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/foundry/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/foundry/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/foundry/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/foundry/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/foundry/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/foundry/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/foundry/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/foundry/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/foundry/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/foundry/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/foundry/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/foundry/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/foundry/deployments",
+          "created_at": "2025-06-03T08:24:09Z",
+          "updated_at": "2025-06-04T10:34:38Z",
+          "pushed_at": "2025-06-04T08:35:32Z",
+          "git_url": "git://github.com/GreenHacker420/foundry.git",
+          "ssh_url": "git@github.com:GreenHacker420/foundry.git",
+          "clone_url": "https://github.com/GreenHacker420/foundry.git",
+          "svn_url": "https://github.com/GreenHacker420/foundry",
+          "homepage": "https://pizza.greenhacker.tech/",
+          "size": 687,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": "TypeScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "main",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 994771310,
+          "node_id": "R_kgDOO0sBbg",
+          "name": "pizza-dashboard",
+          "full_name": "GreenHacker420/pizza-dashboard",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/pizza-dashboard",
+          "description": null,
+          "fork": true,
+          "url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/pizza-dashboard/deployments",
+          "created_at": "2025-06-02T13:05:53Z",
+          "updated_at": "2025-06-02T13:40:36Z",
+          "pushed_at": "2025-06-02T13:40:33Z",
+          "git_url": "git://github.com/GreenHacker420/pizza-dashboard.git",
+          "ssh_url": "git@github.com:GreenHacker420/pizza-dashboard.git",
+          "clone_url": "https://github.com/GreenHacker420/pizza-dashboard.git",
+          "svn_url": "https://github.com/GreenHacker420/pizza-dashboard",
+          "homepage": null,
+          "size": 132,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": "TypeScript",
+          "has_issues": false,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": null,
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "master",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        },
+        {
+          "id": 983560359,
+          "node_id": "R_kgDOOp_wpw",
+          "name": "Task-Manager",
+          "full_name": "GreenHacker420/Task-Manager",
+          "private": false,
+          "owner": {
+            "login": "GreenHacker420",
+            "id": 106510913,
+            "node_id": "U_kgDOBlk6QQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/106510913?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/GreenHacker420",
+            "html_url": "https://github.com/GreenHacker420",
+            "followers_url": "https://api.github.com/users/GreenHacker420/followers",
+            "following_url": "https://api.github.com/users/GreenHacker420/following{/other_user}",
+            "gists_url": "https://api.github.com/users/GreenHacker420/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/GreenHacker420/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/GreenHacker420/subscriptions",
+            "organizations_url": "https://api.github.com/users/GreenHacker420/orgs",
+            "repos_url": "https://api.github.com/users/GreenHacker420/repos",
+            "events_url": "https://api.github.com/users/GreenHacker420/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/GreenHacker420/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/GreenHacker420/Task-Manager",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/GreenHacker420/Task-Manager",
+          "forks_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/forks",
+          "keys_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/teams",
+          "hooks_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/hooks",
+          "issue_events_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/events",
+          "assignees_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/tags",
+          "blobs_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/languages",
+          "stargazers_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/stargazers",
+          "contributors_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/contributors",
+          "subscribers_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/subscribers",
+          "subscription_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/subscription",
+          "commits_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/merges",
+          "archive_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/downloads",
+          "issues_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/labels{/name}",
+          "releases_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/GreenHacker420/Task-Manager/deployments",
+          "created_at": "2025-05-14T15:04:20Z",
+          "updated_at": "2025-05-18T21:46:31Z",
+          "pushed_at": "2025-05-18T21:46:27Z",
+          "git_url": "git://github.com/GreenHacker420/Task-Manager.git",
+          "ssh_url": "git@github.com:GreenHacker420/Task-Manager.git",
+          "clone_url": "https://github.com/GreenHacker420/Task-Manager.git",
+          "svn_url": "https://github.com/GreenHacker420/Task-Manager",
+          "homepage": null,
+          "size": 357,
+          "stargazers_count": 0,
+          "watchers_count": 0,
+          "language": "JavaScript",
+          "has_issues": true,
+          "has_projects": true,
+          "has_downloads": true,
+          "has_wiki": true,
+          "has_pages": false,
+          "has_discussions": false,
+          "forks_count": 0,
+          "mirror_url": null,
+          "archived": false,
+          "disabled": false,
+          "open_issues_count": 0,
+          "license": {
+            "key": "mit",
+            "name": "MIT License",
+            "spdx_id": "MIT",
+            "url": "https://api.github.com/licenses/mit",
+            "node_id": "MDc6TGljZW5zZTEz"
+          },
+          "allow_forking": true,
+          "is_template": false,
+          "web_commit_signoff_required": false,
+          "topics": [],
+          "visibility": "public",
+          "forks": 0,
+          "open_issues": 0,
+          "watchers": 0,
+          "default_branch": "master",
+          "permissions": {
+            "admin": true,
+            "maintain": true,
+            "push": true,
+            "triage": true,
+            "pull": true
+          }
+        }
+      ],
+      "rateLimit": {
+        "remaining": "4963",
+        "reset": "1749891986"
+      }
+    },
+    "graphQLAPI": {
+      "totalCommitContributions": 455,
+      "totalIssueContributions": 0,
+      "totalPullRequestContributions": 15,
+      "totalPullRequestReviewContributions": 1,
+      "contributionCalendar": {
+        "totalContributions": 1096,
+        "weeks": [
+          {
+            "contributionDays": [
+              {
+                "date": "2025-01-01",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-02",
+                "contributionCount": 15,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-01-03",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-04",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-01-01"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-01-05",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-06",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-07",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-08",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-09",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-10",
+                "contributionCount": 5,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-11",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-01-05"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-01-12",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-13",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-14",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-15",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-16",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-17",
+                "contributionCount": 5,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-18",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-01-12"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-01-19",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-20",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-21",
+                "contributionCount": 13,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-01-22",
+                "contributionCount": 19,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-01-23",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-24",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-25",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-01-19"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-01-26",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-01-27",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-28",
+                "contributionCount": 14,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-01-29",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-01-30",
+                "contributionCount": 12,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-01-31",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-02-01",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-01-26"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-02-02",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-02-03",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-04",
+                "contributionCount": 16,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-02-05",
+                "contributionCount": 16,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-02-06",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-02-07",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-08",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-02-02"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-02-09",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-02-10",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-11",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-12",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-13",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-14",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-15",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-02-09"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-02-16",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-17",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-18",
+                "contributionCount": 16,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-02-19",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-20",
+                "contributionCount": 15,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-02-21",
+                "contributionCount": 13,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-02-22",
+                "contributionCount": 23,
+                "contributionLevel": "FOURTH_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-02-16"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-02-23",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-24",
+                "contributionCount": 21,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-02-25",
+                "contributionCount": 18,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-02-26",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-27",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-02-28",
+                "contributionCount": 5,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-01",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-02-23"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-03-02",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-03",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-04",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-05",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-06",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-07",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-08",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-03-02"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-03-09",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-10",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-11",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-12",
+                "contributionCount": 5,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-13",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-14",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-15",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-03-09"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-03-16",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-17",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-18",
+                "contributionCount": 5,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-19",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-03-20",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-21",
+                "contributionCount": 2,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-22",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-03-16"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-03-23",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-24",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-25",
+                "contributionCount": 15,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-03-26",
+                "contributionCount": 15,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-03-27",
+                "contributionCount": 2,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-28",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-29",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-03-23"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-03-30",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-03-31",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-01",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-04-02",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-03",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-04",
+                "contributionCount": 2,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-05",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-03-30"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-04-06",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-04-07",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-04-08",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-09",
+                "contributionCount": 14,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-04-10",
+                "contributionCount": 14,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-04-11",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-12",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-04-06"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-04-13",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-14",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-15",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-16",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-17",
+                "contributionCount": 2,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-18",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-04-13"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-04-20",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-04-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-04-23",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-04-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-04-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-04-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-04-20"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-04-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-04-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-04-29",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-04-30",
+                "contributionCount": 14,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-05-01",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-05-02",
+                "contributionCount": 4,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-05-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-04-27"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-05-04",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-05-05",
+                "contributionCount": 45,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-05-06",
+                "contributionCount": 13,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-05-07",
+                "contributionCount": 18,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-05-08",
+                "contributionCount": 12,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-05-09",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-05-10",
+                "contributionCount": 2,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-05-04"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-05-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-14",
+                "contributionCount": 13,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-05-15",
+                "contributionCount": 7,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-05-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-17",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-05-11"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-05-18",
+                "contributionCount": 14,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-05-19",
+                "contributionCount": 28,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-05-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-21",
+                "contributionCount": 1,
+                "contributionLevel": "FIRST_QUARTILE"
+              },
+              {
+                "date": "2025-05-22",
+                "contributionCount": 9,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-05-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-05-18"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-05-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-05-31",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-05-25"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-06-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-02",
+                "contributionCount": 14,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-06-03",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-06-04",
+                "contributionCount": 6,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-06-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-07",
+                "contributionCount": 8,
+                "contributionLevel": "SECOND_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-06-01"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-06-08",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-06-09",
+                "contributionCount": 15,
+                "contributionLevel": "THIRD_QUARTILE"
+              },
+              {
+                "date": "2025-06-10",
+                "contributionCount": 11,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-06-11",
+                "contributionCount": 10,
+                "contributionLevel": "SECOND_QUARTILE"
+              },
+              {
+                "date": "2025-06-12",
+                "contributionCount": 32,
+                "contributionLevel": "FOURTH_QUARTILE"
+              },
+              {
+                "date": "2025-06-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-14",
+                "contributionCount": 3,
+                "contributionLevel": "FIRST_QUARTILE"
+              }
+            ],
+            "firstDay": "2025-06-08"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-06-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-06-15"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-06-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-06-22"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-06-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-06-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-02",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-04",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-06-29"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-07-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-07",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-08",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-09",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-10",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-07-06"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-07-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-14",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-07-13"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-07-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-07-20"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-07-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-07-31",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-02",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-07-27"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-08-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-04",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-07",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-08",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-09",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-08-03"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-08-10",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-14",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-08-10"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-08-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-08-17"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-08-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-08-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-08-24"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-08-31",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-02",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-04",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-08-31"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-09-07",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-08",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-09",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-10",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-09-07"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-09-14",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-09-14"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-09-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-09-21"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-09-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-09-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-02",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-04",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-09-28"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-10-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-07",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-08",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-09",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-10",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-10-05"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-10-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-14",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-10-12"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-10-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-10-19"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-10-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-10-31",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-10-26"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-11-02",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-04",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-07",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-08",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-11-02"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-11-09",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-10",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-14",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-11-09"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-11-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-11-16"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-11-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-11-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-11-23"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-11-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-01",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-02",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-03",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-04",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-05",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-06",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-11-30"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-12-07",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-08",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-09",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-10",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-11",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-12",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-13",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-12-07"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-12-14",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-15",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-16",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-17",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-18",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-19",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-20",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-12-14"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-12-21",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-22",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-23",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-24",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-25",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-26",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-27",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-12-21"
+          },
+          {
+            "contributionDays": [
+              {
+                "date": "2025-12-28",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-29",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-30",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              },
+              {
+                "date": "2025-12-31",
+                "contributionCount": 0,
+                "contributionLevel": "NONE"
+              }
+            ],
+            "firstDay": "2025-12-28"
+          }
+        ],
+        "months": [
+          {
+            "name": "Jan",
+            "year": 2025,
+            "firstDay": "2025-01-01",
+            "totalWeeks": 5
+          },
+          {
+            "name": "Feb",
+            "year": 2025,
+            "firstDay": "2025-02-01",
+            "totalWeeks": 4
+          },
+          {
+            "name": "Mar",
+            "year": 2025,
+            "firstDay": "2025-03-01",
+            "totalWeeks": 5
+          },
+          {
+            "name": "Apr",
+            "year": 2025,
+            "firstDay": "2025-04-01",
+            "totalWeeks": 4
+          },
+          {
+            "name": "May",
+            "year": 2025,
+            "firstDay": "2025-05-01",
+            "totalWeeks": 4
+          },
+          {
+            "name": "Jun",
+            "year": 2025,
+            "firstDay": "2025-06-01",
+            "totalWeeks": 5
+          },
+          {
+            "name": "Jul",
+            "year": 2025,
+            "firstDay": "2025-07-01",
+            "totalWeeks": 4
+          },
+          {
+            "name": "Aug",
+            "year": 2025,
+            "firstDay": "2025-08-01",
+            "totalWeeks": 5
+          },
+          {
+            "name": "Sep",
+            "year": 2025,
+            "firstDay": "2025-09-01",
+            "totalWeeks": 4
+          },
+          {
+            "name": "Oct",
+            "year": 2025,
+            "firstDay": "2025-10-01",
+            "totalWeeks": 4
+          },
+          {
+            "name": "Nov",
+            "year": 2025,
+            "firstDay": "2025-11-01",
+            "totalWeeks": 5
+          },
+          {
+            "name": "Dec",
+            "year": 2025,
+            "firstDay": "2025-12-01",
+            "totalWeeks": 4
+          }
+        ]
+      }
+    }
+  },
+  "validation": {
+    "profile_data_complete": true,
+    "repositories_data_complete": true,
+    "contributions_data_complete": true,
+    "rate_limit_info_available": true
+  }
+}

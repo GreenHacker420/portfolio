@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
 
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
+
 const contactUpdateSchema = z.object({
-  status: z.enum(['pending', 'responded', 'archived']).optional(),
+  status: z.enum(['pending', 'responded', 'archived']).optional()
 })
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -19,7 +22,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const contact = await prisma.contact.findUnique({
+    const contact = await directPrisma.contact.findUnique({
       where: { id: params.id }
     })
 
@@ -52,7 +55,7 @@ export async function PATCH(
     const validatedData = contactUpdateSchema.parse(body)
 
     // Get the current contact for audit log
-    const currentContact = await prisma.contact.findUnique({
+    const currentContact = await directPrisma.contact.findUnique({
       where: { id: params.id }
     })
 
@@ -60,13 +63,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Contact not found' }, { status: 404 })
     }
 
-    const contact = await prisma.contact.update({
+    const contact = await directPrisma.contact.update({
       where: { id: params.id },
       data: validatedData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -106,7 +109,7 @@ export async function DELETE(
     }
 
     // Get the current contact for audit log
-    const currentContact = await prisma.contact.findUnique({
+    const currentContact = await directPrisma.contact.findUnique({
       where: { id: params.id }
     })
 
@@ -114,12 +117,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Contact not found' }, { status: 404 })
     }
 
-    await prisma.contact.delete({
+    await directPrisma.contact.delete({
       where: { id: params.id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',

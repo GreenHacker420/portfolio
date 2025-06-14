@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { githubService } from '@/services/githubService';
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -39,70 +40,46 @@ export async function GET(request: Request) {
       );
     }
 
-    const githubToken = process.env.GITHUB_TOKEN;
-    const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
+    // Check for force refresh parameter
+    const { searchParams } = new URL(request.url);
+    const forceRefresh = searchParams.get('refresh') === 'true';
 
-    if (!githubToken) {
-      console.error('GitHub token not configured');
-      return NextResponse.json(
-        { error: 'GitHub API not configured' },
-        { status: 503 }
-      );
-    }
+    // Use the new GitHub service
+    const result = await githubService.fetchProfile(forceRefresh);
 
-    // Fetch real GitHub profile data
-    const response = await fetch(`https://api.github.com/users/${githubUsername}`, {
-      headers: {
-        'Authorization': `Bearer ${githubToken}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'Portfolio-App'
-      },
-      next: { revalidate: 3600 } // Cache for 1 hour
-    });
+    if (!result.success) {
+      console.error('GitHub profile service error:', result.error);
 
-    if (!response.ok) {
-      console.error('GitHub API error:', response.status, response.statusText);
-      
-      // Check if it's a rate limit error
-      if (response.status === 403) {
-        const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
-        const rateLimitReset = response.headers.get('x-ratelimit-reset');
-        
-        console.error('GitHub API rate limit exceeded:', {
-          remaining: rateLimitRemaining,
-          reset: rateLimitReset
-        });
+      // Handle specific error cases
+      if (result.error?.includes('rate limit')) {
+        return NextResponse.json(
+          {
+            error: 'GitHub API rate limit exceeded',
+            rateLimit: result.rateLimit
+          },
+          { status: 429 }
+        );
       }
-      
+
+      if (result.error?.includes('not configured')) {
+        return NextResponse.json(
+          { error: 'GitHub API not configured' },
+          { status: 503 }
+        );
+      }
+
       return NextResponse.json(
-        { error: 'GitHub API rate limit exceeded' },
-        { status: 429 }
+        { error: result.error || 'Failed to fetch GitHub profile' },
+        { status: 500 }
       );
     }
-
-    const userData = await response.json();
-
-    const profileData = {
-      login: userData.login,
-      name: userData.name || userData.login,
-      bio: userData.bio || 'Full-stack developer passionate about AI and open source',
-      avatar_url: userData.avatar_url,
-      html_url: userData.html_url,
-      public_repos: userData.public_repos,
-      followers: userData.followers,
-      following: userData.following,
-      created_at: userData.created_at,
-      updated_at: userData.updated_at,
-      location: userData.location,
-      blog: userData.blog,
-      twitter_username: userData.twitter_username,
-      company: userData.company,
-    };
 
     return NextResponse.json({
       success: true,
-      data: profileData,
-      cached: false,
+      data: result.data,
+      cached: result.cached || false,
+      cacheAge: result.cacheAge,
+      rateLimit: result.rateLimit,
       timestamp: new Date().toISOString()
     });
 

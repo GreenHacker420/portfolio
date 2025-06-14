@@ -313,6 +313,9 @@ async function main() {
   
   console.log('✅ Sample work experience created')
 
+  // TODO: Add FAQ data after fixing Prisma client issue
+  console.log('⚠️ FAQ data creation skipped - will be added via admin panel')
+
   console.log('🎉 Database seeding completed!')
   console.log(`\n📧 Admin Login:`)
   console.log(`   Email: ${adminEmail}`)

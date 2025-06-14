@@ -19,7 +19,7 @@ const ReactiveBackground = dynamic(() => import("@/components/effects/ReactiveBa
   ssr: false
 });
 
-const Chatbot = dynamic(() => import("@/components/sections/Chatbot"), {
+const EnhancedChatbot = dynamic(() => import("@/components/sections/EnhancedChatbot"), {
   ssr: false
 });
 
@@ -123,8 +123,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
           {children}
 
-          {/* Only show chatbot on non-admin routes */}
-          {!isAdminRoute && <Chatbot />}
+          {/* Only show enhanced chatbot on non-admin routes */}
+          {!isAdminRoute && <EnhancedChatbot />}
         </TooltipProvider>
       </QueryClientProvider>
     </ThemeProvider>

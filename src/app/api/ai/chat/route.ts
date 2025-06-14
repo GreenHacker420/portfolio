@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getWebsiteContext, logChatInteraction, searchFAQs, getContextualSuggestions } from '@/services/chatbotService';
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -29,6 +30,8 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+
   try {
     // Basic rate limiting
     const ip = request.headers.get('x-forwarded-for') || 'unknown';
@@ -39,7 +42,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { message, context } = await request.json();
+    const { message, context, sessionId } = await request.json();
+    const userAgent = request.headers.get('user-agent') || 'unknown';
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -65,31 +69,110 @@ export async function POST(request: Request) {
       );
     }
 
-    // Initialize Gemini AI
+    // Get real-time website context
+    const websiteContext = await getWebsiteContext();
+
+    // Search for relevant FAQs
+    const relatedFAQs = await searchFAQs(message);
+
+    // Initialize Gemini AI with 2.0-flash model
     const genAI = new GoogleGenerativeAI(geminiApiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-    // Create a context-aware prompt
-    const systemPrompt = `You are an AI assistant for Green Hacker's portfolio website. You are knowledgeable about:
-- Full-stack web development (React, Next.js, TypeScript, Node.js)
-- AI and machine learning technologies
-- 3D web development with Three.js
-- Modern web technologies and best practices
-- Green Hacker's projects and skills
+    // Create a comprehensive context-aware prompt with real data
+    const systemPrompt = `You are an AI assistant for Harsh Hirawat's (aka GreenHacker) portfolio website at greenhacker.tech. You have comprehensive knowledge about:
 
-Keep responses helpful, professional, and concise. If asked about Green Hacker's background, mention their expertise in AI, web development, and creating innovative digital experiences.
+REAL-TIME WEBSITE DATA:
+${websiteContext}
+
+RELATED FAQ INFORMATION:
+${relatedFAQs.length > 0 ? relatedFAQs.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n') : 'No directly related FAQs found.'}
+
+COMPREHENSIVE KNOWLEDGE BASE:
+
+PERSONAL INFORMATION:
+- Name: Harsh Hirawat (professionally known as GreenHacker)
+- Title: Full Stack Developer & AI Enthusiast
+- Location: India (working with international clients)
+- Email: Contact through the website's contact form
+- Website: greenhacker.tech
+
+TECHNICAL EXPERTISE:
+- Frontend: React, Next.js, TypeScript, Tailwind CSS, Three.js, Framer Motion
+- Backend: Node.js, Express.js, Python, FastAPI, GraphQL
+- Databases: PostgreSQL, MongoDB, Prisma ORM
+- AI/ML: PyTorch, TensorFlow, Computer Vision, Natural Language Processing
+- DevOps: Docker, AWS, Git, CI/CD, Kubernetes
+- Languages: JavaScript, TypeScript, Python
+- Other: WebGL, React Three Fiber, GSAP, WebRTC, Socket.io
+
+CURRENT PROJECTS & EXPERIENCE:
+- Portfolio Website: Interactive 3D portfolio with AI-powered features
+- AI Photo Platform: Face recognition for intelligent photo organization
+- ML Research Tool: NLP for scientific paper analysis
+- Real-time Collaboration App: WebRTC and WebSockets platform
+- Various full-stack web applications and AI-powered solutions
+
+WEBSITE FEATURES:
+- Interactive 3D elements using Three.js and Spline
+- Real-time GitHub stats with AI analysis
+- Comprehensive skills showcase with proficiency levels
+- Project portfolio with detailed case studies
+- AI-powered contact system with smart replies
+- Admin dashboard for content management
+- SEO optimized with structured data
+
+PROFESSIONAL BACKGROUND:
+- Experienced in building scalable web applications
+- Strong focus on modern development practices and clean code
+- Available for freelance projects and collaborations
+- Passionate about AI, web development, and creating innovative digital experiences
+- Open source contributor and continuous learner
+
+COMMUNICATION STYLE:
+- Professional yet friendly and approachable
+- Technical when appropriate, but accessible to non-technical users
+- Helpful and informative
+- Enthusiastic about technology and problem-solving
 
 Context: ${context || 'General portfolio inquiry'}
+Current page context: ${context}
 
-User message: ${message}`;
+User message: ${message}
+
+Respond as Harsh Hirawat's AI assistant, providing helpful, accurate information about his skills, projects, experience, and availability. If asked about specific technical details, provide comprehensive but accessible explanations. For business inquiries, guide users to the contact form.`;
 
     const result = await model.generateContent(systemPrompt);
-    const response = await result.response;
+    const response = result.response;
     const text = response.text();
+
+    // Calculate response time
+    const responseTime = Date.now() - startTime;
+
+    // Generate contextual suggestions
+    const suggestions = getContextualSuggestions(context);
+
+    // Log the interaction (async, don't wait)
+    const chatSessionId = sessionId || `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
+    logChatInteraction(
+      chatSessionId,
+      message,
+      text,
+      {
+        currentPage: context,
+        userAgent,
+        ipAddress: ip,
+        sessionId: chatSessionId
+      },
+      responseTime
+    ).catch(error => console.error('Failed to log chat interaction:', error));
 
     return NextResponse.json({
       success: true,
       response: text,
+      suggestions,
+      relatedFAQs: relatedFAQs.slice(0, 3), // Return top 3 related FAQs
+      responseTime,
       timestamp: new Date().toISOString()
     });
 

@@ -201,6 +201,40 @@ model Media {
   @@map("media")
 }
 
+// FAQ System
+model Faq {
+  id          String   @id @default(cuid())
+  question    String
+  answer      String   @db.Text
+  category    String   // technical, projects, contact, general, etc.
+  tags        String?  // JSON array of searchable tags
+  isVisible   Boolean  @default(true)
+  displayOrder Int     @default(0)
+  viewCount   Int      @default(0)
+  helpful     Int      @default(0)
+  notHelpful  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+// Chat Interactions for analytics and improvement
+model ChatInteraction {
+  id          String   @id @default(cuid())
+  sessionId   String   // Anonymous session identifier
+  userMessage String   @db.Text
+  botResponse String   @db.Text
+  context     String?  // Page context or additional info
+  isHelpful   Boolean? // User feedback
+  ipAddress   String?
+  userAgent   String?
+  responseTime Int?    // Response time in milliseconds
+  createdAt   DateTime @default(now())
+
+  @@map("chat_interactions")
+}
+
 // Audit Log for tracking admin actions
 model AuditLog {
   id        String   @id @default(cuid())

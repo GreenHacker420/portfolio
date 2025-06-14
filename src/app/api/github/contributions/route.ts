@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { GitHubContributionCalendar, GitHubContribution } from '@/types/github';
-import { generateMockContributions } from '@/utils/githubCalculations';
+import { githubService } from '@/services/githubService';
 
 export async function GET(request: Request) {
   try {
@@ -15,21 +15,44 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
+    const forceRefresh = searchParams.get('refresh') === 'true';
 
-    const githubToken = process.env.GITHUB_TOKEN;
-    const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
+    // Use the new GitHub service to fetch real contribution data
+    const result = await githubService.fetchContributions(year, forceRefresh);
 
-    if (!githubToken) {
-      console.warn('GitHub token not configured, using mock data');
+    if (!result.success) {
+      console.error('GitHub contributions service error:', result.error);
+
+      // Handle specific error cases
+      if (result.error?.includes('rate limit')) {
+        return NextResponse.json(
+          {
+            error: 'GitHub API rate limit exceeded',
+            rateLimit: result.rateLimit
+          },
+          { status: 429 }
+        );
+      }
+
+      if (result.error?.includes('token required')) {
+        console.warn('GitHub token not configured, using mock data');
+        return getMockContributions(year);
+      }
+
+      // Fallback to mock data on other errors
+      console.warn('GitHub contributions API error, using mock data:', result.error);
       return getMockContributions(year);
     }
 
-    // Note: GitHub's GraphQL API is needed for contribution data
-    // For now, we'll generate realistic mock data based on the year
-    // In a real implementation, you would use GitHub's GraphQL API:
-    // https://docs.github.com/en/graphql/reference/objects#contributionscollection
-
-    return getMockContributions(year);
+    return NextResponse.json({
+      success: true,
+      contributions: result.data,
+      year,
+      cached: result.cached || false,
+      cacheAge: result.cacheAge,
+      rateLimit: result.rateLimit,
+      timestamp: new Date().toISOString()
+    });
 
   } catch (error) {
     console.error('GitHub contributions API error:', error);
@@ -38,7 +61,42 @@ export async function GET(request: Request) {
 }
 
 function getMockContributions(year: number) {
-  const mockContributions = generateMockContributions(year);
+  // Generate simple mock contribution data
+  const mockContributions: GitHubContribution[] = [];
+  const startDate = new Date(year, 0, 1);
+  const endDate = new Date(year, 11, 31);
+  const currentDate = new Date();
+
+  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+    // Don't generate contributions for future dates
+    if (date > currentDate) {
+      mockContributions.push({
+        date: date.toISOString().split('T')[0],
+        count: 0,
+        level: 0,
+      });
+      continue;
+    }
+
+    // Generate random contributions with some patterns
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    const baseActivity = isWeekend ? 0.3 : 0.8;
+
+    let count = 0;
+    if (Math.random() < baseActivity) {
+      count = Math.floor(Math.random() * 12) + 1;
+    }
+
+    const level = count === 0 ? 0 : Math.min(Math.floor((count - 1) / 3) + 1, 4);
+
+    mockContributions.push({
+      date: date.toISOString().split('T')[0],
+      count,
+      level,
+    });
+  }
+
   const mockCalendar = transformContributionsToCalendar(mockContributions, year);
 
   return NextResponse.json({
