@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { GitHubContributionCalendar, GitHubContribution } from '@/types/github';
 import { githubService } from '@/services/githubService';
-import { createGitHubCacheService } from '@/services/githubCacheService';
 import { PrismaClient } from '@prisma/client';
+import { createGitHubCacheService } from '@/services/githubCacheService';
 
 // Initialize Prisma client
 const prisma = new PrismaClient();
@@ -21,19 +21,18 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const year = parseInt(searchParams.get('year') || new Date().getFullYear().toString());
     const forceRefresh = searchParams.get('refresh') === 'true';
-    const useEdgeCache = searchParams.get('edge') !== 'false'; // Default to true
 
-    // Initialize cache service
+    // Create GitHub cache service instance
     const cacheService = createGitHubCacheService(prisma);
 
-    // Try cache service first (with edge cache support)
+    // Try to get from cache first
     const cacheResult = await cacheService.getContributions(year, {
       forceRefresh,
-      useEdgeCache,
+      useEdgeCache: false, // Edge cache is disabled
       fallbackToAPI: false, // We'll handle API fallback manually
     });
 
-    // If cache service has data, return it
+    // If cache has data, return it
     if (cacheResult.data) {
       return NextResponse.json({
         success: true,
@@ -41,14 +40,14 @@ export async function GET(request: Request) {
         year,
         cached: cacheResult.cached,
         stale: cacheResult.stale,
-        age: cacheResult.age,
+        cacheAge: cacheResult.age,
         source: cacheResult.source,
         rateLimit: cacheResult.rateLimit,
         timestamp: new Date().toISOString()
       });
     }
 
-    // Fallback to existing GitHub service for fresh data
+    // Fallback to the existing GitHub service for API calls
     const result = await githubService.fetchContributions(year, forceRefresh);
 
     if (!result.success) {
@@ -81,7 +80,6 @@ export async function GET(request: Request) {
       year,
       cached: result.cached || false,
       cacheAge: result.cacheAge,
-      source: 'api',
       rateLimit: result.rateLimit,
       timestamp: new Date().toISOString()
     });
@@ -91,7 +89,7 @@ export async function GET(request: Request) {
     return getMockContributions(new Date().getFullYear());
   } finally {
     // Clean up Prisma connection
-    await prisma.$disconnect().catch(console.error);
+    await prisma.$disconnect();
   }
 }
 

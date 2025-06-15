@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getGitHubService } from '@/services/githubService';
+import { PrismaClient } from '@prisma/client';
+import { createGitHubCacheService } from '@/services/githubCacheService';
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -44,12 +48,18 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const forceRefresh = searchParams.get('refresh') === 'true';
 
-    // Use the new GitHub service
-    const githubService = getGitHubService();
-    const result = await githubService.fetchProfile(forceRefresh);
+    // Create GitHub cache service instance
+    const cacheService = createGitHubCacheService(prisma);
 
-    if (!result.success) {
-      console.error('GitHub profile service error:', result.error);
+    // Use the cache service with intelligent caching
+    const result = await cacheService.getProfile({
+      forceRefresh,
+      useEdgeCache: false, // Edge cache is disabled since we removed the edge function
+      fallbackToAPI: true,
+    });
+
+    if (!result.data) {
+      console.error('GitHub profile cache service error:', result.error);
 
       // Handle specific error cases
       if (result.error?.includes('rate limit')) {
@@ -78,8 +88,10 @@ export async function GET(request: Request) {
     return NextResponse.json({
       success: true,
       data: result.data,
-      cached: result.cached || false,
-      cacheAge: result.cacheAge,
+      cached: result.cached,
+      stale: result.stale,
+      cacheAge: result.age,
+      source: result.source,
       rateLimit: result.rateLimit,
       timestamp: new Date().toISOString()
     });
@@ -90,6 +102,9 @@ export async function GET(request: Request) {
       { error: 'Failed to fetch GitHub profile' },
       { status: 500 }
     );
+  } finally {
+    // Clean up Prisma connection
+    await prisma.$disconnect();
   }
 }
 

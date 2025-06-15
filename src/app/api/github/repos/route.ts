@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getGitHubService } from '@/services/githubService';
+import { githubService } from '@/services/githubService';
+import { PrismaClient } from '@prisma/client';
+import { createGitHubCacheService } from '@/services/githubCacheService';
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // Rate limiting store (in production, use Redis or similar)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -42,57 +47,46 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const per_page = Math.min(parseInt(searchParams.get('per_page') || '10'), 100);
+    const forceRefresh = searchParams.get('refresh') === 'true';
 
-    const githubToken = process.env.GITHUB_TOKEN;
-    const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
+    // Use the GitHub service with caching
+    const result = await githubService.fetchRepositories(forceRefresh, page, per_page);
 
-    if (!githubToken) {
-      console.warn('GitHub token not configured, using mock data');
-      return getMockRepos();
-    }
+    if (!result.success) {
+      console.error('GitHub repos service error:', result.error);
 
-    const response = await fetch(
-      `https://api.github.com/users/${githubUsername}/repos?page=${page}&per_page=${per_page}&sort=updated&type=owner`,
-      {
-        headers: {
-          'Authorization': `Bearer ${githubToken}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Portfolio-App'
-        },
-        next: { revalidate: 1800 } // Cache for 30 minutes
-      }
-    );
-
-    if (!response.ok) {
-      console.error('GitHub repos API error:', response.status, response.statusText);
-
-      // Check if it's a rate limit error
-      if (response.status === 403) {
-        const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
-        const rateLimitReset = response.headers.get('x-ratelimit-reset');
-
-        console.error('GitHub API rate limit exceeded:', {
-          remaining: rateLimitRemaining,
-          reset: rateLimitReset
-        });
+      // Handle specific error cases
+      if (result.error?.includes('rate limit')) {
+        return NextResponse.json(
+          {
+            error: 'GitHub API rate limit exceeded',
+            rateLimit: result.rateLimit
+          },
+          { status: 429 }
+        );
       }
 
+      if (result.error?.includes('token required') || result.error?.includes('not configured')) {
+        console.warn('GitHub token not configured, using mock data');
+        return getMockRepos();
+      }
+
+      // Fallback to mock data on other errors
+      console.warn('GitHub repos API error, using mock data:', result.error);
       return getMockRepos();
     }
-
-    const repos = await response.json();
 
     // Filter and format repository data
-    const formattedRepos = repos
-      .filter((repo: any) => !repo.fork && !repo.private) // Only show original public repos
+    const formattedRepos = result.data
+      ?.filter((repo: any) => !repo.fork && !repo.private) // Only show original public repos
       .map((repo: any) => ({
         id: repo.id,
         name: repo.name,
         full_name: repo.full_name,
-        description: repo.description,
+        description: repo.description || '',
         html_url: repo.html_url,
-        homepage: repo.homepage,
-        language: repo.language,
+        homepage: repo.homepage || null,
+        language: repo.language || null,
         stargazers_count: repo.stargazers_count,
         forks_count: repo.forks_count,
         watchers_count: repo.watchers_count,
@@ -104,7 +98,7 @@ export async function GET(request: Request) {
         license: repo.license?.name || null,
         default_branch: repo.default_branch,
         open_issues_count: repo.open_issues_count,
-      }));
+      })) || [];
 
     return NextResponse.json({
       success: true,
@@ -112,13 +106,18 @@ export async function GET(request: Request) {
       total_count: formattedRepos.length,
       page,
       per_page,
-      cached: false,
+      cached: result.cached || false,
+      cacheAge: result.cacheAge,
+      rateLimit: result.rateLimit,
       timestamp: new Date().toISOString()
     });
 
   } catch (error) {
     console.error('GitHub repos API error:', error);
     return getMockRepos();
+  } finally {
+    // Clean up Prisma connection
+    await prisma.$disconnect();
   }
 }
 

@@ -1,4 +1,10 @@
 import { NextResponse } from 'next/server';
+import { githubService } from '@/services/githubService';
+import { PrismaClient } from '@prisma/client';
+import { createGitHubCacheService } from '@/services/githubCacheService';
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // Rate limiting helper
 const rateLimit = new Map();
@@ -38,47 +44,47 @@ export async function GET(request: Request) {
       );
     }
 
-    const githubToken = process.env.GITHUB_TOKEN;
-    const githubUsername = process.env.GITHUB_USERNAME || 'GreenHacker420';
+    const { searchParams } = new URL(request.url);
+    const forceRefresh = searchParams.get('refresh') === 'true';
 
-    if (!githubToken) {
-      console.error('GitHub token not configured');
-      return NextResponse.json(
-        { error: 'GitHub API not configured' },
-        { status: 503 }
-      );
-    }
-
-    // Fetch real GitHub data
-    const [userResponse, reposResponse] = await Promise.all([
-      fetch(`https://api.github.com/users/${githubUsername}`, {
-        headers: {
-          'Authorization': `Bearer ${githubToken}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Portfolio-App'
-        },
-        next: { revalidate: 3600 } // Cache for 1 hour
-      }),
-      fetch(`https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`, {
-        headers: {
-          'Authorization': `Bearer ${githubToken}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Portfolio-App'
-        },
-        next: { revalidate: 3600 }
-      })
+    // Use the GitHub service with caching
+    const [profileResult, reposResult] = await Promise.all([
+      githubService.fetchProfile(forceRefresh),
+      githubService.fetchRepositories(forceRefresh, 1, 100)
     ]);
 
-    if (!userResponse.ok || !reposResponse.ok) {
-      console.error('GitHub API error:', userResponse.status, reposResponse.status);
+    if (!profileResult.success || !reposResult.success) {
+      console.error('GitHub service error:', {
+        profile: profileResult.error,
+        repos: reposResult.error
+      });
+
+      // Handle specific error cases
+      if (profileResult.error?.includes('rate limit') || reposResult.error?.includes('rate limit')) {
+        return NextResponse.json(
+          {
+            error: 'GitHub API rate limit exceeded',
+            rateLimit: profileResult.rateLimit || reposResult.rateLimit
+          },
+          { status: 429 }
+        );
+      }
+
+      if (profileResult.error?.includes('not configured') || reposResult.error?.includes('not configured')) {
+        return NextResponse.json(
+          { error: 'GitHub API not configured' },
+          { status: 503 }
+        );
+      }
+
       return NextResponse.json(
-        { error: 'GitHub API rate limit exceeded' },
-        { status: 429 }
+        { error: 'Failed to fetch GitHub data' },
+        { status: 500 }
       );
     }
 
-    const userData = await userResponse.json();
-    const reposData = await reposResponse.json();
+    const userData = profileResult.data;
+    const reposData = reposResult.data || [];
 
     // Calculate stats from real data
     const stats = calculateStats(reposData);
@@ -86,19 +92,23 @@ export async function GET(request: Request) {
 
     const realStats = {
       user: {
-        login: userData.login,
-        name: userData.name || userData.login,
-        bio: userData.bio || 'Full-stack developer passionate about AI and open source',
-        public_repos: userData.public_repos,
-        followers: userData.followers,
-        following: userData.following,
-        created_at: userData.created_at,
-        avatar_url: userData.avatar_url,
-        html_url: userData.html_url,
+        login: userData?.login || 'GreenHacker420',
+        name: userData?.name || userData?.login || 'Harsh Hirawat',
+        bio: userData?.bio || 'Full-stack developer passionate about AI and open source',
+        public_repos: userData?.public_repos || 0,
+        followers: userData?.followers || 0,
+        following: userData?.following || 0,
+        created_at: userData?.created_at,
+        avatar_url: userData?.avatar_url,
+        html_url: userData?.html_url,
       },
       stats,
       languages,
       recentActivity: getRecentActivity(reposData),
+      cached: profileResult.cached || reposResult.cached,
+      cacheAge: Math.max(profileResult.cacheAge || 0, reposResult.cacheAge || 0),
+      rateLimit: profileResult.rateLimit || reposResult.rateLimit,
+      timestamp: new Date().toISOString()
     };
 
     return NextResponse.json(realStats, { status: 200 });
@@ -108,6 +118,9 @@ export async function GET(request: Request) {
       { error: 'Failed to fetch GitHub statistics' },
       { status: 500 }
     );
+  } finally {
+    // Clean up Prisma connection
+    await prisma.$disconnect();
   }
 }
 
