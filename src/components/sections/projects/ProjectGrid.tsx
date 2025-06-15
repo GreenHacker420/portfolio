@@ -4,14 +4,30 @@
 import { motion } from 'framer-motion';
 import ProjectCard from '../ProjectCard';
 
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  category: string;
+  technologies?: string[];
+  tags?: string[]; // For backward compatibility
+  featured: boolean;
+  status: string;
+  github_url?: string;
+  live_url?: string;
+  image_url?: string;
+  imageUrl?: string; // For backward compatibility
+  screenshots?: string[];
+  start_date?: string;
+  end_date?: string;
+  highlights?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
 type ProjectGridProps = {
-  projects: {
-    title: string;
-    description: string;
-    tags: string[];
-    category: string;
-    imageUrl: string;
-  }[];
+  projects: Project[];
   filter: string;
 };
 

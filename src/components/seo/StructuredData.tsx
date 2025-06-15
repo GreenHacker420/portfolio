@@ -6,9 +6,11 @@ interface PersonSchema {
   "@context": "https://schema.org";
   "@type": "Person";
   name: string;
+  alternateName?: string;
   jobTitle: string;
   description: string;
   url: string;
+  email?: string;
   sameAs: string[];
   knowsAbout: string[];
   alumniOf?: {
@@ -19,17 +21,29 @@ interface PersonSchema {
     "@type": "Organization";
     name: string;
   };
+  hasOccupation?: {
+    "@type": "Occupation";
+    name: string;
+    description: string;
+    skills: string;
+  };
+  workLocation?: {
+    "@type": "Place";
+    name: string;
+  };
 }
 
 interface WebSiteSchema {
   "@context": "https://schema.org";
   "@type": "WebSite";
   name: string;
+  alternateName?: string;
   description: string;
   url: string;
   author: {
     "@type": "Person";
     name: string;
+    alternateName?: string;
   };
   potentialAction: {
     "@type": "SearchAction";
@@ -45,17 +59,20 @@ interface OrganizationSchema {
   "@context": "https://schema.org";
   "@type": "Organization";
   name: string;
+  alternateName?: string;
   description: string;
   url: string;
   logo: string;
   founder: {
     "@type": "Person";
     name: string;
+    alternateName?: string;
   };
   contactPoint: {
     "@type": "ContactPoint";
     email: string;
     contactType: string;
+    availableLanguage?: string[];
   };
 }
 

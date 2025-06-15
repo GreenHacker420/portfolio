@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const projectUpdateSchema = z.object({
@@ -24,17 +27,18 @@ const projectUpdateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const project = await prisma.project.findUnique({
-      where: { id: params.id }
+    const { id } = await params
+    const project = await directPrisma.project.findUnique({
+      where: { id }
     })
 
     if (!project) {
@@ -61,21 +65,22 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = projectUpdateSchema.parse(body)
 
     // Check if project exists
-    const existingProject = await prisma.project.findUnique({
-      where: { id: params.id }
+    const existingProject = await directPrisma.project.findUnique({
+      where: { id }
     })
 
     if (!existingProject) {
@@ -120,13 +125,13 @@ export async function PUT(
       updateData.endDate = validatedData.endDate ? new Date(validatedData.endDate) : null
     }
 
-    const project = await prisma.project.update({
-      where: { id: params.id },
+    const project = await directPrisma.project.update({
+      where: { id },
       data: updateData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -163,36 +168,37 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     // Check if project exists
-    const existingProject = await prisma.project.findUnique({
-      where: { id: params.id }
+    const existingProject = await directPrisma.project.findUnique({
+      where: { id }
     })
 
     if (!existingProject) {
       return NextResponse.json({ error: 'Project not found' }, { status: 404 })
     }
 
-    await prisma.project.delete({
-      where: { id: params.id }
+    await directPrisma.project.delete({
+      where: { id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',
         resource: 'projects',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(existingProject),
       }
     })

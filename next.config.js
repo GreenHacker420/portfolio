@@ -58,6 +58,18 @@ const nextConfig = {
       };
     }
 
+    // Exclude Netlify edge functions from build
+    config.externals = config.externals || [];
+    config.externals.push({
+      'https://edge.netlify.com': 'commonjs https://edge.netlify.com'
+    });
+
+    // Ignore netlify directory during build
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/netlify/**', '**/node_modules/**']
+    };
+
     // Handle shader files for Three.js
     config.module.rules.push({
       test: /\.(glsl|vs|fs|vert|frag)$/,

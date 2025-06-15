@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export async function GET() {
   try {
-    const skills = await prisma.skill.findMany({
+    const skills = await directPrisma.skill.findMany({
       where: {
         isVisible: true
       },

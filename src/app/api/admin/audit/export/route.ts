@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export async function GET() {
   try {
@@ -11,7 +14,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const logs = await prisma.auditLog.findMany({
+    const logs = await directPrisma.auditLog.findMany({
       orderBy: {
         createdAt: 'desc'
       },

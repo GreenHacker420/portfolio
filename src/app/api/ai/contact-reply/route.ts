@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient();
 import { generateContactReply, ContactMessage } from '@/services/geminiService';
 import { z } from 'zod';
 
@@ -24,7 +27,7 @@ export async function POST(request: NextRequest) {
     const { contactId, mode, draftReply } = validatedData;
 
     // Fetch the contact from database
-    const contact = await prisma.contact.findUnique({
+    const contact = await directPrisma.contact.findUnique({
       where: { id: contactId }
     });
 
@@ -70,7 +73,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the AI generation action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'AI_GENERATE',

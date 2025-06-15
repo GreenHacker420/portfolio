@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const personalInfoUpdateSchema = z.object({
@@ -17,7 +20,7 @@ const personalInfoUpdateSchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -26,12 +29,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = personalInfoUpdateSchema.parse(body)
 
     // Check if personal info exists
-    const existingInfo = await prisma.personalInfo.findUnique({
-      where: { id: params.id }
+    const existingInfo = await directPrisma.personalInfo.findUnique({
+      where: { id }
     })
 
     if (!existingInfo) {
@@ -40,7 +44,7 @@ export async function PUT(
 
     // Prepare update data
     const updateData: any = {}
-    
+
     if (validatedData.fullName !== undefined) updateData.fullName = validatedData.fullName
     if (validatedData.title !== undefined) updateData.title = validatedData.title
     if (validatedData.email !== undefined) updateData.email = validatedData.email
@@ -50,13 +54,13 @@ export async function PUT(
     if (validatedData.profilePhoto !== undefined) updateData.profilePhoto = validatedData.profilePhoto || null
     if (validatedData.resumeUrl !== undefined) updateData.resumeUrl = validatedData.resumeUrl || null
 
-    const personalInfo = await prisma.personalInfo.update({
-      where: { id: params.id },
+    const personalInfo = await directPrisma.personalInfo.update({
+      where: { id },
       data: updateData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',

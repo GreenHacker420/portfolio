@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,13 +43,13 @@ export async function GET(request: NextRequest) {
 
     // Get contacts with pagination
     const [contacts, totalCount] = await Promise.all([
-      prisma.contact.findMany({
+      directPrisma.contact.findMany({
         where,
         orderBy: { [sortBy]: sortOrder },
         skip: offset,
         take: limit,
       }),
-      prisma.contact.count({ where })
+      directPrisma.contact.count({ where })
     ])
 
     // Calculate pagination info
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      const contacts = await prisma.contact.findMany({
+      const contacts = await directPrisma.contact.findMany({
         where,
         orderBy: { createdAt: 'desc' }
       })
@@ -131,7 +134,7 @@ export async function POST(request: NextRequest) {
       const csvContent = csvHeader + csvRows
 
       // Log the export action
-      await prisma.auditLog.create({
+      await directPrisma.auditLog.create({
         data: {
           userId: session.user.id,
           action: 'EXPORT',

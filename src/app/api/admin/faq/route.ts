@@ -51,13 +51,13 @@ export async function GET(request: NextRequest) {
 
     // Get FAQs with pagination
     const [faqs, totalCount] = await Promise.all([
-      directPrisma.fAQ.findMany({
+      directPrisma.faq.findMany({
         where,
         orderBy: { [sortBy]: sortOrder },
         skip: offset,
         take: limit,
       }),
-      directPrisma.fAQ.count({ where })
+      directPrisma.faq.count({ where })
     ]);
 
     // Calculate pagination info
@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = faqCreateSchema.parse(body);
 
-    const faq = await directPrisma.fAQ.create({
+    const faq = await directPrisma.faq.create({
       data: {
         question: validatedData.question,
         answer: validatedData.answer,

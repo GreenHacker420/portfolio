@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const socialLinkUpdateSchema = z.object({
@@ -15,7 +18,7 @@ const socialLinkUpdateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -24,8 +27,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const socialLink = await prisma.socialLink.findUnique({
-      where: { id: params.id }
+    const { id } = await params
+    const socialLink = await directPrisma.socialLink.findUnique({
+      where: { id }
     })
 
     if (!socialLink) {
@@ -44,34 +48,35 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = socialLinkUpdateSchema.parse(body)
 
     // Check if social link exists
-    const existingSocialLink = await prisma.socialLink.findUnique({
-      where: { id: params.id }
+    const existingSocialLink = await directPrisma.socialLink.findUnique({
+      where: { id }
     })
 
     if (!existingSocialLink) {
       return NextResponse.json({ error: 'Social link not found' }, { status: 404 })
     }
 
-    const socialLink = await prisma.socialLink.update({
-      where: { id: params.id },
+    const socialLink = await directPrisma.socialLink.update({
+      where: { id },
       data: validatedData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -101,36 +106,37 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     // Check if social link exists
-    const existingSocialLink = await prisma.socialLink.findUnique({
-      where: { id: params.id }
+    const existingSocialLink = await directPrisma.socialLink.findUnique({
+      where: { id }
     })
 
     if (!existingSocialLink) {
       return NextResponse.json({ error: 'Social link not found' }, { status: 404 })
     }
 
-    await prisma.socialLink.delete({
-      where: { id: params.id }
+    await directPrisma.socialLink.delete({
+      where: { id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',
         resource: 'social_links',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(existingSocialLink),
       }
     })

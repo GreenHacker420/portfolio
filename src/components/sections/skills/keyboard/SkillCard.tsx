@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Skill } from '../../../../data/skillsData';
+import { Skill } from '../../../../types/skills';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SkillCardProps {

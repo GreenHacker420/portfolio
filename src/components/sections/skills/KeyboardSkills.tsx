@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Skill } from '../../../types/skills';
-import { getSkillByIdSync, initializeWithLegacyData } from '../../../services/skillsDataService';
+import { getSkillByIdSync, getAllSkills } from '../../../services/skillsDataService';
 import { getKeyByIdFixed } from '../../../data/keyboardData';
 import { motion } from 'framer-motion';
 import SkillCard from './keyboard/SkillCard';
@@ -20,9 +20,18 @@ const KeyboardSkills: React.FC<KeyboardSkillsProps> = ({ onSkillSelect }) => {
   const [showSkillInfo, setShowSkillInfo] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize with legacy data on mount
+  // Initialize skills data on mount
   useEffect(() => {
-    initializeWithLegacyData();
+    const loadSkills = async () => {
+      try {
+        await getAllSkills();
+      } catch (error) {
+        console.error('Failed to load skills:', error);
+        setError('Failed to load skills data');
+      }
+    };
+
+    loadSkills();
   }, []);
 
   // Use device performance detection hook

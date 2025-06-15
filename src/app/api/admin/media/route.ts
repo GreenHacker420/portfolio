@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
@@ -20,13 +23,13 @@ export async function GET(request: NextRequest) {
     const where = category && category !== 'all' ? { category } : {}
 
     const [media, totalCount] = await Promise.all([
-      prisma.media.findMany({
+      directPrisma.media.findMany({
         where,
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,
       }),
-      prisma.media.count({ where })
+      directPrisma.media.count({ where })
     ])
 
     const totalPages = Math.ceil(totalCount / limit)

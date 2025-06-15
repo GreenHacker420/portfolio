@@ -58,7 +58,7 @@ const SkillsStructuredData: React.FC<SkillsStructuredDataProps> = ({ skills }) =
     };
 
     // Create skill categories as DefinedTermSet
-    const skillCategories = [...new Set(skills.map(skill => skill.category))];
+    const skillCategories = Array.from(new Set(skills.map(skill => skill.category)));
     const skillCategorySchemas = skillCategories.map(category => {
       const categorySkills = skills.filter(skill => skill.category === category);
       

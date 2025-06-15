@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export async function GET() {
   try {
@@ -19,11 +22,11 @@ export async function GET() {
       draftProjects,
       recentActivity
     ] = await Promise.all([
-      prisma.skill.count(),
-      prisma.project.count(),
-      prisma.project.count({ where: { status: 'published' } }),
-      prisma.project.count({ where: { status: 'draft' } }),
-      prisma.auditLog.count({
+      directPrisma.skill.count(),
+      directPrisma.project.count(),
+      directPrisma.project.count({ where: { status: 'published' } }),
+      directPrisma.project.count({ where: { status: 'draft' } }),
+      directPrisma.auditLog.count({
         where: {
           createdAt: {
             gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // Last 7 days

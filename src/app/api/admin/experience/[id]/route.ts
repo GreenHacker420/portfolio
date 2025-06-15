@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const experienceUpdateSchema = z.object({
@@ -27,7 +30,7 @@ export async function GET(
     }
 
     const resolvedParams = await params
-    const experience = await prisma.workExperience.findUnique({
+    const experience = await directPrisma.workExperience.findUnique({
       where: { id: resolvedParams.id }
     })
 
@@ -47,21 +50,22 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = experienceUpdateSchema.parse(body)
 
     // Check if experience exists
-    const existingExperience = await prisma.workExperience.findUnique({
-      where: { id: params.id }
+    const existingExperience = await directPrisma.workExperience.findUnique({
+      where: { id }
     })
 
     if (!existingExperience) {
@@ -87,13 +91,13 @@ export async function PUT(
       updateData.companyLogo = validatedData.companyLogo || null
     }
 
-    const experience = await prisma.workExperience.update({
-      where: { id: params.id },
+    const experience = await directPrisma.workExperience.update({
+      where: { id },
       data: updateData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -122,36 +126,37 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     // Check if experience exists
-    const existingExperience = await prisma.workExperience.findUnique({
-      where: { id: params.id }
+    const existingExperience = await directPrisma.workExperience.findUnique({
+      where: { id }
     })
 
     if (!existingExperience) {
       return NextResponse.json({ error: 'Work experience not found' }, { status: 404 })
     }
 
-    await prisma.workExperience.delete({
-      where: { id: params.id }
+    await directPrisma.workExperience.delete({
+      where: { id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',
         resource: 'experience',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(existingExperience),
       }
     })

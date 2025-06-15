@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const projectSchema = z.object({
@@ -30,7 +33,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const projects = await prisma.project.findMany({
+    const projects = await directPrisma.project.findMany({
       orderBy: [
         { displayOrder: 'asc' },
         { createdAt: 'desc' }
@@ -66,12 +69,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = projectSchema.parse(body)
 
-    // Convert arrays to JSON strings for storage
+    // Convert arrays to JSON strings for storage and ensure required fields
     const projectData = {
-      ...validatedData,
-      technologies: JSON.stringify(validatedData.technologies),
-      screenshots: validatedData.screenshots ? JSON.stringify(validatedData.screenshots) : null,
-      highlights: validatedData.highlights ? JSON.stringify(validatedData.highlights) : null,
+      title: validatedData.title,
+      description: validatedData.description,
+      longDescription: validatedData.longDescription || null,
+      category: validatedData.category,
+      status: validatedData.status ?? 'draft',
+      featured: validatedData.featured ?? false,
+      displayOrder: validatedData.displayOrder ?? 0,
+      technologies: JSON.stringify(validatedData.technologies || []),
+      screenshots: validatedData.screenshots ? JSON.stringify(validatedData.screenshots) : JSON.stringify([]),
+      highlights: validatedData.highlights ? JSON.stringify(validatedData.highlights) : JSON.stringify([]),
       startDate: validatedData.startDate ? new Date(validatedData.startDate) : null,
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
       githubUrl: validatedData.githubUrl || null,
@@ -79,12 +88,12 @@ export async function POST(request: NextRequest) {
       imageUrl: validatedData.imageUrl || null,
     }
 
-    const project = await prisma.project.create({
+    const project = await directPrisma.project.create({
       data: projectData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'CREATE',

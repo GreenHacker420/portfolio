@@ -89,7 +89,7 @@ const EnhancedChatbot = () => {
   const toggleChat = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
-      trackEvent(portfolioEvents.aiChatOpen);
+      trackEvent(portfolioEvents.CHATBOT_OPENED);
     }
   };
 
@@ -143,7 +143,7 @@ const EnhancedChatbot = () => {
         };
 
         setMessages(prev => [...prev, botMessage]);
-        trackEvent(portfolioEvents.aiChatMessage);
+        trackEvent(portfolioEvents.CHATBOT_MESSAGE_SENT);
       } else {
         throw new Error(data.error || 'Failed to get response');
       }
@@ -239,7 +239,7 @@ const EnhancedChatbot = () => {
                 <button
                   onClick={toggleFAQ}
                   className={`p-2 rounded-lg transition-colors ${
-                    showFAQ ? 'bg-neon-purple/20 text-neon-purple' : 'text-gray-400 hover:text-neon-purple hover:bg-github-light'
+                    showFAQ ? 'bg-neon-green/20 text-neon-green' : 'text-github-text hover:text-white hover:bg-github-light'
                   }`}
                   title="Toggle FAQ"
                 >
@@ -247,14 +247,14 @@ const EnhancedChatbot = () => {
                 </button>
                 <button
                   onClick={toggleExpanded}
-                  className="text-gray-400 hover:text-neon-purple hover:bg-github-light p-2 rounded-lg transition-colors"
+                  className="text-github-text hover:text-white hover:bg-github-light p-2 rounded-lg transition-colors"
                   title={isExpanded ? "Minimize" : "Expand"}
                 >
                   {isExpanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                 </button>
                 <button
                   onClick={toggleChat}
-                  className="text-gray-400 hover:text-red-400 hover:bg-github-light p-2 rounded-lg transition-colors"
+                  className="text-github-text hover:text-white hover:bg-github-light p-2 rounded-lg transition-colors"
                   title="Close"
                 >
                   <X size={16} />
@@ -264,28 +264,25 @@ const EnhancedChatbot = () => {
 
             {/* Content Area */}
             <div className="flex-1 flex overflow-hidden">
-              {/* FAQ Sidebar - CLI Style */}
+              {/* FAQ Sidebar */}
               <AnimatePresence>
                 {showFAQ && (
                   <motion.div
                     initial={{ width: 0, opacity: 0 }}
                     animate={{ width: '40%', opacity: 1 }}
                     exit={{ width: 0, opacity: 0 }}
-                    className="border-r border-neon-purple/20 bg-github-light/50 overflow-y-auto"
+                    className="border-r border-neon-green/20 bg-github-light/50 overflow-y-auto"
                   >
                     <div className="p-3">
-                      <div className="text-neon-purple font-mono text-sm mb-3">
-                        📋 Popular FAQs
-                        ═══════════════
-                      </div>
-                      <div className="space-y-1">
-                        {popularFAQs.map((faq, index) => (
+                      <h4 className="text-white font-medium text-sm mb-3">Popular Questions</h4>
+                      <div className="space-y-2">
+                        {popularFAQs.map((faq) => (
                           <button
                             key={faq.id}
                             onClick={() => handleFAQClick(faq)}
-                            className="w-full text-left p-2 text-xs text-gray-400 hover:text-neon-purple hover:bg-github-dark/50 transition-colors font-mono"
+                            className="w-full text-left p-2 rounded-lg text-xs text-github-text hover:text-white hover:bg-github-dark/50 transition-colors"
                           >
-                            {index + 1}. {faq.question}
+                            {faq.question}
                           </button>
                         ))}
                       </div>

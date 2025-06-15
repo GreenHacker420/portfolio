@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const skillSchema = z.object({
@@ -26,7 +29,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const skills = await prisma.skill.findMany({
+    const skills = await directPrisma.skill.findMany({
       orderBy: [
         { displayOrder: 'asc' },
         { name: 'asc' }
@@ -55,19 +58,27 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = skillSchema.parse(body)
 
-    // Convert arrays to JSON strings for storage
+    // Convert arrays to JSON strings for storage and ensure required fields
     const skillData = {
-      ...validatedData,
-      projects: validatedData.projects ? JSON.stringify(validatedData.projects) : null,
-      strengths: validatedData.strengths ? JSON.stringify(validatedData.strengths) : null,
+      name: validatedData.name,
+      description: validatedData.description || null,
+      category: validatedData.category,
+      level: validatedData.level ?? 1,
+      color: validatedData.color || null,
+      logo: validatedData.logo || null,
+      experience: validatedData.experience ?? 0,
+      displayOrder: validatedData.displayOrder ?? 0,
+      isVisible: validatedData.isVisible ?? true,
+      projects: validatedData.projects ? JSON.stringify(validatedData.projects) : JSON.stringify([]),
+      strengths: validatedData.strengths ? JSON.stringify(validatedData.strengths) : JSON.stringify([]),
     }
 
-    const skill = await prisma.skill.create({
+    const skill = await directPrisma.skill.create({
       data: skillData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'CREATE',

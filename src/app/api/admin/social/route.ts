@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const socialLinkSchema = z.object({
@@ -21,7 +24,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const socialLinks = await prisma.socialLink.findMany({
+    const socialLinks = await directPrisma.socialLink.findMany({
       orderBy: [
         { displayOrder: 'asc' },
         { createdAt: 'desc' }
@@ -49,12 +52,22 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = socialLinkSchema.parse(body)
 
-    const socialLink = await prisma.socialLink.create({
-      data: validatedData
+    // Ensure required fields are properly handled
+    const socialLinkData = {
+      platform: validatedData.platform,
+      username: validatedData.username || null,
+      url: validatedData.url,
+      icon: validatedData.icon || null,
+      isVisible: validatedData.isVisible ?? true,
+      displayOrder: validatedData.displayOrder ?? 0,
+    }
+
+    const socialLink = await directPrisma.socialLink.create({
+      data: socialLinkData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'CREATE',

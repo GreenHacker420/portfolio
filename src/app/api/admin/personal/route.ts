@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const personalInfoSchema = z.object({
@@ -24,7 +27,7 @@ export async function GET() {
     }
 
     // Get the first (and should be only) personal info record
-    const personalInfo = await prisma.personalInfo.findFirst()
+    const personalInfo = await directPrisma.personalInfo.findFirst()
 
     return NextResponse.json({ personalInfo })
   } catch (error) {
@@ -48,8 +51,8 @@ export async function POST(request: NextRequest) {
     const validatedData = personalInfoSchema.parse(body)
 
     // Check if personal info already exists
-    const existingInfo = await prisma.personalInfo.findFirst()
-    
+    const existingInfo = await directPrisma.personalInfo.findFirst()
+
     if (existingInfo) {
       return NextResponse.json(
         { error: 'Personal information already exists. Use PUT to update.' },
@@ -57,8 +60,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Prepare data for creation and ensure required fields
     const personalInfoData = {
-      ...validatedData,
+      fullName: validatedData.fullName,
+      title: validatedData.title,
+      email: validatedData.email,
       phone: validatedData.phone || null,
       location: validatedData.location || null,
       bio: validatedData.bio || null,
@@ -66,18 +72,18 @@ export async function POST(request: NextRequest) {
       resumeUrl: validatedData.resumeUrl || null,
     }
 
-    const personalInfo = await prisma.personalInfo.create({
+    const personalInfo = await directPrisma.personalInfo.create({
       data: personalInfoData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
-        action: 'CREATE',
-        entity: 'PersonalInfo',
-        entityId: personalInfo.id,
         userId: session.user.id,
-        details: `Created personal information for ${personalInfo.fullName}`
+        action: 'CREATE',
+        resource: 'personal_info',
+        resourceId: personalInfo.id,
+        newData: JSON.stringify(personalInfo),
       }
     })
 

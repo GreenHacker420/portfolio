@@ -7,7 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import { GitHubProfile, GitHubContributionCalendar } from '@/types/github';
 
 // Type-safe Prisma client wrapper to handle missing models gracefully
-interface SafePrismaClient extends PrismaClient {
+interface SafePrismaClient {
   gitHubCacheAnalytics?: any;
   gitHubProfileCache?: any;
   gitHubRepoCache?: any;
@@ -51,14 +51,16 @@ interface CacheOptions {
  * GitHub Cache Service for API Routes
  */
 export class GitHubCacheService {
-  private prisma: SafePrismaClient;
+  private prisma: PrismaClient;
+  private cacheModels: SafePrismaClient;
   private username: string;
   private token: string;
   private edgeBaseUrl: string;
   private cacheEnabled: boolean;
 
   constructor(prisma: PrismaClient, username: string, token: string, edgeBaseUrl?: string) {
-    this.prisma = prisma as SafePrismaClient;
+    this.prisma = prisma;
+    this.cacheModels = prisma as any;
     this.username = username;
     this.token = token;
     this.edgeBaseUrl = edgeBaseUrl || '';
@@ -77,11 +79,11 @@ export class GitHubCacheService {
   private checkCacheModelsAvailable(): boolean {
     try {
       return !!(
-        this.prisma.gitHubCacheAnalytics &&
-        this.prisma.gitHubProfileCache &&
-        this.prisma.gitHubRepoCache &&
-        this.prisma.gitHubContributionCache &&
-        this.prisma.gitHubStatsCache
+        this.cacheModels.gitHubCacheAnalytics &&
+        this.cacheModels.gitHubProfileCache &&
+        this.cacheModels.gitHubRepoCache &&
+        this.cacheModels.gitHubContributionCache &&
+        this.cacheModels.gitHubStatsCache
       );
     } catch {
       return false;
@@ -108,7 +110,7 @@ export class GitHubCacheService {
     errorMessage?: string,
     metadata?: any
   ): Promise<void> {
-    if (!this.cacheEnabled || !this.prisma.gitHubCacheAnalytics) {
+    if (!this.cacheEnabled || !this.cacheModels.gitHubCacheAnalytics) {
       // Fallback to console logging if cache is not available
       console.log(`GitHub Cache Analytics: ${cacheType}/${operation}`, {
         username: this.username,
@@ -122,7 +124,7 @@ export class GitHubCacheService {
     }
 
     try {
-      await this.prisma.gitHubCacheAnalytics.create({
+      await this.cacheModels.gitHubCacheAnalytics.create({
         data: {
           cacheType,
           operation,
@@ -197,9 +199,9 @@ export class GitHubCacheService {
       }
 
       // Check local cache (only if cache is enabled)
-      if (!options.forceRefresh && this.cacheEnabled && this.prisma.gitHubProfileCache) {
+      if (!options.forceRefresh && this.cacheEnabled && this.cacheModels.gitHubProfileCache) {
         try {
-          const cached = await this.prisma.gitHubProfileCache.findUnique({
+          const cached = await this.cacheModels.gitHubProfileCache.findUnique({
             where: { username: this.username },
           });
 
@@ -303,9 +305,9 @@ export class GitHubCacheService {
       const expiresAt = new Date(now.getTime() + CACHE_DURATIONS.profile);
 
       // Update cache (only if cache is enabled)
-      if (this.cacheEnabled && this.prisma.gitHubProfileCache) {
+      if (this.cacheEnabled && this.cacheModels.gitHubProfileCache) {
         try {
-          await this.prisma.gitHubProfileCache.upsert({
+          await this.cacheModels.gitHubProfileCache.upsert({
             where: { username: this.username },
             update: {
               profileData: JSON.stringify(profileData),
@@ -353,9 +355,9 @@ export class GitHubCacheService {
       };
     } catch (error) {
       // Update error count in cache (only if cache is enabled)
-      if (this.cacheEnabled && this.prisma.gitHubProfileCache) {
+      if (this.cacheEnabled && this.cacheModels.gitHubProfileCache) {
         try {
-          await this.prisma.gitHubProfileCache.updateMany({
+          await this.cacheModels.gitHubProfileCache.updateMany({
             where: { username: this.username },
             data: {
               errorCount: { increment: 1 },
@@ -400,9 +402,9 @@ export class GitHubCacheService {
       }
 
       // Check local cache (only if cache is enabled)
-      if (!options.forceRefresh && this.cacheEnabled && this.prisma.gitHubContributionCache) {
+      if (!options.forceRefresh && this.cacheEnabled && this.cacheModels.gitHubContributionCache) {
         try {
-          const cached = await this.prisma.gitHubContributionCache.findUnique({
+          const cached = await this.cacheModels.gitHubContributionCache.findUnique({
             where: {
               username_year: {
                 username: this.username,

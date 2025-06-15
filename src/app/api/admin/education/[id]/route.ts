@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const educationUpdateSchema = z.object({
@@ -18,17 +21,18 @@ const educationUpdateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const education = await prisma.education.findUnique({
-      where: { id: params.id }
+    const { id } = await params
+    const education = await directPrisma.education.findUnique({
+      where: { id }
     })
 
     if (!education) {
@@ -47,7 +51,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -56,12 +60,13 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = educationUpdateSchema.parse(body)
 
     // Check if education exists
-    const existingEducation = await prisma.education.findUnique({
-      where: { id: params.id }
+    const existingEducation = await directPrisma.education.findUnique({
+      where: { id }
     })
 
     if (!existingEducation) {
@@ -77,13 +82,13 @@ export async function PUT(
       updateData.endDate = new Date(validatedData.endDate)
     }
 
-    const education = await prisma.education.update({
-      where: { id: params.id },
+    const education = await directPrisma.education.update({
+      where: { id },
       data: updateData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -112,36 +117,37 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     // Check if education exists
-    const existingEducation = await prisma.education.findUnique({
-      where: { id: params.id }
+    const existingEducation = await directPrisma.education.findUnique({
+      where: { id }
     })
 
     if (!existingEducation) {
       return NextResponse.json({ error: 'Education not found' }, { status: 404 })
     }
 
-    await prisma.education.delete({
-      where: { id: params.id }
+    await directPrisma.education.delete({
+      where: { id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',
         resource: 'education',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(existingEducation),
       }
     })

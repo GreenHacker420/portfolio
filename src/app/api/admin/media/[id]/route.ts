@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
 import { z } from 'zod'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 const mediaUpdateSchema = z.object({
   alt: z.string().optional(),
@@ -12,17 +15,18 @@ const mediaUpdateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const media = await prisma.media.findUnique({
-      where: { id: params.id }
+    const { id } = await params
+    const media = await directPrisma.media.findUnique({
+      where: { id }
     })
 
     if (!media) {
@@ -41,7 +45,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -50,25 +54,26 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = mediaUpdateSchema.parse(body)
 
     // Check if media exists
-    const existingMedia = await prisma.media.findUnique({
-      where: { id: params.id }
+    const existingMedia = await directPrisma.media.findUnique({
+      where: { id }
     })
 
     if (!existingMedia) {
       return NextResponse.json({ error: 'Media not found' }, { status: 404 })
     }
 
-    const media = await prisma.media.update({
-      where: { id: params.id },
+    const media = await directPrisma.media.update({
+      where: { id },
       data: validatedData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -98,8 +103,8 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -108,9 +113,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     // Check if media exists
-    const existingMedia = await prisma.media.findUnique({
-      where: { id: params.id }
+    const existingMedia = await directPrisma.media.findUnique({
+      where: { id }
     })
 
     if (!existingMedia) {
@@ -120,17 +126,17 @@ export async function DELETE(
     // TODO: Delete the actual file from storage
     // This would depend on your storage solution (local, S3, etc.)
 
-    await prisma.media.delete({
-      where: { id: params.id }
+    await directPrisma.media.delete({
+      where: { id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',
         resource: 'media',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(existingMedia),
       }
     })

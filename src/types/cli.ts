@@ -31,6 +31,8 @@ export interface CLIResponse {
     timestamp?: string;
     command?: string;
     args?: string[];
+    special?: 'mode_switch' | 'exit' | 'clear' | 'clear_history';
+    mode?: 'command' | 'chat';
   };
 }
 

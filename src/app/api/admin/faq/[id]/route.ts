@@ -17,7 +17,7 @@ const faqUpdateSchema = z.object({
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,8 +26,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const faq = await directPrisma.fAQ.findUnique({
-      where: { id: params.id }
+    const { id } = await params;
+    const faq = await directPrisma.faq.findUnique({
+      where: { id }
     });
 
     if (!faq) {
@@ -51,7 +52,7 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -60,12 +61,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = faqUpdateSchema.parse(body);
 
     // Get the current FAQ for audit log
-    const currentFAQ = await directPrisma.fAQ.findUnique({
-      where: { id: params.id }
+    const currentFAQ = await directPrisma.faq.findUnique({
+      where: { id }
     });
 
     if (!currentFAQ) {
@@ -78,8 +80,8 @@ export async function PATCH(
       updateData.tags = JSON.stringify(validatedData.tags);
     }
 
-    const faq = await directPrisma.fAQ.update({
-      where: { id: params.id },
+    const faq = await directPrisma.faq.update({
+      where: { id },
       data: updateData
     });
 
@@ -119,7 +121,7 @@ export async function PATCH(
 
 export async function DELETE(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -128,17 +130,18 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     // Get the current FAQ for audit log
-    const currentFAQ = await directPrisma.fAQ.findUnique({
-      where: { id: params.id }
+    const currentFAQ = await directPrisma.faq.findUnique({
+      where: { id }
     });
 
     if (!currentFAQ) {
       return NextResponse.json({ error: 'FAQ not found' }, { status: 404 });
     }
 
-    await directPrisma.fAQ.delete({
-      where: { id: params.id }
+    await directPrisma.faq.delete({
+      where: { id }
     });
 
     // Log the action
@@ -147,7 +150,7 @@ export async function DELETE(
         userId: session.user.id,
         action: 'DELETE',
         resource: 'faqs',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(currentFAQ),
       }
     });

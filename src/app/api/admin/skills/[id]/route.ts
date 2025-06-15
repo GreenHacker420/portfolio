@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const skillUpdateSchema = z.object({
@@ -20,17 +23,18 @@ const skillUpdateSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const skill = await prisma.skill.findUnique({
-      where: { id: params.id }
+    const { id } = await params
+    const skill = await directPrisma.skill.findUnique({
+      where: { id }
     })
 
     if (!skill) {
@@ -56,21 +60,22 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const validatedData = skillUpdateSchema.parse(body)
 
     // Get the current skill for audit log
-    const currentSkill = await prisma.skill.findUnique({
-      where: { id: params.id }
+    const currentSkill = await directPrisma.skill.findUnique({
+      where: { id }
     })
 
     if (!currentSkill) {
@@ -84,13 +89,13 @@ export async function PATCH(
       strengths: validatedData.strengths ? JSON.stringify(validatedData.strengths) : undefined,
     }
 
-    const skill = await prisma.skill.update({
-      where: { id: params.id },
+    const skill = await directPrisma.skill.update({
+      where: { id },
       data: updateData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'UPDATE',
@@ -119,36 +124,37 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     // Get the current skill for audit log
-    const currentSkill = await prisma.skill.findUnique({
-      where: { id: params.id }
+    const currentSkill = await directPrisma.skill.findUnique({
+      where: { id }
     })
 
     if (!currentSkill) {
       return NextResponse.json({ error: 'Skill not found' }, { status: 404 })
     }
 
-    await prisma.skill.delete({
-      where: { id: params.id }
+    await directPrisma.skill.delete({
+      where: { id }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'DELETE',
         resource: 'skills',
-        resourceId: params.id,
+        resourceId: id,
         oldData: JSON.stringify(currentSkill),
       }
     })

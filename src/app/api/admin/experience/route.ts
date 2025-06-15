@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const experienceSchema = z.object({
@@ -23,7 +26,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const experiences = await prisma.workExperience.findMany({
+    const experiences = await directPrisma.workExperience.findMany({
       orderBy: [
         { displayOrder: 'asc' },
         { startDate: 'desc' }
@@ -51,20 +54,24 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = experienceSchema.parse(body)
 
-    // Convert date strings to Date objects
+    // Convert date strings to Date objects and ensure required fields
     const experienceData = {
-      ...validatedData,
+      company: validatedData.company,
+      position: validatedData.position,
       startDate: new Date(validatedData.startDate),
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
+      description: validatedData.description || null,
       companyLogo: validatedData.companyLogo || null,
+      isVisible: validatedData.isVisible ?? true,
+      displayOrder: validatedData.displayOrder ?? 0,
     }
 
-    const experience = await prisma.workExperience.create({
+    const experience = await directPrisma.workExperience.create({
       data: experienceData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'CREATE',

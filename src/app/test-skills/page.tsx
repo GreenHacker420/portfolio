@@ -151,7 +151,7 @@ export default function TestSkillsPage() {
             <p><span className="text-gray-400">API Endpoint:</span> <span className="text-blue-400">/api/skills</span></p>
             <p><span className="text-gray-400">Database:</span> <span className="text-green-400">PostgreSQL via Prisma</span></p>
             <p><span className="text-gray-400">Total Skills:</span> <span className="text-yellow-400">{skills.length}</span></p>
-            <p><span className="text-gray-400">Categories:</span> <span className="text-purple-400">{[...new Set(skills.map(s => s.category))].join(', ')}</span></p>
+            <p><span className="text-gray-400">Categories:</span> <span className="text-purple-400">{Array.from(new Set(skills.map(s => s.category))).join(', ')}</span></p>
           </div>
         </div>
       </div>

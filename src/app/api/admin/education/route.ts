@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const educationSchema = z.object({
@@ -24,7 +27,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const education = await prisma.education.findMany({
+    const education = await directPrisma.education.findMany({
       orderBy: [
         { displayOrder: 'asc' },
         { startDate: 'desc' }
@@ -52,19 +55,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = educationSchema.parse(body)
 
-    // Convert date strings to Date objects
+    // Convert date strings to Date objects and ensure required fields
     const educationData = {
-      ...validatedData,
+      institution: validatedData.institution,
+      degree: validatedData.degree,
+      fieldOfStudy: validatedData.fieldOfStudy || null,
       startDate: new Date(validatedData.startDate),
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
+      gpa: validatedData.gpa || null,
+      honors: validatedData.honors || null,
+      isVisible: validatedData.isVisible ?? true,
+      displayOrder: validatedData.displayOrder ?? 0,
     }
 
-    const education = await prisma.education.create({
+    const education = await directPrisma.education.create({
       data: educationData
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'CREATE',

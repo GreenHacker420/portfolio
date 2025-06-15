@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/db';
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
@@ -24,7 +27,7 @@ export async function GET(request: Request) {
     }
 
     // Fetch projects from database
-    const projects = await prisma.project.findMany({
+    const projects = await directPrisma.project.findMany({
       where,
       orderBy: [
         { featured: 'desc' },
@@ -55,7 +58,7 @@ export async function GET(request: Request) {
     }));
 
     // Get unique categories from database
-    const allProjects = await prisma.project.findMany({
+    const allProjects = await directPrisma.project.findMany({
       where: { status: 'published' },
       select: { category: true }
     });

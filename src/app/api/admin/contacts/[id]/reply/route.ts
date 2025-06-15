@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/db';
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient();
 import { sendContactReply } from '@/services/emailService';
 import { z } from 'zod';
 
@@ -29,7 +32,7 @@ export async function POST(
     const { replyMessage, subject, isAiGenerated, aiMode } = validatedData;
 
     // Fetch the contact from database
-    const contact = await prisma.contact.findUnique({
+    const contact = await directPrisma.contact.findUnique({
       where: { id: resolvedParams.id }
     });
 
@@ -50,7 +53,7 @@ export async function POST(
     });
 
     // Store the reply in database
-    const reply = await prisma.contactReply.create({
+    const reply = await directPrisma.contactReply.create({
       data: {
         contactId: contact.id,
         userId: session.user.id,
@@ -63,13 +66,13 @@ export async function POST(
     });
 
     // Update contact status to 'responded'
-    await prisma.contact.update({
+    await directPrisma.contact.update({
       where: { id: resolvedParams.id },
       data: { status: 'responded' }
     });
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
         userId: session.user.id,
         action: 'REPLY',

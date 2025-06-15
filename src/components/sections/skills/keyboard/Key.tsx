@@ -3,7 +3,7 @@ import React from 'react';
 import { calculateKeyColor } from '../../../../utils/keyboardUtils';
 import { KeyboardTheme } from './KeyboardThemes';
 import { KeyboardKey } from '../../../../data/keyboardData';
-import { getSkillById } from '../../../../data/skillsData';
+import { getSkillByIdSync } from '../../../../services/skillsDataService';
 import KeyCap from '../KeyCap';
 
 interface KeyProps {
@@ -18,8 +18,8 @@ interface KeyProps {
  * Individual key component for the keyboard
  */
 const Key = ({ keyData, isPressed, onClick, theme, performanceMode }: KeyProps) => {
-  // Find skill data if this is a skill key
-  const skillData = keyData.skillId ? getSkillById(keyData.skillId) : undefined;
+  // Find skill data if this is a skill key (using sync version for cached data)
+  const skillData = keyData.skillId ? getSkillByIdSync(keyData.skillId) : undefined;
   
   // Calculate RGB color
   const time = new Date().getTime() / 1000;

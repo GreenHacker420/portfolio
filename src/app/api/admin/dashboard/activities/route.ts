@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export async function GET() {
   try {
@@ -12,7 +15,7 @@ export async function GET() {
     }
 
     // Get recent audit logs
-    const activities = await prisma.auditLog.findMany({
+    const activities = await directPrisma.auditLog.findMany({
       take: 10,
       orderBy: {
         createdAt: 'desc'
@@ -31,8 +34,8 @@ export async function GET() {
     const formattedActivities = activities.map(activity => ({
       id: activity.id,
       action: activity.action,
-      entity: activity.entity,
-      entityId: activity.entityId,
+      entity: activity.resource,
+      entityId: activity.resourceId,
       createdAt: activity.createdAt.toISOString(),
       user: activity.user.name || activity.user.email
     }))

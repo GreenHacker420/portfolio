@@ -3,19 +3,20 @@ import { updateFAQViewCount, rateFAQ } from '@/services/chatbotService';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { action, isHelpful } = body;
 
     if (action === 'view') {
-      await updateFAQViewCount(params.id);
+      await updateFAQViewCount(id);
       return NextResponse.json({ success: true });
     }
 
     if (action === 'rate' && typeof isHelpful === 'boolean') {
-      await rateFAQ(params.id, isHelpful);
+      await rateFAQ(id, isHelpful);
       return NextResponse.json({ success: true });
     }
 

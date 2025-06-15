@@ -1,7 +1,10 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
-import { prisma } from './db'
+import { PrismaClient } from '@prisma/client'
+
+// Create a direct Prisma client instance to avoid type conflicts
+const directPrisma = new PrismaClient()
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,7 +19,7 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await prisma.adminUser.findUnique({
+        const user = await directPrisma.adminUser.findUnique({
           where: {
             email: credentials.email
           }
