@@ -1,15 +1,12 @@
 
-import { motion } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { animateIn } from '@/utils/animation-anime';
 
 const ProjectCTA = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => { animateIn('#project-cta'); }, []);
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.5 }}
-      viewport={{ once: true }}
-      className="mt-10 text-center"
-    >
+    <div id="project-cta" ref={ref} className="mt-10 text-center">
       <a
         href="#contact"
         className="inline-flex items-center px-6 py-3 bg-neon-green text-black font-medium rounded-md hover:bg-neon-green/90 transition-colors"
@@ -29,7 +26,7 @@ const ProjectCTA = () => {
           <path d="m12 5 7 7-7 7" />
         </svg>
       </a>
-    </motion.div>
+    </div>
   );
 };
 

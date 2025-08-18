@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 
 interface Interactive3DCardProps {
   children: React.ReactNode;
@@ -20,27 +19,12 @@ const Interactive3DCard = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Motion values for rotation
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-
-  // Smooth rotations with springs
-  const springConfig = { stiffness: 150, damping: 20 };
-  const smoothRotateX = useSpring(rotateX, springConfig);
-  const smoothRotateY = useSpring(rotateY, springConfig);
-
-  // Transform for shadow and z-translation
-  const shadowBlur = useTransform(
-    [smoothRotateX, smoothRotateY],
-    ([latestX, latestY]) => {
-      // Fix the type issue by ensuring we're working with numbers
-      const x = typeof latestX === 'number' ? latestX : 0;
-      const y = typeof latestY === 'number' ? latestY : 0;
-      return Math.sqrt(x * x + y * y) * 0.5;
-    }
-  );
-
-  const zTranslate = useSpring(0, springConfig);
+  // Internal state for rotation/translation
+  const rotation = useRef({ x: 0, y: 0 });
+  const targetRotation = useRef({ x: 0, y: 0 });
+  const zTranslate = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  const shadowRef = useRef(0);
 
   // Handle mouse move for 3D effect
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -57,35 +41,44 @@ const Interactive3DCard = ({
     // Convert to rotation values (-15 to 15 degrees)
     const rotX = (mouseY / (rect.height / 2)) * -10;
     const rotY = (mouseX / (rect.width / 2)) * 10;
-
-    rotateX.set(rotX);
-    rotateY.set(rotY);
+    targetRotation.current.x = rotX;
+    targetRotation.current.y = rotY;
   };
 
   // Handle mouse enter/leave
   const handleMouseEnter = () => {
     setIsHovered(true);
-    zTranslate.set(depth);
+    zTranslate.current = depth;
   };
 
   const handleMouseLeave = () => {
     setIsHovered(false);
-    rotateX.set(0);
-    rotateY.set(0);
-    zTranslate.set(0);
+    targetRotation.current.x = 0;
+    targetRotation.current.y = 0;
+    zTranslate.current = 0;
   };
 
   // Clean up effect when component unmounts
   useEffect(() => {
-    return () => {
-      rotateX.set(0);
-      rotateY.set(0);
-      zTranslate.set(0);
+    const animate = () => {
+      // spring-ish lerp
+      rotation.current.x += (targetRotation.current.x - rotation.current.x) * 0.15;
+      rotation.current.y += (targetRotation.current.y - rotation.current.y) * 0.15;
+      shadowRef.current = Math.sqrt(rotation.current.x ** 2 + rotation.current.y ** 2) * 0.5;
+      if (cardRef.current) {
+        cardRef.current.style.setProperty('--rx', `${rotation.current.x}`);
+        cardRef.current.style.setProperty('--ry', `${rotation.current.y}`);
+        cardRef.current.style.setProperty('--rz', `${zTranslate.current}`);
+        cardRef.current.style.setProperty('--shadow', `${shadowRef.current}`);
+      }
+      rafRef.current = requestAnimationFrame(animate);
     };
-  }, [rotateX, rotateY, zTranslate]);
+    rafRef.current = requestAnimationFrame(animate);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, []);
 
   return (
-    <motion.div
+    <div
       ref={cardRef}
       className={`relative ${className}`}
       onMouseMove={handleMouseMove}
@@ -97,30 +90,22 @@ const Interactive3DCard = ({
       }}
       whileTap={{ scale: 0.98 }}
     >
-      <motion.div
+      <div
         style={{
-          rotateX: smoothRotateX,
-          rotateY: smoothRotateY,
-          z: zTranslate,
-          boxShadow: useTransform(
-            shadowBlur,
-            (blur) => `0 ${blur * 2}px ${blur * 4}px ${shadowColor}`
-          ),
+          transform: `rotateX(var(--rx, 0)) rotateY(var(--ry, 0)) translateZ(var(--rz, 0px))`,
+          boxShadow: `0 ${Number((shadowRef.current * 2).toFixed(2))}px ${Number((shadowRef.current * 4).toFixed(2))}px ${shadowColor}`,
           transformStyle: "preserve-3d",
+          transition: isHovered ? 'transform 60ms ease-out' : 'transform 200ms ease-out'
         }}
         className="h-full w-full transition-colors duration-300"
       >
         {children}
-
-        {/* Visual effect for edges */}
-        <motion.div
+        <div
           className="absolute inset-0 rounded-lg pointer-events-none border border-neon-green"
-          style={{
-            opacity: useTransform(zTranslate, [0, depth], [0, 0.3]),
-          }}
+          style={{ opacity: zTranslate.current ? 0.3 : 0 }}
         />
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
 

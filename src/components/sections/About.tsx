@@ -1,39 +1,24 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
+import { useEffect } from 'react';
+import { animateIn } from '@/utils/animation-anime';
 
 const About = () => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 }
-  };
+  useEffect(() => {
+    animateIn('#about .about-item');
+    animateIn('#about .section-title');
+  }, []);
 
   return (
     <section id="about" className="bg-github-light py-20">
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        className="section-container"
-      >
-        <motion.h2 variants={itemVariants} className="section-title">
+      <div className="section-container">
+        <h2 className="section-title">
           About Me
-        </motion.h2>
+        </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <motion.div variants={itemVariants} className="md:col-span-2 space-y-4">
+          <div className="about-item md:col-span-2 space-y-4">
             <p className="text-lg">
               🚀 I'm currently working on a photo-sharing platform with face recognition.
             </p>
@@ -56,9 +41,9 @@ const About = () => {
                 Feel free to reach out if you'd like to collaborate, discuss tech, or share some awesome ideas!
               </p>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.div variants={itemVariants} className="md:col-span-1">
+          <div className="about-item md:col-span-1">
             <div className="bg-github-dark border border-github-border rounded-2xl overflow-hidden card-hover">
               <div className="aspect-square w-full relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-neon-green/20 to-neon-purple/20 z-10"></div>
@@ -70,7 +55,7 @@ const About = () => {
                 />
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-github-dark to-transparent h-1/3 z-20"></div>
               </div>
-              <div className="p-6">
+              <div className="p-6 about-item">
                 <h3 className="text-xl font-bold mb-2">Socials:</h3>
                 <div className="space-y-2">
                   <a
@@ -107,9 +92,9 @@ const About = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };

@@ -9,6 +9,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useState, useEffect } from "react";
 import LoadingScreen from "@/components/sections/LoadingScreen";
 import dynamic from "next/dynamic";
+import { useLenis } from "@/hooks/useLenis";
 
 // Dynamically import client-only components
 const AnimatedCursor = dynamic(() => import("@/components/effects/AnimatedCursor"), {
@@ -37,6 +38,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [isMobile, setIsMobile] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isAdminRoute, setIsAdminRoute] = useState(false);
+
+  // Initialize Lenis on non-admin routes and when mounted
+  useLenis(!isAdminRoute && mounted);
 
   useEffect(() => {
     setMounted(true);

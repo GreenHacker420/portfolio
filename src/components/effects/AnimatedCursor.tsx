@@ -2,7 +2,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 
 const AnimatedCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -67,33 +66,19 @@ const AnimatedCursor = () => {
   return (
     <>
       {/* Main cursor */}
-      <motion.div
-        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-neon-green z-[9999] pointer-events-none"
-        animate={{
-          x: position.x - 16,
-          y: position.y - 16,
-          scale: clicked ? 0.8 : hovered ? 1.5 : 1,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 20,
-          mass: 0.5
+      <div
+        className="fixed top-0 left-0 w-8 h-8 rounded-full border border-neon-green z-[9999] pointer-events-none transition-transform duration-100"
+        style={{
+          transform: `translate(${position.x - 16}px, ${position.y - 16}px) scale(${clicked ? 0.8 : hovered ? 1.5 : 1})`,
         }}
       />
 
       {/* Cursor dot */}
-      <motion.div
-        className="fixed top-0 left-0 w-2 h-2 bg-neon-green rounded-full z-[10000] pointer-events-none"
-        animate={{
-          x: position.x - 4,
-          y: position.y - 4,
+      <div
+        className="fixed top-0 left-0 w-2 h-2 bg-neon-green rounded-full z-[10000] pointer-events-none transition-transform duration-75"
+        style={{
+          transform: `translate(${position.x - 4}px, ${position.y - 4}px)`,
           opacity: clicked ? 0.5 : 1,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 400,
-          damping: 15,
         }}
       />
     </>

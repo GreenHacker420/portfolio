@@ -1,8 +1,7 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
-import ProjectCard from '../ProjectCard';
+import ProjectPinCard from './ProjectPinCard';
 
 interface Project {
   id: string;
@@ -39,12 +38,8 @@ const ProjectGrid = ({ projects, filter }: ProjectGridProps) => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      {filteredProjects.map((project, index) => (
-        <ProjectCard
-          key={project.title}
-          project={project}
-          delay={index * 0.1}
-        />
+      {filteredProjects.map((project) => (
+        <ProjectPinCard key={project.id} project={project as any} />
       ))}
     </div>
   );

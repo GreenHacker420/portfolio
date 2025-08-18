@@ -2,7 +2,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
@@ -60,10 +59,7 @@ const Header = () => {
   };
 
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
+    <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled
           ? 'bg-github-dark/95 backdrop-blur-md shadow-lg border-b border-github-border'
@@ -119,43 +115,31 @@ const Header = () => {
       </div>
 
       {/* Mobile Navigation Overlay */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden fixed inset-0 bg-github-dark/95 backdrop-blur-md z-40"
-            onClick={() => setMenuOpen(false)}
+      {menuOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-github-dark/95 backdrop-blur-md z-40 animate-in fade-in duration-300"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-github-light border-l border-github-border pt-20 px-6 animate-in slide-in-from-right duration-300"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-github-light border-l border-github-border pt-20 px-6"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="space-y-1">
-                {navItems.map((item, index) => (
-                  <motion.button
-                    key={item.name}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={() => handleNavClick(item.href)}
-                    className="block w-full text-left py-4 px-4 text-lg text-github-text hover:bg-github-dark hover:text-white rounded-md transition-all"
-                  >
-                    {item.name}
-                  </motion.button>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+            <div className="space-y-1">
+              {navItems.map((item, index) => (
+                <button
+                  key={item.name}
+                  onClick={() => handleNavClick(item.href)}
+                  className="block w-full text-left py-4 px-4 text-lg text-github-text hover:bg-github-dark hover:text-white rounded-md transition-all"
+                  style={{ transitionDelay: `${index * 50}ms` }}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 

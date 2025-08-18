@@ -2,10 +2,8 @@
 'use client';
 
 import { useEffect } from "react";
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import dynamic from 'next/dynamic';
+import { animateIn, textFlicker } from '@/utils/animation-anime';
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -18,12 +16,7 @@ import Stats from "@/components/sections/Stats";
 import Contact from "@/components/sections/Contact";
 import Resume from "@/components/sections/Resume";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
-import {
-  initSmoothScrolling,
-  initScrollAnimations,
-  neonFlickerEffect,
-  createParallaxEffect
-} from "@/utils/animation";
+// GSAP utilities removed in favor of anime.js
 
 // Dynamically import chatbot components to improve initial page load
 const CLIChatbot = dynamic(() => import("@/components/sections/CLIChatbot"), {
@@ -38,10 +31,6 @@ const EnhancedChatbot = dynamic(() => import("@/components/sections/EnhancedChat
 
 
 
-// Register GSAP plugins only on client side
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
-}
 
 // Simple error fallback component
 const SectionErrorFallback = ({ section }: { section: string }) => {
@@ -93,46 +82,17 @@ export default function HomePage() {
     // Add a small delay to ensure DOM is fully loaded
     const initAnimations = () => {
       try {
-        // Initialize GSAP animations
-        initSmoothScrolling();
-        initScrollAnimations();
-        createParallaxEffect();
-
-        // Apply neon flicker effect to specific elements with error handling
-        const sectionTitles = document.querySelectorAll('.section-title');
-        sectionTitles.forEach(title => {
-          try {
-            neonFlickerEffect(title as HTMLElement);
-          } catch (error) {
-            console.warn('Failed to apply neon flicker effect:', error);
-          }
-        });
-
-        // Set up scroll trigger animations for sections
+        // Animate headings
+        animateIn('.section-title');
+        // Subtle section entrances
         const sections = document.querySelectorAll('section');
         sections.forEach((section) => {
-          try {
-            // Create section animations
-            gsap.fromTo(
-              section,
-              { opacity: 0.6, y: 50 },
-              {
-                opacity: 1,
-                y: 0,
-                scrollTrigger: {
-                  trigger: section,
-                  start: "top bottom-=100",
-                  end: "top center",
-                  scrub: true
-                }
-              }
-            );
-          } catch (error) {
-            console.warn('Failed to create section animation:', error);
-          }
+          animateIn(`#${section.id} *:is(h2,h3,p,div,li,a,img)`, { delay: 50 });
         });
-
-        // Log performance metrics
+        // Optional: neon flicker-like effect using anime
+        document.querySelectorAll('.section-title').forEach((t) => {
+          try { textFlicker(t as HTMLElement); } catch {}
+        });
         const endTime = performance.now();
         console.log(`Animation initialization took ${endTime - startTime} milliseconds`);
       } catch (error) {

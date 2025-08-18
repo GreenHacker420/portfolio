@@ -1,7 +1,8 @@
 
 'use client';
 
-import { motion } from 'framer-motion';
+import { useEffect as useEffectReact } from 'react';
+import { animateIn } from '@/utils/animation-anime';
 import { useState, useEffect } from 'react';
 import ProjectFilters from './projects/ProjectFilters';
 import ProjectGrid from './projects/ProjectGrid';
@@ -16,6 +17,7 @@ const Projects = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    animateIn('.section-title');
     const loadProjects = async () => {
       try {
         setIsLoading(true);
@@ -36,15 +38,7 @@ const Projects = () => {
   return (
     <section id="projects" className="py-20 bg-github-light">
       <div className="section-container">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="section-title"
-        >
-          Projects
-        </motion.h2>
+        <h2 className="section-title">Projects</h2>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">

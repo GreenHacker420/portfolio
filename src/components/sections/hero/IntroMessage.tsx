@@ -1,38 +1,30 @@
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { animateIn } from '@/utils/animation-anime';
 
 const IntroMessage = () => {
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    animateIn('#intro-msg .intro-block');
+  }, []);
+
   return (
-    <div className="max-w-5xl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="overflow-hidden"
-      >
+    <div id="intro-msg" ref={rootRef} className="max-w-5xl">
+      <div className="intro-block overflow-hidden">
         <h2 className="text-neon-green text-sm sm:text-lg md:text-xl font-mono mb-2 sm:mb-3 flex items-center">
-          <span className="wave-emoji mr-2 inline-block text-base sm:text-xl">👋</span> 
+          <span className="wave-emoji mr-2 inline-block text-base sm:text-xl">👋</span>
           <span className="text-sm sm:text-lg md:text-xl">Hello, I'm</span>
         </h2>
-      </motion.div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
+      </div>
+
+      <div className="intro-block">
         <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-4 relative leading-tight">
           Green Hacker
           <span className="absolute -bottom-1 sm:-bottom-2 left-0 h-0.5 sm:h-1 bg-neon-green w-0 animate-expand"></span>
         </h1>
-      </motion.div>
-      
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-      >
+      </div>
+
+      <div className="intro-block">
         <div className="text-base sm:text-xl md:text-2xl text-github-text font-medium mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4">
             <span className="flex items-center text-sm sm:text-base md:text-xl">
@@ -49,7 +41,7 @@ const IntroMessage = () => {
             </span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
