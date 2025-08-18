@@ -301,4 +301,5 @@ export const GITHUB_API_ENDPOINTS = {
   STATS: '/api/github/stats',
   CONTRIBUTIONS: '/api/github/contributions',
   AI_ANALYSIS: '/api/ai/github-analysis',
+  AGGREGATE: '/api/github/aggregate',
 } as const;

@@ -1,3 +1,5 @@
+'use client';
+
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
 
@@ -41,7 +43,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           <div className="max-w-md p-6 bg-github-light rounded-lg">
             <h1 className="text-2xl font-bold text-white mb-4">Something went wrong</h1>
             <p className="mb-4">We're sorry, but something went wrong with the rendering of this page.</p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-neon-green text-black rounded-md hover:bg-neon-green/90"
             >

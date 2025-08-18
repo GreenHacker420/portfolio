@@ -34,7 +34,7 @@ const TabSkillsView = ({
           transition={{ duration: 0.5, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <Tabs defaultValue={categories[0].name} className="w-full">
+          <Tabs defaultValue={(categories && categories.length > 0 ? categories[0].name : undefined) as any} className="w-full">
             <TabsList className="flex flex-wrap mb-6 bg-github-light/20">
               {categories.map((category) => (
                 <TabsTrigger

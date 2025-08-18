@@ -1,9 +1,8 @@
 
-'use client';
+export const dynamic = 'force-dynamic';
 
-import { useEffect } from "react";
-import dynamic from 'next/dynamic';
-import { animateIn, textFlicker } from '@/utils/animation-anime';
+import InitAnimations from '@/components/InitAnimations';
+import Chatbots from '@/components/Chatbots';
 
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -12,22 +11,13 @@ import About from "@/components/sections/About";
 import Skills from "@/components/sections/Skills";
 import Projects from "@/components/sections/Projects";
 import Experience from "@/components/sections/Experience";
-import Stats from "@/components/sections/Stats";
+// import Stats from "@/components/sections/Stats";
+import Stats from "@/components/sections/StatsServer";
 import Contact from "@/components/sections/Contact";
 import Resume from "@/components/sections/Resume";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 // GSAP utilities removed in favor of anime.js
 
-// Dynamically import chatbot components to improve initial page load
-const CLIChatbot = dynamic(() => import("@/components/sections/CLIChatbot"), {
-  ssr: false,
-  loading: () => null
-});
-
-const EnhancedChatbot = dynamic(() => import("@/components/sections/EnhancedChatbot"), {
-  ssr: false,
-  loading: () => null
-});
 
 
 
@@ -55,7 +45,7 @@ const SectionErrorFallback = ({ section }: { section: string }) => {
 };
 
 // Safe section wrapper with error boundary
-const SafeSection = ({ children, name }: { children: React.ReactNode; name: string }) => {
+function SafeSection({ children, name }: { children: React.ReactNode; name: string }) {
   const sectionId = name.toLowerCase().replace(/\s+/g, '-');
 
   return (
@@ -63,57 +53,15 @@ const SafeSection = ({ children, name }: { children: React.ReactNode; name: stri
       <section
         id={sectionId}
         aria-label={`${name} section`}
-        className="scroll-mt-20" // Offset for fixed header
+        className="scroll-mt-20"
       >
         {children}
       </section>
     </ErrorBoundary>
   );
-};
+}
 
 export default function HomePage() {
-  useEffect(() => {
-    // Only run on client side
-    if (typeof window === 'undefined') return;
-
-    // Performance monitoring
-    const startTime = performance.now();
-
-    // Add a small delay to ensure DOM is fully loaded
-    const initAnimations = () => {
-      try {
-        // Animate headings
-        animateIn('.section-title');
-        // Subtle section entrances
-        const sections = document.querySelectorAll('section');
-        sections.forEach((section) => {
-          animateIn(`#${section.id} *:is(h2,h3,p,div,li,a,img)`, { delay: 50 });
-        });
-        // Optional: neon flicker-like effect using anime
-        document.querySelectorAll('.section-title').forEach((t) => {
-          try { textFlicker(t as HTMLElement); } catch {}
-        });
-        const endTime = performance.now();
-        console.log(`Animation initialization took ${endTime - startTime} milliseconds`);
-      } catch (error) {
-        console.error('Failed to initialize animations:', error);
-      }
-    };
-
-    // Initialize animations with a small delay
-    const timeoutId = setTimeout(initAnimations, 100);
-
-    // Clean up ScrollTrigger on unmount
-    return () => {
-      clearTimeout(timeoutId);
-      try {
-        ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-      } catch (error) {
-        console.warn('Failed to clean up ScrollTrigger:', error);
-      }
-    };
-  }, []);
-
   return (
     <div className="min-h-screen bg-github-dark text-github-text dark:bg-github-dark dark:text-github-text">
       {/* Skip to main content for accessibility */}
@@ -163,8 +111,10 @@ export default function HomePage() {
       <Footer />
 
       {/* Chatbot components - only one will be active based on user preference */}
-      <CLIChatbot />
-      <EnhancedChatbot />
+      <Chatbots />
+      {/* Init client-only animations */}
+      <InitAnimations />
+
     </div>
   );
 }

@@ -39,8 +39,8 @@ export async function GET(request: Request) {
     const ip = request.headers.get('x-forwarded-for') || 'unknown';
     if (isRateLimited(ip)) {
       return NextResponse.json(
-        { error: 'Rate limit exceeded' },
-        { status: 429 }
+        { success: false, error: 'Rate limit exceeded' },
+        { status: 429, headers: { 'Cache-Control': 'no-store' } }
       );
     }
 
@@ -78,8 +78,8 @@ export async function GET(request: Request) {
       }
 
       return NextResponse.json(
-        { error: 'Failed to fetch GitHub data' },
-        { status: 500 }
+        { success: false, error: 'Failed to fetch GitHub data', rateLimit: profileResult.rateLimit || reposResult.rateLimit },
+        { status: 500, headers: { 'Cache-Control': 'no-store' } }
       );
     }
 
@@ -111,7 +111,7 @@ export async function GET(request: Request) {
       timestamp: new Date().toISOString()
     };
 
-    return NextResponse.json(realStats, { status: 200 });
+    return NextResponse.json({ success: true, data: realStats, cached: realStats.cached, rateLimit: realStats.rateLimit, timestamp: realStats.timestamp }, { status: 200, headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=600' } });
   } catch (error) {
     console.error('GitHub API error:', error);
     return NextResponse.json(

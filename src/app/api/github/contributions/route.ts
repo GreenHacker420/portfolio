@@ -34,17 +34,10 @@ export async function GET(request: Request) {
 
     // If cache has data, return it
     if (cacheResult.data) {
-      return NextResponse.json({
-        success: true,
-        contributions: cacheResult.data,
-        year,
-        cached: cacheResult.cached,
-        stale: cacheResult.stale,
-        cacheAge: cacheResult.age,
-        source: cacheResult.source,
-        rateLimit: cacheResult.rateLimit,
-        timestamp: new Date().toISOString()
-      });
+      return NextResponse.json(
+        { success: true, data: cacheResult.data, cached: cacheResult.cached, rateLimit: cacheResult.rateLimit, timestamp: new Date().toISOString() },
+        { status: 200, headers: { 'Cache-Control': 'public, s-maxage=43200, stale-while-revalidate=21600' } }
+      );
     }
 
     // Fallback to the existing GitHub service for API calls
@@ -56,11 +49,8 @@ export async function GET(request: Request) {
       // Handle specific error cases
       if (result.error?.includes('rate limit')) {
         return NextResponse.json(
-          {
-            error: 'GitHub API rate limit exceeded',
-            rateLimit: result.rateLimit
-          },
-          { status: 429 }
+          { success: false, error: 'GitHub API rate limit exceeded', rateLimit: result.rateLimit },
+          { status: 429, headers: { 'Cache-Control': 'no-store' } }
         );
       }
 
@@ -74,15 +64,10 @@ export async function GET(request: Request) {
       return getMockContributions(year);
     }
 
-    return NextResponse.json({
-      success: true,
-      contributions: result.data,
-      year,
-      cached: result.cached || false,
-      cacheAge: result.cacheAge,
-      rateLimit: result.rateLimit,
-      timestamp: new Date().toISOString()
-    });
+    return NextResponse.json(
+      { success: true, data: result.data, cached: result.cached || false, rateLimit: result.rateLimit, timestamp: new Date().toISOString() },
+      { status: 200, headers: { 'Cache-Control': 'public, s-maxage=43200, stale-while-revalidate=21600' } }
+    );
 
   } catch (error) {
     console.error('GitHub contributions API error:', error);
@@ -132,13 +117,10 @@ function getMockContributions(year: number) {
 
   const mockCalendar = transformContributionsToCalendar(mockContributions, year);
 
-  return NextResponse.json({
-    success: true,
-    contributions: mockCalendar,
-    year,
-    mock: true,
-    timestamp: new Date().toISOString()
-  });
+  return NextResponse.json(
+    { success: true, data: mockCalendar, mock: true, timestamp: new Date().toISOString() },
+    { status: 200, headers: { 'Cache-Control': 'public, s-maxage=43200, stale-while-revalidate=21600' } }
+  );
 }
 
 function transformContributionsToCalendar(

@@ -7,7 +7,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   GitHubContributionCalendar,
   GitHubContribution,
-  UseGitHubContributionsReturn
+  UseGitHubContributionsReturn,
+  GitHubAPIResponse,
+  GitHubData,
+  GITHUB_API_ENDPOINTS,
 } from '@/types/github';
 import {
   calculateTotalContributions,
@@ -22,14 +25,11 @@ interface GitHubContributionsAPIResponse {
   contributions?: GitHubContributionCalendar;
   year: number;
   cached?: boolean;
-  stale?: boolean;
   age?: number;
-  source?: 'cache' | 'api' | 'stale-cache' | 'edge';
   cacheAge?: number;
   rateLimit?: any;
   timestamp: string;
   error?: string;
-  mock?: boolean;
 }
 
 /**
@@ -93,20 +93,47 @@ export function useGitHubContributions(
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-      const url = new URL('/api/github/contributions', window.location.origin);
+      const url = new URL(GITHUB_API_ENDPOINTS.AGGREGATE, window.location.origin);
       url.searchParams.set('year', targetYear.toString());
-      if (forceRefresh) {
-        url.searchParams.set('refresh', 'true');
-      }
-      // Enable edge cache by default
-      url.searchParams.set('edge', 'true');
+      if (forceRefresh) url.searchParams.set('refresh', 'true');
 
       const response = await fetch(url.toString());
-      const data: GitHubContributionsAPIResponse = await response.json();
+      const agg: GitHubAPIResponse<GitHubData> = await response.json();
+      const data: GitHubContributionsAPIResponse = {
+        success: agg.success,
+        contributions: agg.data?.contributions,
+        year: targetYear,
+        cached: agg.cached,
+        cacheAge: (agg as any).cacheAge,
+        rateLimit: agg.rateLimit,
+        timestamp: new Date().toISOString(),
+        error: agg.success ? undefined : (agg as any).error,
+      };
 
       if (!mountedRef.current) return;
 
       if (data.success && data.contributions) {
+      // Normalize contributions to fill any missing days for a continuous calendar
+      const normalize = (cal?: GitHubContributionCalendar): GitHubContributionCalendar | undefined => {
+        if (!cal) return cal;
+        const weeks = [...cal.weeks];
+        // Ensure each week has 7 days
+        weeks.forEach(week => {
+          if (week.contributionDays.length < 7) {
+            const missing = 7 - week.contributionDays.length;
+            for (let i = 0; i < missing; i++) {
+              const last = week.contributionDays[week.contributionDays.length - 1];
+              const nextDate = new Date(last.date);
+              nextDate.setDate(nextDate.getDate() + 1);
+              week.contributionDays.push({ date: nextDate.toISOString().split('T')[0], count: 0, level: 0 });
+            }
+          }
+        });
+        return { ...cal, weeks };
+      };
+
+      data.contributions = normalize(data.contributions);
+
         // Determine cache status based on source and staleness
         let cacheStatus: 'hit' | 'miss' | 'stale' | 'edge-hit' = 'miss';
         if (data.source === 'edge') {

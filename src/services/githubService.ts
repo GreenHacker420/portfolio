@@ -66,6 +66,7 @@ export class GitHubAPIService {
   private token: string;
   private username: string;
   private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private etags: Map<string, string> = new Map();
   private rateLimitInfo: GitHubRateLimit | null = null;
 
   constructor(token?: string, username?: string) {
@@ -89,7 +90,7 @@ export class GitHubAPIService {
   /**
    * Get authentication headers for GitHub API
    */
-  private getHeaders(): HeadersInit {
+  private getHeaders(etagKey?: string): HeadersInit {
     const headers: HeadersInit = {
       'Accept': 'application/vnd.github.v3+json',
       'User-Agent': 'Portfolio-App/1.0',
@@ -98,6 +99,10 @@ export class GitHubAPIService {
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
+    if (etagKey) {
+      const etag = this.etags.get(etagKey);
+      if (etag) headers['If-None-Match'] = etag;
+    }
 
     return headers;
   }
@@ -105,12 +110,17 @@ export class GitHubAPIService {
   /**
    * Get GraphQL headers for GitHub API
    */
-  private getGraphQLHeaders(): HeadersInit {
-    return {
+  private getGraphQLHeaders(etagKey?: string): HeadersInit {
+    const headers: HeadersInit = {
       'Authorization': `Bearer ${this.token}`,
       'Content-Type': 'application/json',
       'User-Agent': 'Portfolio-App/1.0',
     };
+    if (etagKey) {
+      const etag = this.etags.get(etagKey);
+      if (etag) headers['If-None-Match'] = etag;
+    }
+    return headers;
   }
 
   /**
@@ -191,11 +201,19 @@ export class GitHubAPIService {
     }
 
     try {
+      const etagKey = `profile-${this.username}`;
       const response = await fetch(`${GITHUB_API_BASE}/users/${this.username}`, {
-        headers: this.getHeaders(),
+        headers: this.getHeaders(etagKey),
       });
 
       this.updateRateLimit(response);
+
+      if (response.status === 304) {
+        const cached = this.getCachedData<GitHubProfile>(etagKey);
+        if (cached) {
+          return { success: true, data: cached, cached: true, cacheAge: Date.now() - (this.cache.get(etagKey)?.timestamp || 0), rateLimit: this.rateLimitInfo };
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -207,7 +225,8 @@ export class GitHubAPIService {
       }
 
       const userData = await response.json();
-      
+      const etag = response.headers.get('etag'); if (etag) this.etags.set(etagKey, etag);
+
       // Map to our GitHubProfile interface - using partial mapping for now
       const profileData: Partial<GitHubProfile> = {
         id: userData.id,
@@ -264,14 +283,22 @@ export class GitHubAPIService {
     }
 
     try {
+      const etagKey = `repos-${this.username}-${page}-${perPage}`;
       const response = await fetch(
         `${GITHUB_API_BASE}/users/${this.username}/repos?sort=updated&per_page=${perPage}&page=${page}`,
         {
-          headers: this.getHeaders(),
+          headers: this.getHeaders(etagKey),
         }
       );
 
       this.updateRateLimit(response);
+
+      if (response.status === 304) {
+        const cached = this.getCachedData<GitHubRepo[]>(etagKey);
+        if (cached) {
+          return { success: true, data: cached, cached: true, cacheAge: Date.now() - (this.cache.get(etagKey)?.timestamp || 0), rateLimit: this.rateLimitInfo };
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -282,6 +309,7 @@ export class GitHubAPIService {
         };
       }
 
+      const etag = response.headers.get('etag'); if (etag) this.etags.set(etagKey, etag);
       const reposData = await response.json();
 
       const repositories: GitHubRepo[] = reposData.map((repo: any) => ({
@@ -412,9 +440,10 @@ export class GitHubAPIService {
     `;
 
     try {
+      const etagKey = `contrib-${this.username}-${year}`;
       const response = await fetch(GITHUB_GRAPHQL_API, {
         method: 'POST',
-        headers: this.getGraphQLHeaders(),
+        headers: this.getGraphQLHeaders(etagKey),
         body: JSON.stringify({
           query,
           variables: {
@@ -427,6 +456,13 @@ export class GitHubAPIService {
 
       this.updateRateLimit(response);
 
+      if (response.status === 304) {
+        const cached = this.getCachedData<GitHubContributionCalendar>(etagKey);
+        if (cached) {
+          return { success: true, data: cached, cached: true, cacheAge: Date.now() - (this.cache.get(etagKey)?.timestamp || 0), rateLimit: this.rateLimitInfo };
+        }
+      }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         return {
@@ -436,6 +472,7 @@ export class GitHubAPIService {
         };
       }
 
+      const etag = response.headers.get('etag'); if (etag) this.etags.set(etagKey, etag);
       const result = await response.json();
 
       if (result.errors) {

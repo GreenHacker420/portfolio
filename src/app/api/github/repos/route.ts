@@ -39,8 +39,8 @@ export async function GET(request: Request) {
     const ip = request.headers.get('x-forwarded-for') || 'unknown';
     if (isRateLimited(ip)) {
       return NextResponse.json(
-        { error: 'Rate limit exceeded. Please try again later.' },
-        { status: 429 }
+        { success: false, error: 'Rate limit exceeded. Please try again later.' },
+        { status: 429, headers: { 'Cache-Control': 'no-store' } }
       );
     }
 
@@ -58,11 +58,8 @@ export async function GET(request: Request) {
       // Handle specific error cases
       if (result.error?.includes('rate limit')) {
         return NextResponse.json(
-          {
-            error: 'GitHub API rate limit exceeded',
-            rateLimit: result.rateLimit
-          },
-          { status: 429 }
+          { success: false, error: 'GitHub API rate limit exceeded', rateLimit: result.rateLimit },
+          { status: 429, headers: { 'Cache-Control': 'no-store' } }
         );
       }
 
@@ -73,7 +70,7 @@ export async function GET(request: Request) {
 
       // Fallback to mock data on other errors
       console.warn('GitHub repos API error, using mock data:', result.error);
-      return getMockRepos();
+      return NextResponse.json({ success: false, error: result.error || 'Unknown error' }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
     }
 
     // Filter and format repository data
@@ -100,17 +97,10 @@ export async function GET(request: Request) {
         open_issues_count: repo.open_issues_count,
       })) || [];
 
-    return NextResponse.json({
-      success: true,
-      data: formattedRepos,
-      total_count: formattedRepos.length,
-      page,
-      per_page,
-      cached: result.cached || false,
-      cacheAge: result.cacheAge,
-      rateLimit: result.rateLimit,
-      timestamp: new Date().toISOString()
-    });
+    return NextResponse.json(
+      { success: true, data: formattedRepos, cached: result.cached || false, rateLimit: result.rateLimit, timestamp: new Date().toISOString() },
+      { status: 200, headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=600' } }
+    );
 
   } catch (error) {
     console.error('GitHub repos API error:', error);
@@ -185,16 +175,10 @@ function getMockRepos() {
     }
   ];
 
-  return NextResponse.json({
-    success: true,
-    data: mockRepos,
-    total_count: mockRepos.length,
-    page: 1,
-    per_page: 10,
-    cached: false,
-    mock: true,
-    timestamp: new Date().toISOString()
-  });
+  return NextResponse.json(
+    { success: true, data: mockRepos, cached: false, mock: true, timestamp: new Date().toISOString() },
+    { status: 200, headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=600' } }
+  );
 }
 
 export async function POST() {

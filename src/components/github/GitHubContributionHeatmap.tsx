@@ -6,8 +6,8 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, useEffect } from 'react';
+import { animateIn } from '@/utils/animation-anime';
 import { Calendar, AlertCircle, RefreshCw } from 'lucide-react';
 import { GitHubContributionHeatmapProps, GITHUB_COLORS } from '@/types/github';
 import { formatNumber } from '@/utils/githubCalculations';
@@ -87,6 +87,8 @@ export function GitHubContributionHeatmap({
     );
   }
 
+  useEffect(() => { animateIn('#gh-heatmap .anim'); }, []);
+
   return (
     <HeatmapErrorBoundary
       onError={(error, errorInfo) => {
@@ -94,12 +96,7 @@ export function GitHubContributionHeatmap({
       }}
       showDetails={process.env.NODE_ENV === 'development'}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className={`bg-github-dark p-6 rounded-xl border border-github-border ${className}`}
-      >
+      <div id="gh-heatmap" className={`bg-github-dark p-6 rounded-xl border border-github-border ${className}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -183,7 +180,7 @@ export function GitHubContributionHeatmap({
             lineHeight: '1.4',
           }}
         />
-      </motion.div>
+      </div>
     </HeatmapErrorBoundary>
   );
 }

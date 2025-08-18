@@ -6,8 +6,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import { animateIn } from '@/utils/animation-anime';
+import {
   Brain, 
   Sparkles, 
   RefreshCw, 
@@ -35,13 +35,16 @@ export function GitHubAIAnalysis({
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [lastGenerated, setLastGenerated] = useState<Date | null>(null);
+  // Prevent infinite calls and concurrent requests
+  const autoRequested = React.useRef(false);
+  const inFlight = React.useRef(false);
 
   /**
    * Generate AI analysis from GitHub data
    */
   const generateAnalysis = async (forceRefresh = false) => {
-    if (!githubData || dataLoading) return;
-
+    if (!githubData || dataLoading || inFlight.current) return;
+    inFlight.current = true;
     setIsLoading(true);
     setError(null);
 
@@ -71,43 +74,48 @@ export function GitHubAIAnalysis({
       setError('Network error occurred while generating analysis');
     } finally {
       setIsLoading(false);
+      inFlight.current = false;
     }
   };
 
-  // Auto-generate analysis when GitHub data is available
+  // Build a stable key for current GitHub data to avoid duplicate requests
+  const dataKeyRef = React.useRef<string | null>(null);
+  const getDataKey = (d: typeof githubData) => {
+    if (!d) return '';
+    const login = d.profile?.login || 'unknown';
+    const stars = d.stats?.totalStars || 0;
+    const repos = d.repositories?.length || 0;
+    return `${login}:${stars}:${repos}`;
+  };
+
+  // Auto-generate analysis exactly once per data snapshot (even in React StrictMode)
   useEffect(() => {
-    if (githubData && !dataLoading && !analysis && !isLoading) {
-      generateAnalysis();
+    if (!githubData || dataLoading) return;
+    const key = getDataKey(githubData);
+    if (autoRequested.current || dataKeyRef.current === key) return;
+    const requestKey = `gh-ai-analysis:${key}`;
+    if (typeof window !== 'undefined') {
+      try {
+        if (sessionStorage.getItem(requestKey)) return;
+        sessionStorage.setItem(requestKey, '1');
+      } catch {}
     }
-  }, [githubData, dataLoading, analysis, isLoading]);
+    dataKeyRef.current = key;
+    autoRequested.current = true;
+    generateAnalysis();
+  }, [githubData, dataLoading]);
 
-  const containerVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.3 },
-    },
-  };
+  useEffect(() => {
+    animateIn('#ai-analysis .anim');
+  }, []);
 
   if (!githubData && !dataLoading) {
     return null;
   }
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
+    <div
+      id="ai-analysis"
       className={`bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-purple-500/30 rounded-xl p-6 ${className}`}
     >
       {/* Header */}
@@ -192,10 +200,7 @@ export function GitHubAIAnalysis({
       {analysis?.analysis && !isLoading && (
         <div className="space-y-6">
           {/* Overview */}
-          <motion.div
-            variants={itemVariants}
-            className="bg-github-dark/50 rounded-lg p-4"
-          >
+          <div className="anim bg-github-dark/50 rounded-lg p-4">
             <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
               <TrendingUp className="text-green-400" size={20} />
               Overview
@@ -203,28 +208,21 @@ export function GitHubAIAnalysis({
             <p className="text-github-text leading-relaxed">
               {analysis.analysis.overview}
             </p>
-          </motion.div>
+          </div>
 
           {/* Key Insights */}
           {analysis.analysis.insights && analysis.analysis.insights.length > 0 && (
-            <motion.div
-              variants={itemVariants}
-              className="bg-github-dark/50 rounded-lg p-4"
-            >
+            <div className="anim bg-github-dark/50 rounded-lg p-4">
               <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                 <Sparkles className="text-yellow-400" size={20} />
                 Key Insights
               </h4>
               <ul className="space-y-2">
                 {analysis.analysis.insights.slice(0, isExpanded ? undefined : 3).map((insight, index) => (
-                  <motion.li
-                    key={index}
-                    variants={itemVariants}
-                    className="flex items-start gap-3 text-github-text"
-                  >
+                  <li key={index} className="anim flex items-start gap-3 text-github-text">
                     <Star className="text-yellow-400 mt-1 flex-shrink-0" size={16} />
                     <span>{insight}</span>
-                  </motion.li>
+                  </li>
                 ))}
               </ul>
               
@@ -246,17 +244,14 @@ export function GitHubAIAnalysis({
                   )}
                 </button>
               )}
-            </motion.div>
+            </div>
           )}
 
           {/* Tech Stack & Strengths */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Strengths */}
             {analysis.analysis.strengths && analysis.analysis.strengths.length > 0 && (
-              <motion.div
-                variants={itemVariants}
-                className="bg-github-dark/50 rounded-lg p-4"
-              >
+              <div className="anim bg-github-dark/50 rounded-lg p-4">
                 <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                   <Code className="text-blue-400" size={20} />
                   Strengths
@@ -271,15 +266,12 @@ export function GitHubAIAnalysis({
                     </span>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Tech Stack */}
             {analysis.analysis.techStack && analysis.analysis.techStack.length > 0 && (
-              <motion.div
-                variants={itemVariants}
-                className="bg-github-dark/50 rounded-lg p-4"
-              >
+              <div className="anim bg-github-dark/50 rounded-lg p-4">
                 <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                   <Code className="text-green-400" size={20} />
                   Tech Stack
@@ -294,7 +286,7 @@ export function GitHubAIAnalysis({
                     </span>
                   ))}
                 </div>
-              </motion.div>
+              </div>
             )}
           </div>
 
@@ -309,6 +301,6 @@ export function GitHubAIAnalysis({
           )}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -5,7 +5,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { GitHubData, GitHubAPIResponse, UseGitHubStatsReturn, GITHUB_API_ENDPOINTS } from '@/types/github';
-import { calculateGitHubStats, calculateLanguageDistribution, getTopRepositories, generateRecentActivity } from '@/utils/githubCalculations';
 
 /**
  * Hook for managing GitHub statistics data
@@ -24,56 +23,21 @@ export function useGitHubStats(): UseGitHubStatsReturn {
       setIsLoading(true);
       setError(null);
 
-      // Fetch profile and repositories in parallel
-      const [profileResponse, reposResponse] = await Promise.all([
-        fetch(GITHUB_API_ENDPOINTS.USER),
-        fetch(GITHUB_API_ENDPOINTS.REPOS + '?per_page=100'),
-      ]);
-
-      if (!profileResponse.ok) {
-        const errorText = await profileResponse.text();
-        console.error('Profile API error:', profileResponse.status, errorText);
-        throw new Error(`Failed to fetch profile: ${profileResponse.status}`);
+      // Fetch unified aggregate payload in one request
+      const aggRes = await fetch(GITHUB_API_ENDPOINTS.AGGREGATE);
+      if (!aggRes.ok) {
+        const errorText = await aggRes.text();
+        console.error('Aggregate API error:', aggRes.status, errorText);
+        throw new Error(`Failed to fetch aggregate: ${aggRes.status}`);
       }
-
-      if (!reposResponse.ok) {
-        const errorText = await reposResponse.text();
-        console.error('Repos API error:', reposResponse.status, errorText);
-        throw new Error(`Failed to fetch repositories: ${reposResponse.status}`);
+      const agg: GitHubAPIResponse<GitHubData> = await aggRes.json();
+      if (!agg.success || !agg.data) {
+        throw new Error(`Aggregate API returned error: ${agg.error || 'Unknown'}`);
       }
+      const { data: aggregate } = agg;
 
-      const profileData: GitHubAPIResponse<any> = await profileResponse.json();
-      const reposData: GitHubAPIResponse<any[]> = await reposResponse.json();
-
-      if (!profileData.success || !reposData.success) {
-        console.error('API response structure error:', { profileData, reposData });
-        throw new Error(`API returned error response: ${profileData.error || reposData.error || 'Unknown error'}`);
-      }
-
-      const profile = profileData.data!;
-      const repositories = reposData.data!;
-
-      // Calculate derived data
-      const stats = calculateGitHubStats(profile, repositories);
-      const languages = await calculateLanguageDistribution(repositories);
-      const topRepositories = getTopRepositories(repositories);
-      const recentActivity = generateRecentActivity(repositories);
-
-      // Create comprehensive GitHub data object
-      const githubData: GitHubData = {
-        profile,
-        repositories,
-        stats,
-        languages,
-        contributions: {
-          totalContributions: 0,
-          weeks: [],
-          months: [],
-        }, // Will be populated by useGitHubContributions hook
-        recentActivity,
-        topRepositories,
-      };
-
+      // Use aggregated data directly
+      const githubData = aggregate;
       setData(githubData);
       setLastUpdated(new Date());
       setError(null);
