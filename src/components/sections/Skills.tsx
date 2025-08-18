@@ -13,7 +13,7 @@ import SkillsStructuredData from '../seo/SkillsStructuredData';
 
 const Skills = () => {
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
-  const [displayStyle, setDisplayStyle] = useState<'tabs' | 'keyboard'>('tabs');
+  const [displayStyle, setDisplayStyle] = useState<'tabs' | 'keyboard'>('keyboard');
   const [skillsData, setSkillsData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

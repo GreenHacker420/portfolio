@@ -45,8 +45,8 @@ export function GitHubContributionHeatmap({
     error: hookError
   } = useGitHubContributions(selectedYear);
 
-  // Use prop data if provided, otherwise use hook data
-  const contributions = propContributions || hookContributions;
+  // Prefer hook data (responds to year changes); fall back to prop on first load
+  const contributions = hookContributions || propContributions;
   const isLoading = propIsLoading !== undefined ? propIsLoading : hookIsLoading;
   const error = propError || hookError;
 
@@ -157,9 +157,9 @@ export function GitHubContributionHeatmap({
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level0 }} />
                   <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level1 }} />
-                  <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level2 }} />
-                  <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level3 }} />
-                  <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: GITHUB_COLORS.level4 }} />
+                  <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: String(GITHUB_COLORS.level2 || '#006d32') }} />
+                  <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: String(GITHUB_COLORS.level3 || '#26a641') }} />
+                  <div className="w-3 h-3 rounded-sm border border-github-border" style={{ backgroundColor: String(GITHUB_COLORS.level4 || '#39d353') }} />
                 </div>
                 <span>More</span>
               </div>

@@ -1,13 +1,10 @@
 
 'use client';
 
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Skill } from '../../../../types/skills';
-import { getSkillByIdSync } from '../../../../services/skillsDataService';
 import LoadingScreen from './LoadingScreen';
-
-// Lazy load Spline component
-const Spline = React.lazy(() => import('@splinetool/react-spline'));
+import { RefreshCw, Maximize2 } from 'lucide-react';
 
 interface SplineKeyboardProps {
   onSkillSelect?: (skill: Skill | null) => void;
@@ -16,49 +13,27 @@ interface SplineKeyboardProps {
 const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  const [summaryVisible, setSummaryVisible] = useState(true);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [frameKey, setFrameKey] = useState(0);
 
-  const handleSplineLoad = useCallback(() => {
+  const handleFrameLoad = useCallback(() => {
     setLoading(false);
-    console.log('Spline keyboard loaded successfully');
+    setSummaryVisible(true); // auto show summary first time load
   }, []);
 
-  const handleSplineError = useCallback((error: any) => {
-    console.error('Spline loading error:', error);
-    setError('Failed to load 3D keyboard');
-    setLoading(false);
+  const handleRefresh = useCallback(() => {
+    setLoading(true);
+    setFrameKey(k => k + 1);
   }, []);
 
-  const handleObjectClick = useCallback((event: any) => {
-    if (event.target && event.target.name) {
-      const objectName = event.target.name.toLowerCase();
-      
-      // Map Spline object names to skill IDs
-      const skillMapping: { [key: string]: string } = {
-        'react_key': 'react',
-        'typescript_key': 'typescript',
-        'nextjs_key': 'nextjs',
-        'nodejs_key': 'nodejs',
-        'python_key': 'python',
-        'javascript_key': 'javascript',
-        'html_key': 'html',
-        'css_key': 'css',
-        'git_key': 'git',
-        'docker_key': 'docker',
-      };
-
-      const skillId = skillMapping[objectName];
-      if (skillId) {
-        const skill = getSkillByIdSync(skillId);
-        if (skill) {
-          setSelectedSkill(skill);
-          if (onSkillSelect) {
-            onSkillSelect(skill);
-          }
-        }
-      }
-    }
-  }, [onSkillSelect]);
+  const handleFullscreen = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen();
+    else el.requestFullscreen().catch(() => {});
+  }, []);
 
   if (error) {
     return (
@@ -79,30 +54,42 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
     );
   }
 
+  const embedUrl = process.env.NEXT_PUBLIC_SPLINE_EMBED_URL || 'https://my.spline.design/bnffrvbtbhvfsiow/';
   return (
-    <div className="relative w-full h-[600px] overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-[600px] overflow-hidden rounded-2xl border border-white/10 bg-github-card/30">
+      {/* Controls */}
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+        <button onClick={handleRefresh} className="p-2 rounded-md bg-white/5 ring-1 ring-inset ring-white/10 text-white hover:bg-white/10">
+          <RefreshCw size={16} />
+        </button>
+        <button onClick={handleFullscreen} className="p-2 rounded-md bg-white/5 ring-1 ring-inset ring-white/10 text-white hover:bg-white/10">
+          <Maximize2 size={16} />
+        </button>
+      </div>
+
       {loading && <LoadingScreen />}
 
-      <Suspense fallback={<LoadingScreen />}>
-        <div className="w-full h-full spline-keyboard-container">
-          <Spline
-            scene="https://prod.spline.design/bnffRvBtBHvfSiOW/scene.splinecode"
-            onLoad={handleSplineLoad}
-            onError={handleSplineError}
-            onClick={handleObjectClick}
-            style={{
-              width: '100%',
-              height: '100%',
-              minWidth: 'auto'
-            }}
-          />
-        </div>
-      </Suspense>
+      <div className="w-full h-full cursor-grab active:cursor-grabbing">
+        <iframe
+          key={frameKey}
+          ref={iframeRef}
+          src={embedUrl}
+          title="3D Keyboard"
+          className="w-full h-full"
+          style={{ border: 'none' }}
+          onLoad={handleFrameLoad}
+        />
+      </div>
 
-      {selectedSkill && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-github-dark/95 border border-github-border rounded-lg p-4 max-w-sm">
-          <h3 className="text-white font-semibold mb-2">{selectedSkill.name}</h3>
-          <p className="text-github-text text-sm">{selectedSkill.description}</p>
+      {summaryVisible && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-github-dark/95 border border-github-border rounded-lg p-4 max-w-md shadow-xl">
+          <h3 className="text-white font-semibold mb-2">Interactive Skills Keyboard</h3>
+          <p className="text-github-text text-sm">
+            Explore my skills in 3D. Drag to orbit, scroll to zoom. Click highlighted keys to learn more.
+          </p>
+          <div className="mt-3 text-right">
+            <button onClick={() => setSummaryVisible(false)} className="text-neon-green text-sm hover:underline">Got it</button>
+          </div>
         </div>
       )}
     </div>

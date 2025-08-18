@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { countNumber } from '@/utils/animation-anime';
 
 type StatCardProps = {
@@ -10,48 +10,74 @@ type StatCardProps = {
   suffix?: string;
   className?: string;
   accentClass?: string;
+  sparkline?: number[];
+  sparklineColor?: string; // e.g. '#10b981'
+  compact?: boolean; // use compact number formatting (e.g., 1.3K)
 };
 
-export default function StatCard({ icon, label, value, suffix, className = '', accentClass = '' }: StatCardProps) {
+function formatCompact(n: number) {
+  try {
+    return Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+  } catch {
+    if (n >= 1000) return (Math.round((n/1000)*10)/10) + 'K';
+    return String(n);
+  }
+}
+
+function buildSparkPath(series: number[], w = 120, h = 28, pad = 2) {
+  if (!series.length) return '';
+  const min = Math.min(...series);
+  const max = Math.max(...series);
+  const range = Math.max(1, max - min);
+  const stepX = (w - pad * 2) / Math.max(1, series.length - 1);
+  const values = series.map((v, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - ((v - min) / range) * (h - pad * 2);
+    return [x, y] as const;
+  });
+  return values.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
+}
+
+export default function StatCard({ icon, label, value, suffix, className = '', accentClass = '', sparkline = [], sparklineColor = '#10b981', compact = true }: StatCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const numRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
-    if (numRef.current) countNumber(numRef.current, value, { formatter: (n)=> suffix ? `${Math.round(n)}${suffix}` : `${Math.round(n)}` });
+    if (numRef.current) {
+      countNumber(numRef.current, value, {
+        formatter: (n) => {
+          const base = compact ? formatCompact(n) : Math.round(n).toString();
+          return suffix ? `${base}${suffix}` : base;
+        }
+      });
+    }
   }, [value, suffix]);
 
-  useEffect(() => {
-    if (!ref.current) return;
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-    const card = ref.current; let rafId: number | null = null; const state = { x: 0, y: 0, tx: 0, ty: 0 };
-    const onMove = (e: MouseEvent) => {
-      const rect = card.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2; const cy = rect.top + rect.height / 2;
-      const dx = (e.clientX - cx) / (rect.width / 2); const dy = (e.clientY - cy) / (rect.height / 2);
-      state.tx = dx * 8; state.ty = -dy * 8;
-      const mx = (e.clientX - rect.left - rect.width/2) * 0.15; const my = (e.clientY - rect.top - rect.height/2) * 0.15;
-      card.style.setProperty('--mx', `${mx}px`); card.style.setProperty('--my', `${my}px`);
-    };
-    const animate = () => { state.x += (state.tx - state.x) * 0.14; state.y += (state.ty - state.y) * 0.14;
-      card.style.setProperty('--rx', `${state.y}deg`); card.style.setProperty('--ry', `${state.x}deg`);
-      rafId = requestAnimationFrame(animate); };
-    rafId = requestAnimationFrame(animate); window.addEventListener('mousemove', onMove);
-    return () => { if (rafId) cancelAnimationFrame(rafId); window.removeEventListener('mousemove', onMove); };
-  }, []);
+  const path = useMemo(() => buildSparkPath(sparkline), [sparkline]);
 
   return (
     <div
       ref={ref}
-      className={`stat-card group relative p-4 rounded-lg bg-gradient-to-br from-github-light/40 to-github-light/20 border border-github-border hover:bg-github-light transition-colors ${className}`}
-      style={{ transform: 'perspective(800px) rotateX(var(--rx,0)) rotateY(var(--ry,0)) translate(var(--mx,0), var(--my,0))', willChange: 'transform' }}
+      className={`stat-card group relative p-4 rounded-xl bg-github-card/60 backdrop-blur-sm border border-white/10 transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(16,185,129,0.10)] ${className}`}
     >
-      <div className="absolute inset-0 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ boxShadow: '0 0 40px rgba(63,185,80,0.15) inset' }} />
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`transition-transform duration-200 group-hover:scale-110 ${accentClass}`}>{icon}</span>
-        <p className="text-sm text-github-text">{label}</p>
+      <div className="absolute inset-0 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ boxShadow: '0 0 40px rgba(63,185,80,0.12) inset' }} />
+      <div className="flex items-center gap-3 mb-3">
+        <span className={`h-9 w-9 rounded-md bg-white/5 ring-1 ring-inset ring-white/10 flex items-center justify-center transition-transform duration-200 group-hover:scale-110 ${accentClass}`}>{icon}</span>
+        <p className="text-sm text-github-text tracking-wide">{label}</p>
       </div>
-      <p ref={numRef} className="text-2xl font-bold text-white">0</p>
+      <p ref={numRef} className="text-3xl font-extrabold text-white drop-shadow-[0_1px_0_rgba(255,255,255,0.04)]">0</p>
+
+      {sparkline.length > 0 && (
+        <svg width={120} height={28} className="mt-2 block opacity-80">
+          <defs>
+            <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={sparklineColor} stopOpacity="0.2" />
+              <stop offset="100%" stopColor={sparklineColor} stopOpacity="0.0" />
+            </linearGradient>
+          </defs>
+          <path d={path} fill="none" stroke={sparklineColor} strokeWidth={1.6} strokeLinecap="round" />
+        </svg>
+      )}
     </div>
   );
 }

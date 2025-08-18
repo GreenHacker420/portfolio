@@ -268,8 +268,8 @@ export interface GitHubStatsCardsProps {
   data: GitHubData | null;
   isLoading: boolean;
   error: string | null;
-  onRefresh: () => void;
-  isRefreshing: boolean;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 export interface GitHubContributionHeatmapProps {

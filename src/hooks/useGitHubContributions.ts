@@ -30,6 +30,8 @@ interface GitHubContributionsAPIResponse {
   rateLimit?: any;
   timestamp: string;
   error?: string;
+  source?: 'api' | 'cache' | 'edge';
+  stale?: boolean;
 }
 
 /**
@@ -129,6 +131,30 @@ export function useGitHubContributions(
             }
           }
         });
+        // Pad to perfect grid (first Sunday to last Saturday) for consistent layout
+        try {
+          const days = weeks.flatMap(w => w.contributionDays);
+          if (days.length) {
+            const firstDate = new Date(days[0].date);
+            const lastDate = new Date(days[days.length - 1].date);
+            // Move firstDate to previous Sunday
+            const firstDow = firstDate.getDay();
+            for (let i = 0; i < firstDow; i++) {
+              const d = new Date(firstDate);
+              d.setDate(firstDate.getDate() - (i + 1));
+              weeks[0].contributionDays.unshift({ date: d.toISOString().split('T')[0], count: 0, level: 0 });
+            }
+            // Move lastDate to next Saturday
+            const lastDow = lastDate.getDay();
+            const padTail = 6 - lastDow;
+            for (let i = 0; i < padTail; i++) {
+              const d = new Date(lastDate);
+              d.setDate(lastDate.getDate() + (i + 1));
+              weeks[weeks.length - 1].contributionDays.push({ date: d.toISOString().split('T')[0], count: 0, level: 0 });
+            }
+          }
+        } catch {}
+
         return { ...cal, weeks };
       };
 
