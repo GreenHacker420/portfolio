@@ -88,7 +88,6 @@ const Interactive3DCard = ({
         perspective: 1000,
         transformStyle: "preserve-3d",
       }}
-      whileTap={{ scale: 0.98 }}
     >
       <div
         style={{
