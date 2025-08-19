@@ -5,7 +5,6 @@ import { KEYBOARD_LAYOUT } from '../../../../data/keyboardData';
 import { KeyboardTheme } from './KeyboardThemes';
 import KeyboardBase from '../KeyboardBase';
 import Key from './Key';
-import '../../../../types/three-jsx';
 
 interface KeyboardProps {
   onSelectKey: (key: string) => void;

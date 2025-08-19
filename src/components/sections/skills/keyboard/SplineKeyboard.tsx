@@ -6,7 +6,6 @@ import { Skill } from '../../../../types/skills';
 import LoadingScreen from './LoadingScreen';
 import { RefreshCw, Maximize2 } from 'lucide-react';
 import { getSkillByIdSync } from '../../../../services/skillsDataService';
-import KeyboardSkills from '../KeyboardSkills';
 
 // Allow TSX for the Spline web component without type errors (kept for fallback)
 declare global {
@@ -34,6 +33,34 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
   const [useR3FFallback, setUseR3FFallback] = useState(false);
   const loadWatchRef = useRef<number | null>(null);
 
+  // Unified mapping of Spline object names to skill ids and labels
+  const KEY_MAP: Record<string, { id: string; label: string }> = {
+    javascript_key: { id: 'javascript', label: 'JavaScript' },
+    typescript_key: { id: 'typescript', label: 'TypeScript' },
+    html_key: { id: 'html', label: 'HTML' },
+    css_key: { id: 'css', label: 'CSS' },
+    react_key: { id: 'react', label: 'React' },
+    vue_key: { id: 'vue', label: 'Vue.js' },
+    nextjs_key: { id: 'nextjs', label: 'Next.js' },
+    tailwind_key: { id: 'tailwindcss', label: 'Tailwind CSS' },
+    nodejs_key: { id: 'nodejs', label: 'Node.js' },
+    express_key: { id: 'express', label: 'Express.js' },
+    postgres_key: { id: 'postgresql', label: 'PostgreSQL' },
+    mongodb_key: { id: 'mongodb', label: 'MongoDB' },
+    git_key: { id: 'git', label: 'Git' },
+    github_key: { id: 'github', label: 'GitHub' },
+    code_key: { id: 'code', label: 'Code' },
+    mui_key: { id: 'mui', label: 'MUI' },
+    supabase_key: { id: 'supabase', label: 'Supabase' },
+    wordpress_key: { id: 'wordpress', label: 'WordPress' },
+    linux_key: { id: 'linux', label: 'Linux' },
+    docker_key: { id: 'docker', label: 'Docker' },
+    nginx_key: { id: 'nginx', label: 'Nginx' },
+    aws_key: { id: 'aws', label: 'AWS' },
+    tensorflow_key: { id: 'tensorflow', label: 'TensorFlow' },
+    vercel_key: { id: 'vercel', label: 'Vercel' },
+  };
+
   // Load Spline web component script if not present
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -53,7 +80,7 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
     };
   }, []);
 
-  // Attach event listeners for load/error and clicks
+  // Attach event listeners for load/error and clicks, and set a watchdog to fallback to R3F if stuck
   useEffect(() => {
     const el = viewerRef.current as HTMLElement | null;
     if (!el) return;
@@ -61,44 +88,25 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
     const onLoad = () => {
       setLoading(false);
       setSummaryVisible(true);
+      if (loadWatchRef.current) { window.clearTimeout(loadWatchRef.current); loadWatchRef.current = null; }
     };
     const onError = () => {
       setError('Failed to load 3D keyboard');
       setLoading(false);
+      if (loadWatchRef.current) { window.clearTimeout(loadWatchRef.current); loadWatchRef.current = null; }
     };
     const onClick = (e: any) => {
       const name = (e?.detail?.target?.name || e?.target?.name || e?.detail?.name || '').toLowerCase();
       if (!name) return;
-      const mapping: Record<string, string> = {
-        javascript_key: 'javascript',   // JS
-        typescript_key: 'typescript',   // TS
-        html_key: 'html',               // HTML5
-        css_key: 'css',                 // CSS3
-        react_key: 'react',             // React
-        vue_key: 'vue',                 // Vue.js
-        nextjs_key: 'nextjs',           // Next.js
-        tailwind_key: 'tailwindcss',    // Tailwind CSS
-        nodejs_key: 'nodejs',           // Node.js
-        express_key: 'express',         // Express.js
-        postgres_key: 'postgresql',     // PostgreSQL
-        mongodb_key: 'mongodb',         // MongoDB
-        git_key: 'git',                 // Git
-        github_key: 'github',           // GitHub
-        code_key: 'code',               // Generic "code" symbol
-        mui_key: 'mui',                 // MUI (Material UI)
-        supabase_key: 'supabase',       // Supabase
-        wordpress_key: 'wordpress',     // WordPress
-        linux_key: 'linux',             // Linux (Tux)
-        docker_key: 'docker',           // Docker
-        nginx_key: 'nginx',             // Nginx
-        aws_key: 'aws',                 // Amazon Web Services
-        tensorflow_key: 'tensorflow',   // TensorFlow
-        vercel_key: 'vercel',           // Vercel
-      };
-      const skillId = mapping[name];
-      if (!skillId) return;
-      const skill = getSkillByIdSync ? getSkillByIdSync(skillId) : null;
-      if (skill && onSkillSelect) onSkillSelect(skill);
+      const entry = KEY_MAP[name];
+      if (!entry) return;
+      try {
+        const skill = getSkillByIdSync?.(entry.id);
+        if (skill) onSkillSelect?.(skill);
+        setSelectedTech(entry.label);
+        setPulse(true); setTimeout(()=>setPulse(false), 250);
+        setClickBadge(entry.label.toUpperCase()); setTimeout(()=>setClickBadge(null), 1200);
+      } catch {}
     };
 
     ;['load','ready'].forEach((evt)=> el.addEventListener(evt as any, onLoad as any));
@@ -106,11 +114,20 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
     el.addEventListener('click', onClick as any);
     el.addEventListener('pointerdown', onClick as any);
 
+    // Watchdog: if not loaded in 8s, fallback to R3F keyboard
+    if (!loadWatchRef.current) {
+      loadWatchRef.current = window.setTimeout(() => {
+        setUseR3FFallback(true);
+        setLoading(false);
+      }, 8000);
+    }
+
     return () => {
       ;['load','ready'].forEach((evt)=> el.removeEventListener(evt as any, onLoad as any));
       el.removeEventListener('error', onError as any);
       el.removeEventListener('click', onClick as any);
       el.removeEventListener('pointerdown', onClick as any);
+      if (loadWatchRef.current) { window.clearTimeout(loadWatchRef.current); loadWatchRef.current = null; }
     };
   }, [onSkillSelect, reloadKey]);
 
@@ -147,16 +164,24 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
     );
   }
 
-  // Prefer keyboard.splinecode if present; fall back to scene.splinecode
-  const localUrl = typeof window !== 'undefined' && document?.location ?
-    (document.location.origin + (document.querySelector('link[href$="keyboard.splinecode"]') ? '/keyboard.splinecode' : '/scene.splinecode')) :
-    '/keyboard.splinecode';
+  // Use the bundled Spline scene from /public
+  const localUrl = '/scene.splinecode';
   const [legendOpen, setLegendOpen] = useState(true);
   const [clickBadge, setClickBadge] = useState<string | null>(null);
   const [pulse, setPulse] = useState(false);
 
   return (
     <div ref={containerRef} className={`relative w-full h-[600px] overflow-hidden rounded-2xl border ${pulse ? 'ring-2 ring-neon-green/50' : 'border-white/10'} bg-github-card/30 transition-all`}>
+      {/* Fallback visual if Spline viewer fails to load in time */}
+      {useR3FFallback && (
+        <div className="absolute inset-0 z-0 flex items-center justify-center bg-github-dark/60">
+          <div className="text-center">
+            <img src="/image.png" alt="Keyboard preview" className="mx-auto mb-3 max-w-xs opacity-80" />
+            <p className="text-white/90 font-medium">Interactive 3D temporarily unavailable</p>
+            <p className="text-github-text text-sm">Try Reload or use a WebGL-enabled browser.</p>
+          </div>
+        </div>
+      )}
       {/* Controls */}
       <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
         <button onClick={handleRefresh} className="p-2 rounded-md bg-white/5 ring-1 ring-inset ring-white/10 text-white hover:bg-white/10" title="Reload">
@@ -212,21 +237,18 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
           }}
           onPointerOver={(e: any) => {
             const name = (e?.detail?.target?.name || e?.target?.name || e?.detail?.name || '').toLowerCase();
-            const mapping: Record<string, string> = { react_key:'React', typescript_key:'TypeScript', nextjs_key:'Next.js', nodejs_key:'Node.js', python_key:'Python', javascript_key:'JavaScript', html_key:'HTML', css_key:'CSS', git_key:'Git', docker_key:'Docker' };
-            setHoveredTech(mapping[name] || null);
+            setHoveredTech(KEY_MAP[name]?.label || null);
           }}
           onPointerOut={() => setHoveredTech(null)}
           onClick={(e: any) => {
             const name = (e?.detail?.target?.name || e?.target?.name || e?.detail?.name || '').toLowerCase();
             if (!name) return;
-            const mappingRaw: Record<string, string> = { react_key:'react', typescript_key:'typescript', nextjs_key:'nextjs', nodejs_key:'nodejs', python_key:'python', javascript_key:'javascript', html_key:'html', css_key:'css', git_key:'git', docker_key:'docker' };
-            const mappingLabel: Record<string, string> = { react_key:'React', typescript_key:'TypeScript', nextjs_key:'Next.js', nodejs_key:'Node.js', python_key:'Python', javascript_key:'JavaScript', html_key:'HTML', css_key:'CSS', git_key:'Git', docker_key:'Docker' };
-            const id = mappingRaw[name];
-            if (id) {
-              setSelectedTech(mappingLabel[name] || id);
+            const entry = KEY_MAP[name];
+            if (entry) {
+              setSelectedTech(entry.label);
               setPulse(true); setTimeout(()=>setPulse(false), 250);
-              setClickBadge((mappingLabel[name] || id).toUpperCase()); setTimeout(()=>setClickBadge(null), 1200);
-              try { const skill = getSkillByIdSync?.(id); if (skill) onSkillSelect?.(skill); } catch {}
+              setClickBadge(entry.label.toUpperCase()); setTimeout(()=>setClickBadge(null), 1200);
+              try { const skill = getSkillByIdSync?.(entry.id); if (skill) onSkillSelect?.(skill); } catch {}
             }
           }}
         />
