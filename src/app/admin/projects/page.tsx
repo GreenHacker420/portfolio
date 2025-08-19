@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Table,
   TableBody,
@@ -58,6 +59,9 @@ export default function ProjectsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [selected, setSelected] = useState<Record<string, boolean>>({})
+  const selectedIds = Object.keys(selected).filter(id => selected[id])
+
 
   useEffect(() => {
     fetchProjects()
@@ -232,6 +236,34 @@ export default function ProjectsPage() {
                 <Button variant="outline" size="sm" disabled={!pagination.hasNextPage} onClick={() => fetchProjects(pagination.currentPage + 1)}>
                   Next
                 </Button>
+          {selectedIds.length > 0 && (
+            <div className="flex items-center justify-between bg-muted/40 border rounded-md p-3 mb-4">
+              <div className="text-sm">{selectedIds.length} selected</div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={async () => {
+                  const res = await fetch('/api/admin/projects/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'export', ids: selectedIds }) })
+                  if (res.ok) { const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'projects-export.csv'; a.click(); window.URL.revokeObjectURL(url) }
+                }}>Export CSV</Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  await fetch('/api/admin/projects/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status', ids: selectedIds, payload: { status: 'published' } }) });
+                  toast.success('Selected projects published'); fetchProjects(pagination?.currentPage || 1)
+                }}>Publish</Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  await fetch('/api/admin/projects/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status', ids: selectedIds, payload: { status: 'draft' } }) });
+                  toast.success('Selected projects set to draft'); fetchProjects(pagination?.currentPage || 1)
+                }}>Draft</Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  await fetch('/api/admin/projects/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status', ids: selectedIds, payload: { status: 'archived' } }) });
+                  toast.success('Selected projects archived'); fetchProjects(pagination?.currentPage || 1)
+                }}>Archive</Button>
+                <Button variant="destructive" size="sm" onClick={async () => {
+                  if (!confirm('Delete selected projects?')) return; await fetch('/api/admin/projects/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', ids: selectedIds }) });
+                  toast.success('Selected projects deleted'); fetchProjects(pagination?.currentPage || 1); setSelected({})
+                }}>Delete</Button>
+              </div>
+            </div>
+          )}
+
               </div>
             </div>
           )}

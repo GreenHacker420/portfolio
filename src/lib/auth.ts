@@ -19,31 +19,38 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await directPrisma.adminUser.findUnique({
-          where: {
-            email: credentials.email
-          }
+        const normalizedEmail = credentials.email.toLowerCase()
+        let user = await directPrisma.adminUser.findUnique({
+          where: { email: normalizedEmail }
         })
+
+        // Auto-bootstrap a default admin if no admin users exist yet
+        if (!user) {
+          const count = await directPrisma.adminUser.count()
+          if (count === 0) {
+            const email = (process.env.DEFAULT_ADMIN_EMAIL || 'admin@greenhacker.tech').toLowerCase()
+            const password = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123'
+            const hash = await bcrypt.hash(password, 10)
+            await directPrisma.adminUser.create({
+              data: { email, password: hash, name: 'Administrator', role: 'admin' }
+            })
+            // if the attempting email matches the bootstrap email, allow auth to proceed
+            if (normalizedEmail === email) {
+              user = await directPrisma.adminUser.findUnique({ where: { email } })
+            }
+          }
+        }
 
         if (!user) {
           return null
         }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
-
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
         if (!isPasswordValid) {
           return null
         }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        }
+        return { id: user.id, email: user.email, name: user.name, role: user.role }
       }
     })
   ],

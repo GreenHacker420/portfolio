@@ -60,7 +60,7 @@ export default function NewProjectPage() {
   } = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      status: 'draft',
+      status: 'published',
       featured: false,
       displayOrder: 0,
     }

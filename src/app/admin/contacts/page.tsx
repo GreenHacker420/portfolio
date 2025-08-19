@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { 
+import { Checkbox } from '@/components/ui/checkbox'
+import {
   Table,
   TableBody,
   TableCell,
@@ -72,6 +73,9 @@ export default function ContactsPage() {
   const [replyContact, setReplyContact] = useState<Contact | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isExporting, setIsExporting] = useState(false)
+  const [selected, setSelected] = useState<Record<string, boolean>>({})
+  const selectedIds = Object.keys(selected).filter(id => selected[id])
+
 
   useEffect(() => {
     fetchContacts()
@@ -191,7 +195,31 @@ export default function ContactsPage() {
             Manage contact form submissions and inquiries
           </p>
         </div>
-        <Button 
+        {selectedIds.length > 0 && (
+          <div className="flex items-center justify-between bg-muted/40 border rounded-md p-3 mb-4">
+            <div className="text-sm">{selectedIds.length} selected</div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={async () => {
+                const res = await fetch('/api/admin/contacts/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'export', ids: selectedIds }) })
+                if (res.ok) { const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'contacts-export.csv'; a.click(); window.URL.revokeObjectURL(url) }
+              }}>Export CSV</Button>
+              <Button variant="outline" size="sm" onClick={async () => {
+                await fetch('/api/admin/contacts/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status', ids: selectedIds, payload: { status: 'responded' } }) });
+                fetchContacts(pagination?.currentPage || 1)
+              }}>Mark Responded</Button>
+              <Button variant="outline" size="sm" onClick={async () => {
+                await fetch('/api/admin/contacts/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'status', ids: selectedIds, payload: { status: 'archived' } }) });
+                fetchContacts(pagination?.currentPage || 1)
+              }}>Archive</Button>
+              <Button variant="destructive" size="sm" onClick={async () => {
+                if (!confirm('Delete selected contacts?')) return; await fetch('/api/admin/contacts/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', ids: selectedIds }) });
+                fetchContacts(pagination?.currentPage || 1); setSelected({})
+              }}>Delete</Button>
+            </div>
+          </div>
+        )}
+
+        <Button
           onClick={exportContacts}
           disabled={isExporting}
           variant="outline"
@@ -235,6 +263,17 @@ export default function ContactsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>
+                    <Checkbox
+                      aria-label="Select all"
+                      checked={contacts.length > 0 && contacts.every(c => selected[c.id])}
+                      onCheckedChange={(c) => {
+                        const next: Record<string, boolean> = {}
+                        if (c) contacts.forEach(s => next[s.id] = true)
+                        setSelected(c ? next : {})
+                      }}
+                    />
+                  </TableHead>
                   <TableHead>Contact</TableHead>
                   <TableHead>Subject</TableHead>
                   <TableHead>Status</TableHead>
@@ -258,6 +297,13 @@ export default function ContactsPage() {
                 ) : (
                   contacts.map((contact) => (
                     <TableRow key={contact.id}>
+                      <TableCell>
+                        <Checkbox
+                          aria-label={`Select ${contact.email}`}
+                          checked={!!selected[contact.id]}
+                          onCheckedChange={(c) => setSelected({ ...selected, [contact.id]: !!c })}
+                        />
+                      </TableCell>
                       <TableCell>
                         <div>
                           <div className="font-medium">{contact.name}</div>
@@ -304,7 +350,7 @@ export default function ContactsPage() {
                               <Eye className="mr-2 h-4 w-4" />
                               Archive
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => deleteContact(contact.id)}
                               className="text-destructive"
                             >
@@ -360,7 +406,7 @@ export default function ContactsPage() {
               Full contact information and message
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedContact && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -377,19 +423,19 @@ export default function ContactsPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Subject</label>
                 <p className="text-sm text-muted-foreground">{selectedContact.subject}</p>
               </div>
-              
+
               <div>
                 <label className="text-sm font-medium">Message</label>
                 <div className="bg-muted p-3 rounded-md text-sm whitespace-pre-wrap">
                   {selectedContact.message}
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
                 <div>
                   <label className="font-medium">Submitted</label>
@@ -400,13 +446,13 @@ export default function ContactsPage() {
                   <p className="capitalize">{selectedContact.status}</p>
                 </div>
               </div>
-              
+
               {selectedContact.ipAddress && (
                 <div className="text-xs text-muted-foreground">
                   <label className="font-medium">IP Address:</label> {selectedContact.ipAddress}
                 </div>
               )}
-              
+
               <div className="flex gap-2 pt-4">
                 <Button
                   onClick={() => setReplyContact(selectedContact)}
