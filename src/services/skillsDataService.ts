@@ -1,6 +1,7 @@
 // Skills data service that uses database API only
 import { Skill, transformApiSkillToLegacy } from '../types/skills';
 import { fetchSkills } from './skillsService';
+import { FALLBACK_SKILLS } from '../components/sections/skills/keyboard/constants/fallbackSkills';
 
 // Cache for transformed skills
 let skillsCache: Skill[] | null = null;
@@ -66,6 +67,29 @@ export function getSkillByIdSync(id: string): Skill | undefined {
     return skillsCache.find(skill => skill.id === id);
   }
   return undefined;
+}
+
+function normalizeName(s: string) {
+  return s.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+}
+
+export function getSkillBySlugSync(slug: string): Skill | undefined {
+  const target = normalizeName(slug);
+  if (skillsCache && skillsCache.length) {
+    const found = skillsCache.find((skill) => {
+      const n1 = normalizeName(skill.id);
+      const n2 = normalizeName(skill.name);
+      return n1 === target || n2 === target;
+    });
+    if (found) return found;
+  }
+  // Fallback local data if cache empty or missing entry
+  try {
+    const { FALLBACK_SKILLS } = require('../components/sections/skills/keyboard/constants/fallbackSkills');
+    return FALLBACK_SKILLS[slug];
+  } catch {
+    return undefined;
+  }
 }
 
 export function getAllSkillsSync(): Skill[] {

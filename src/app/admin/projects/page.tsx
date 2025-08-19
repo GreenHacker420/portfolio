@@ -21,13 +21,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
-  Eye, 
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
   Star,
   Calendar,
   ExternalLink,
@@ -63,12 +63,18 @@ export default function ProjectsPage() {
     fetchProjects()
   }, [])
 
-  const fetchProjects = async () => {
+  const [pagination, setPagination] = useState<{ currentPage: number; totalPages: number; totalCount: number; hasNextPage: boolean; hasPrevPage: boolean; limit: number } | null>(null)
+
+  const fetchProjects = async (page = 1) => {
     try {
-      const response = await fetch('/api/admin/projects')
+      const params = new URLSearchParams({ page: String(page), limit: '10' })
+      if (statusFilter !== 'all') params.set('status', statusFilter)
+      if (searchTerm) params.set('search', searchTerm)
+      const response = await fetch(`/api/admin/projects?${params.toString()}`)
       if (response.ok) {
         const data = await response.json()
         setProjects(data.projects || [])
+        setPagination(data.pagination)
       } else {
         toast.error('Failed to fetch projects')
       }
@@ -113,7 +119,7 @@ export default function ProjectsPage() {
       })
 
       if (response.ok) {
-        setProjects(projects.map(project => 
+        setProjects(projects.map(project =>
           project.id === id ? { ...project, featured: !featured } : project
         ))
         toast.success(`Project ${!featured ? 'featured' : 'unfeatured'} successfully`)
@@ -190,20 +196,23 @@ export default function ProjectsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
+          <div className="flex items-center gap-4 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Search projects..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => { if ((e as any).key === 'Enter') fetchProjects(1) }}
                 className="pl-10"
+                aria-label="Search projects"
               />
             </div>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="flex h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              onChange={(e) => { setStatusFilter(e.target.value); fetchProjects(1) }}
+              className="flex h-10 w-[180px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+              aria-label="Filter by status"
             >
               <option value="all">All Status</option>
               <option value="published">Published</option>
@@ -211,6 +220,21 @@ export default function ProjectsPage() {
               <option value="archived">Archived</option>
             </select>
           </div>
+
+          {/* Pagination controls */}
+          {pagination && (
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
+              <div>Showing page {pagination.currentPage} of {pagination.totalPages} • Total {pagination.totalCount}</div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" disabled={!pagination.hasPrevPage} onClick={() => fetchProjects(pagination.currentPage - 1)}>
+                  Previous
+                </Button>
+                <Button variant="outline" size="sm" disabled={!pagination.hasNextPage} onClick={() => fetchProjects(pagination.currentPage + 1)}>
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
 
           <div className="rounded-md border">
             <Table>
@@ -260,12 +284,12 @@ export default function ProjectsPage() {
                           size="sm"
                           onClick={() => toggleFeatured(project.id, project.featured)}
                         >
-                          <Star 
+                          <Star
                             className={`h-4 w-4 ${
-                              project.featured 
-                                ? 'fill-yellow-400 text-yellow-400' 
+                              project.featured
+                                ? 'fill-yellow-400 text-yellow-400'
                                 : 'text-gray-400'
-                            }`} 
+                            }`}
                           />
                         </Button>
                       </TableCell>
@@ -336,7 +360,7 @@ export default function ProjectsPage() {
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8">
                       <div className="text-muted-foreground">
-                        {searchTerm || statusFilter !== 'all' 
+                        {searchTerm || statusFilter !== 'all'
                           ? 'No projects found matching your criteria'
                           : 'No projects yet. Create your first project!'
                         }

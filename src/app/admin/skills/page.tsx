@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { 
+import { Checkbox } from '@/components/ui/checkbox'
+import {
   Table,
   TableBody,
   TableCell,
@@ -19,16 +20,17 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   Eye,
   EyeOff
 } from 'lucide-react'
 import Link from 'next/link'
+import { toast } from 'sonner'
 
 interface Skill {
   id: string
@@ -47,6 +49,9 @@ export default function SkillsPage() {
   const [filteredSkills, setFilteredSkills] = useState<Skill[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selected, setSelected] = useState<Record<string, boolean>>({})
+  const selectedIds = Object.keys(selected).filter(id => selected[id])
+
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -127,16 +132,33 @@ export default function SkillsPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Skills</h1>
-          <p className="text-muted-foreground">
-            Manage your technical skills and proficiency levels
-          </p>
+          <p className="text-muted-foreground">Manage your technical skills and proficiency levels</p>
         </div>
-        <Button asChild>
-          <Link href="/admin/skills/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Skill
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              try {
+                const res = await fetch('/api/admin/skills/auto-populate', { method: 'POST' })
+                if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                await res.json()
+                toast.success('Skills updated from GitHub analysis')
+                fetchSkills()
+              } catch (e: any) {
+                console.error(e)
+                toast.error('Auto-populate failed. Ensure you are logged in as admin.')
+              }
+            }}
+          >
+            Auto-populate from GitHub
+          </Button>
+          <Button asChild>
+            <Link href="/admin/skills/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Skill
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -164,6 +186,34 @@ export default function SkillsPage() {
             >
               <option value="all">All Categories</option>
               {categories.map(category => (
+          {selectedIds.length > 0 && (
+            <div className="flex items-center justify-between bg-muted/40 border rounded-md p-3 mb-4">
+              <div className="text-sm">{selectedIds.length} selected</div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={async () => {
+                  const res = await fetch('/api/admin/skills/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'export', ids: selectedIds }) })
+                  if (res.ok) {
+                    const blob = await res.blob(); const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = 'skills-export.csv'; a.click(); window.URL.revokeObjectURL(url)
+                  }
+                }}>Export CSV</Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  await fetch('/api/admin/skills/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'visibility', ids: selectedIds, payload: { isVisible: true } }) });
+                  toast.success('Selected skills are now visible'); fetchSkills();
+                }}>Show</Button>
+                <Button variant="outline" size="sm" onClick={async () => {
+                  await fetch('/api/admin/skills/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'visibility', ids: selectedIds, payload: { isVisible: false } }) });
+                  toast.success('Selected skills are now hidden'); fetchSkills();
+                }}>Hide</Button>
+                <Button variant="destructive" size="sm" onClick={async () => {
+                  if (!confirm('Delete selected skills?')) return;
+                  await fetch('/api/admin/skills/bulk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', ids: selectedIds }) });
+                  toast.success('Selected skills deleted'); fetchSkills(); setSelected({})
+                }}>Delete</Button>
+              </div>
+            </div>
+          )}
+
                 <option key={category} value={category}>{category}</option>
               ))}
             </select>
@@ -173,6 +223,17 @@ export default function SkillsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>
+                    <Checkbox
+                      aria-label="Select all"
+                      checked={filteredSkills.length > 0 && filteredSkills.every(s => selected[s.id])}
+                      onCheckedChange={(c) => {
+                        const next: Record<string, boolean> = {}
+                        if (c) filteredSkills.forEach(s => next[s.id] = true)
+                        setSelected(c ? next : {})
+                      }}
+                    />
+                  </TableHead>
                   <TableHead>Skill</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Level</TableHead>
@@ -184,23 +245,30 @@ export default function SkillsPage() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       Loading skills...
                     </TableCell>
                   </TableRow>
                 ) : filteredSkills.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={7} className="text-center py-8">
                       No skills found
                     </TableCell>
                   </TableRow>
                 ) : (
                   filteredSkills.map((skill) => (
                     <TableRow key={skill.id}>
+                      <TableCell>
+                        <Checkbox
+                          aria-label={`Select ${skill.name}`}
+                          checked={!!selected[skill.id]}
+                          onCheckedChange={(c) => setSelected({ ...selected, [skill.id]: !!c })}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">
                         <div className="flex items-center space-x-2">
-                          <div 
-                            className="w-3 h-3 rounded-full" 
+                          <div
+                            className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: skill.color }}
                           />
                           <span>{skill.name}</span>
@@ -212,8 +280,8 @@ export default function SkillsPage() {
                       <TableCell>
                         <div className="flex items-center space-x-2">
                           <div className="w-20 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-primary h-2 rounded-full" 
+                            <div
+                              className="bg-primary h-2 rounded-full"
                               style={{ width: `${skill.level}%` }}
                             />
                           </div>
@@ -242,7 +310,7 @@ export default function SkillsPage() {
                                 Edit
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => toggleVisibility(skill.id, skill.isVisible)}
                             >
                               {skill.isVisible ? (
@@ -257,7 +325,7 @@ export default function SkillsPage() {
                                 </>
                               )}
                             </DropdownMenuItem>
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               onClick={() => deleteSkill(skill.id)}
                               className="text-destructive"
                             >

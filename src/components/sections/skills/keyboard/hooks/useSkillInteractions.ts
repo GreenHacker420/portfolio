@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { getAllSkills, getSkillByIdSync } from '../../../../../services/skillsDataService';
+import { getAllSkills, getSkillBySlugSync } from '../../../../../services/skillsDataService';
 import type { Skill } from '../../../../../types/skills';
-import { KEY_MAP } from '../constants/keyMap';
+import { resolveKeyEntry } from '../constants/keyMap';
 
 export interface HoverState {
   techLabel: string | null;
@@ -28,10 +28,16 @@ export function useSkillInteractions(onSkillSelect?: (skill: Skill | null) => vo
   }, []);
 
   const handlePointerOver = useCallback((rawName: string) => {
-    const name = rawName?.toLowerCase?.();
-    const entry = KEY_MAP[name as keyof typeof KEY_MAP];
-    const skill = entry ? getSkillByIdSync(entry.id) || null : null;
-    setHover({ techLabel: entry?.label || null, skill, tooltip: null });
+    const entry = resolveKeyEntry(rawName);
+    if (!entry) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[Skills] Unmapped Spline object on hover:', rawName);
+      }
+      setHover({ techLabel: null, skill: null, tooltip: null });
+      return;
+    }
+    const skill = getSkillBySlugSync(entry.slug) || null;
+    setHover({ techLabel: entry.label, skill, tooltip: null });
   }, []);
 
   const handlePointerOut = useCallback(() => {
@@ -39,10 +45,14 @@ export function useSkillInteractions(onSkillSelect?: (skill: Skill | null) => vo
   }, []);
 
   const handleClick = useCallback((rawName: string) => {
-    const name = rawName?.toLowerCase?.();
-    const entry = KEY_MAP[name as keyof typeof KEY_MAP];
-    if (!entry) return;
-    const skill = getSkillByIdSync(entry.id) || null;
+    const entry = resolveKeyEntry(rawName);
+    if (!entry) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.debug('[Skills] Unmapped Spline object on click:', rawName);
+      }
+      return;
+    }
+    const skill = getSkillBySlugSync(entry.slug) || null;
     if (skill) onSkillSelect?.(skill);
     setClick({
       selectedTech: entry.label,

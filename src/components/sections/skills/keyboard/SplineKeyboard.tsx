@@ -62,9 +62,13 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
   const onSplinePointerOver = useCallback((e: any) => {
     const name = (e?.target?.name || '').toLowerCase();
     if (!name) return;
+    // Update both hovered key and tooltip position immediately
     handlePointerOver(name);
+    if (typeof e?.clientX === 'number' && typeof e?.clientY === 'number') {
+      handlePointerMove(e.clientX, e.clientY);
+    }
     vibrate([10]);
-  }, [handlePointerOver, vibrate]);
+  }, [handlePointerOver, handlePointerMove, vibrate]);
 
   const onSplinePointerOut = useCallback(() => {
     handlePointerOut();
@@ -117,20 +121,23 @@ const SplineKeyboard: React.FC<SplineKeyboardProps> = ({ onSkillSelect }) => {
 
       {/* <Legend open={legendOpen} onToggle={() => setLegendOpen((v) => !v)} /> */}
 
-      <div className="w-full h-full cursor-grab active:cursor-grabbing" aria-label="Interactive 3D keyboard">
-        <Spline
-          key={reloadKey}
-          scene={localUrl}
-          onLoad={onSplineLoad}
-          onError={onSplineError}
-          onClick={onSplineClick}
-          onPointerOver={onSplinePointerOver}
-          onPointerOut={onSplinePointerOut}
-          onPointerMove={(e: any) => {
-            handlePointerMove(e.clientX, e.clientY);
-          }}
-          style={{ width: '100%', height: '100%' }}
-        />
+      <div className="w-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div
+          className="skills-spline-wrapper cursor-grab active:cursor-grabbing"
+          aria-label="Interactive 3D keyboard"
+          onMouseMove={(e) => handlePointerMove(e.clientX, e.clientY)}
+        >
+          <Spline
+            key={reloadKey}
+            scene={localUrl}
+            onLoad={onSplineLoad}
+            onError={onSplineError}
+            onClick={onSplineClick}
+            onPointerOver={onSplinePointerOver}
+            onPointerOut={onSplinePointerOut}
+            className="skills-spline-canvas"
+          />
+        </div>
       </div>
 
       {/* Tooltip */}

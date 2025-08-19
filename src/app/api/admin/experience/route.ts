@@ -18,22 +18,52 @@ const experienceSchema = z.object({
   displayOrder: z.number().default(0),
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const experiences = await directPrisma.workExperience.findMany({
-      orderBy: [
-        { displayOrder: 'asc' },
-        { startDate: 'desc' }
-      ]
-    })
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip = (page - 1) * limit
+    const search = searchParams.get('search')
 
-    return NextResponse.json({ experiences })
+    const where: any = {}
+    if (search) {
+      where.OR = [
+        { company: { contains: search, mode: 'insensitive' } },
+        { position: { contains: search, mode: 'insensitive' } },
+      ]
+    }
+
+    const [experiences, totalCount] = await Promise.all([
+      directPrisma.workExperience.findMany({
+        where,
+        orderBy: [
+          { displayOrder: 'asc' },
+          { startDate: 'desc' }
+        ],
+        skip,
+        take: limit,
+      }),
+      directPrisma.workExperience.count({ where })
+    ])
+
+    return NextResponse.json({
+      experiences,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalCount,
+        hasNextPage: skip + experiences.length < totalCount,
+        hasPrevPage: page > 1,
+        limit,
+      }
+    })
   } catch (error) {
     console.error('Error fetching work experiences:', error)
     return NextResponse.json(

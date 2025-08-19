@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
+import { GlassCard } from '@/components/admin/ui/GlassCard'
 
 interface DashboardStats {
   totalSkills: number

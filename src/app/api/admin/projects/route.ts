@@ -25,20 +25,43 @@ const projectSchema = z.object({
   displayOrder: z.number().default(0),
 })
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const projects = await directPrisma.project.findMany({
-      orderBy: [
-        { displayOrder: 'asc' },
-        { createdAt: 'desc' }
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip = (page - 1) * limit
+    const status = searchParams.get('status')
+    const search = searchParams.get('search')
+
+    const where: any = {}
+    if (status && status !== 'all') where.status = status
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { category: { contains: search, mode: 'insensitive' } },
       ]
-    })
+    }
+
+    const [projects, totalCount] = await Promise.all([
+      directPrisma.project.findMany({
+        where,
+        orderBy: [
+          { displayOrder: 'asc' },
+          { createdAt: 'desc' }
+        ],
+        skip,
+        take: limit
+      }),
+      directPrisma.project.count({ where })
+    ])
 
     // Parse JSON fields
     const projectsWithParsedData = projects.map(project => ({
@@ -48,7 +71,19 @@ export async function GET() {
       highlights: project.highlights ? JSON.parse(project.highlights) : [],
     }))
 
-    return NextResponse.json({ projects: projectsWithParsedData })
+    const totalPages = Math.ceil(totalCount / limit)
+
+    return NextResponse.json({
+      projects: projectsWithParsedData,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCount,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        limit
+      }
+    })
   } catch (error) {
     console.error('Error fetching projects:', error)
     return NextResponse.json(

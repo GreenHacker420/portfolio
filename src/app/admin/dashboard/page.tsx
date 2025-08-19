@@ -4,17 +4,20 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  BarChart3, 
-  Briefcase, 
-  User, 
-  Activity, 
+import {
+  BarChart3,
+  Briefcase,
+  User,
+  Activity,
   TrendingUp,
   Plus,
   Eye,
   Edit
 } from 'lucide-react'
 import Link from 'next/link'
+
+import { GlassCard } from '@/components/admin/ui/GlassCard'
+import { AnimatedTable } from '@/components/admin/ui/AnimatedTable'
 
 interface DashboardStats {
   totalSkills: number
@@ -166,7 +169,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <Button variant="outline" size="sm" asChild>
-                <Link 
+                <Link
                   href={action.href}
                   {...(action.external && { target: '_blank', rel: 'noopener noreferrer' })}
                 >
