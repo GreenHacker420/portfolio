@@ -1,3 +1,4 @@
+// (Optional) Gemini client import removed; using direct REST call
 
 // Gemini AI Service for generating resume highlights
 // This service provides AI-powered highlight generation for resume/portfolio content
@@ -10,53 +11,83 @@ interface GeminiHighlightResponse {
 
 // Real Gemini AI API integration for resume highlights
 export const generateResumeHighlightWithGemini = async (resumeContext?: string): Promise<GeminiHighlightResponse> => {
+  // Prefer client-exposed key in browser; fall back to server key if available
   const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 
+  // If no key configured, return a graceful local fallback to avoid console errors
   if (!apiKey) {
-    throw new Error('Gemini API key not configured');
+    console.warn('Gemini API key not configured. Using local fallback highlight.');
+    return {
+      highlight: 'Built scalable AI features across full-stack apps',
+      category: 'AI/ML',
+      icon: 'award',
+    };
   }
 
   try {
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `Generate a professional resume highlight for a Full Stack Developer with expertise in React, Next.js, TypeScript, Node.js, and AI integration.
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + encodeURIComponent(apiKey),
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `You are an AI assistant generating personalized resume highlights.
 
-            ${resumeContext ? `Context: ${resumeContext}` : ''}
+                      Candidate Profile:
+                      - Full Stack Developer with strong AI/ML background
+                      - Skilled in React, Next.js, TypeScript, Node.js, Express, MongoDB
+                      - Experienced with AI frameworks (TensorFlow, Mediapipe, OpenCV) and LLM integration (Gemini, APIs)
+                      - Built ERP, fintech, wellness, and real-time apps with microservices, Docker, and cloud deployments
+                      - Hackathon projects and open-source contributions in AI-powered platforms and scalable systems
 
-            Return your response in valid JSON format with these fields:
-            - highlight: A concise professional highlight statement (max 80 characters)
-            - category: A short category label (1-2 words like "Development", "Leadership", "AI/ML")
-            - icon: One of these values: "award", "book-open", or "coffee"
+                      Task:
+                      - Create ONE professional highlight that reflects the candidate’s work style.
+                      - Highlight must be specific, impactful, and measurable (e.g., users served, performance gained, scalability).
+                      - Keep it <= 80 characters.
+                      - Do not include quotes, explanations, or extra text—return only valid JSON.
 
-            Make it specific, impressive, and relevant to modern web development.
+                      Rules:
+                      - JSON fields required: "highlight", "category", "icon"
+                      - "category": 1-2 word label (e.g., "AI/ML", "Full Stack", "Leadership")
+                      - "icon": must be exactly one of: "award", "book-open", "coffee"
+                      - No markdown, no text before/after JSON.
 
-            Example response:
-            {
-              "highlight": "Built scalable React apps serving 100K+ users with 99.9% uptime",
-              "category": "Development",
-              "icon": "award"
-            }`
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens: 200,
-        }
-      })
-    });
+                      Example valid outputs:
+                      {
+                        "highlight": "Built AI-powered ERP syncing 1M+ Tally entries in real-time",
+                        "category": "Full Stack",
+                        "icon": "award"
+                      }
+                      {
+                        "highlight": "Developed wellness app with TensorFlow serving 10K+ users",
+                        "category": "AI/ML",
+                        "icon": "coffee"
+                      }
+                      {
+                        "highlight": "Created stock analysis platform with Gemini AI for 5K investors",
+                        "category": "AI/ML",
+                        "icon": "book-open"
+                      }
+
+                      Optional Context:
+                      ${resumeContext ? `Candidate-specific context: ${resumeContext}` : 'No extra context'}
+
+                      Now generate the JSON response.`
+            }]
+          }],
+          generationConfig: { temperature: 0.8, maxOutputTokens: 200 }
+        })
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Gemini API error: ${response.status}`);
     }
 
     const data = await response.json();
-    const textResponse = data.candidates[0].content.parts[0].text;
+    const textResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     // Parse the JSON response
     const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
@@ -80,7 +111,12 @@ export const generateResumeHighlightWithGemini = async (resumeContext?: string):
     return jsonResponse;
   } catch (error) {
     console.error('Error generating highlight with Gemini:', error);
-    throw error;
+    // Return a soft fallback instead of throwing so UI remains smooth
+    return {
+      highlight: 'Delivered production-grade features with measurable impact',
+      category: 'Full Stack',
+      icon: 'award',
+    };
   }
 };
 

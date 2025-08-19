@@ -119,11 +119,6 @@ export default async function Stats() {
             className="w-full"
           />
 
-          <GitHubAIAnalysis
-            githubData={data}
-            isLoading={false}
-            className="w-full"
-          />
         </div>
       </div>
     </section>

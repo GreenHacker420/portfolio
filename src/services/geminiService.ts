@@ -1,12 +1,17 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+/* -------------------- AI Initialization -------------------- */
+if (!process.env.GEMINI_API_KEY) {
+  console.warn("⚠️ GEMINI_API_KEY not set. AI features will be disabled.");
+}
+const genAI = process.env.GEMINI_API_KEY
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+  : null;
 
-// Rate limiting for API calls
+/* -------------------- Rate Limiting -------------------- */
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 min
+const RATE_LIMIT_MAX_REQUESTS = 10;
 
 function checkRateLimit(identifier: string): boolean {
   const now = Date.now();
@@ -17,14 +22,12 @@ function checkRateLimit(identifier: string): boolean {
     return true;
   }
 
-  if (userLimit.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
+  if (userLimit.count >= RATE_LIMIT_MAX_REQUESTS) return false;
   userLimit.count++;
   return true;
 }
 
+/* -------------------- Types -------------------- */
 export interface GitHubStatsData {
   profile: {
     login: string;
@@ -70,100 +73,118 @@ export interface AIResponse {
   };
 }
 
-// Portfolio owner context for personalized responses
+/* -------------------- Portfolio Context -------------------- */
 const PORTFOLIO_CONTEXT = `
-You are responding as Green Hacker, a skilled Full Stack Developer with expertise in:
-- Frontend: React, Next.js, TypeScript, Tailwind CSS, Three.js
-- Backend: Node.js, Python, Express.js, GraphQL
-- Databases: PostgreSQL, MongoDB
-- DevOps: AWS, Docker, Git
-- Languages: JavaScript, TypeScript, Python
+You are Green Hacker — a skilled Full Stack Developer with:
+- **Frontend**: React, Next.js, TypeScript, Tailwind CSS, Three.js
+- **Backend**: Node.js, Python, Express.js, GraphQL
+- **Databases**: PostgreSQL, MongoDB
+- **DevOps**: AWS, Docker, Git
+- **Languages**: JavaScript, TypeScript, Python
 
-Professional background:
-- Experienced in building scalable web applications
-- Strong focus on modern development practices
-- Available for freelance projects and collaborations
-- Passionate about clean code and user experience
-- Based in India, working with international clients
+Background:
+- Built scalable production-grade web applications
+- Strong focus on clean code & modern practices
+- Works with international clients (based in India)
+- Open for freelance & collaborations
+- Passionate about UX & code quality
 
-Communication style: Professional, friendly, and technical when appropriate.
+Communication style: **Professional, clear, approachable**.
 `;
 
+/* -------------------- GitHub Stats Overview -------------------- */
 export async function generateGitHubStatsOverview(
   githubData: GitHubStatsData,
-  identifier: string = 'github-stats'
+  identifier = "github-stats"
 ): Promise<AIResponse> {
   try {
-    // Check rate limit
     if (!checkRateLimit(identifier)) {
-      return {
-        success: false,
-        error: 'Rate limit exceeded. Please try again later.'
-      };
+      return { success: false, error: "Rate limit exceeded. Try again later." };
     }
 
-    // Check if API key is configured
-    if (!process.env.GEMINI_API_KEY) {
-      return {
-        success: false,
-        error: 'Gemini API key not configured'
-      };
+    if (!genAI) {
+      return { success: false, error: "Gemini API key not configured" };
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    // Prepare GitHub data summary for analysis
+    // Compute language distribution safely
+    const totalBytes = Object.values(githubData.languages).reduce((a, b) => a + b, 0) || 1;
+    const topLanguages = Object.entries(githubData.languages)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 8)
+      .map(([lang, bytes]) => `- ${lang}: ${((bytes / totalBytes) * 100).toFixed(1)}%`)
+      .join("\n");
+
+    const topRepos = githubData.repositories
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      .slice(0, 10)
+      .map(
+        (repo) =>
+          `- **${repo.name}**: ${repo.description || "No description"} (${repo.language || "Unknown"}, ${repo.stargazers_count}★)`
+      )
+      .join("\n");
+
+    const avgStars =
+      githubData.repositories.length > 0
+        ? (
+            githubData.repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0) /
+            githubData.repositories.length
+          ).toFixed(1)
+        : "0";
+
+    const topics = Array.from(new Set(githubData.repositories.flatMap((r) => r.topics)))
+      .slice(0, 10)
+      .join(", ") || "None listed";
+
     const dataContext = `
-GitHub Profile Analysis Data:
+GitHub Profile Data:
 - Username: ${githubData.profile.login}
 - Name: ${githubData.profile.name}
 - Bio: ${githubData.profile.bio}
 - Public Repositories: ${githubData.profile.public_repos}
-- Account Age: ${new Date(githubData.profile.created_at).getFullYear()} (${Math.floor((Date.now() - new Date(githubData.profile.created_at).getTime()) / (365.25 * 24 * 60 * 60 * 1000))} years)
 - Followers: ${githubData.profile.followers}
+- Following: ${githubData.profile.following}
+- Account Age: ${new Date(githubData.profile.created_at).getFullYear()} (${Math.floor(
+      (Date.now() - new Date(githubData.profile.created_at).getTime()) /
+        (365.25 * 24 * 60 * 60 * 1000)
+    )} years)
 
-Top Languages Used:
-${Object.entries(githubData.languages)
-  .sort(([,a], [,b]) => b - a)
-  .slice(0, 8)
-  .map(([lang, bytes]) => `- ${lang}: ${((bytes / Object.values(githubData.languages).reduce((a, b) => a + b, 0)) * 100).toFixed(1)}%`)
-  .join('\n')}
+Top Languages:
+${topLanguages}
 
-Recent Notable Repositories:
-${githubData.repositories
-  .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-  .slice(0, 10)
-  .map(repo => `- ${repo.name}: ${repo.description || 'No description'} (${repo.language || 'Unknown'}, ${repo.stargazers_count} stars)`)
-  .join('\n')}
+Recent Repositories:
+${topRepos}
 
-Repository Statistics:
+Repository Stats:
 - Total Repositories: ${githubData.repositories.length}
-- Average Stars per Repo: ${(githubData.repositories.reduce((sum, repo) => sum + repo.stargazers_count, 0) / githubData.repositories.length).toFixed(1)}
-- Most Used Topics: ${Array.from(new Set(githubData.repositories.flatMap(r => r.topics))).slice(0, 10).join(', ')}
+- Avg Stars per Repo: ${avgStars}
+- Topics: ${topics}
 `;
 
     const prompt = `
-As an AI analyst, provide a comprehensive and engaging overview of this developer's GitHub profile and coding activity. 
+${PORTFOLIO_CONTEXT}
+
+As an **AI analyst**, create a **portfolio-ready summary** of this developer's GitHub activity.
 
 ${dataContext}
 
-Please generate a professional summary that includes:
+Your response must be:
+- Written in **engaging, professional markdown**
+- Around **300–500 words**
+- Structured with clear **sections**:
+  1. Developer Profile Summary
+  2. Technical Expertise
+  3. Project Portfolio Insights
+  4. Coding Activity & Growth
+  5. Standout Achievements
+  6. Skill Evolution & Career Potential
 
-1. **Developer Profile Summary**: Brief overview of the developer's experience and focus areas
-2. **Technical Expertise**: Analysis of programming languages and technology stack
-3. **Project Portfolio Insights**: Quality and diversity of repositories
-4. **Coding Activity Patterns**: Development consistency and growth trends
-5. **Standout Achievements**: Notable projects, stars, or technical accomplishments
-6. **Skill Development Trajectory**: How their skills have evolved over time
-
-Format the response in a engaging, professional tone suitable for a portfolio website. Use markdown formatting with appropriate headers and bullet points. Keep it concise but informative (aim for 300-500 words).
-
-Focus on insights that would be valuable to potential clients, employers, or collaborators. Highlight unique strengths and technical capabilities.
+Make it **insightful, concise, and appealing** for potential clients, recruiters, or collaborators.
 `;
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const content = response.text();
+    const content = result.response.text();
 
     return {
       success: true,
@@ -171,104 +192,79 @@ Focus on insights that would be valuable to potential clients, employers, or col
       usage: {
         promptTokens: prompt.length,
         completionTokens: content.length,
-        totalTokens: prompt.length + content.length
-      }
+        totalTokens: prompt.length + content.length,
+      },
     };
-
   } catch (error) {
-    console.error('Gemini API error for GitHub stats:', error);
+    console.error("Gemini API error (GitHub stats):", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate GitHub overview'
+      error: error instanceof Error ? error.message : "GitHub overview generation failed",
     };
   }
 }
 
+/* -------------------- Contact Reply -------------------- */
 export async function generateContactReply(
   contactMessage: ContactMessage,
-  mode: 'auto-generate' | 'enhance-draft',
+  mode: "auto-generate" | "enhance-draft",
   draftReply?: string,
-  identifier: string = 'contact-reply'
+  identifier = "contact-reply"
 ): Promise<AIResponse> {
   try {
-    // Check rate limit
     if (!checkRateLimit(identifier)) {
-      return {
-        success: false,
-        error: 'Rate limit exceeded. Please try again later.'
-      };
+      return { success: false, error: "Rate limit exceeded. Try again later." };
     }
 
-    // Check if API key is configured
-    if (!process.env.GEMINI_API_KEY) {
-      return {
-        success: false,
-        error: 'Gemini API key not configured'
-      };
+    if (!genAI) {
+      return { success: false, error: "Gemini API key not configured" };
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    let prompt: string;
-
-    if (mode === 'auto-generate') {
-      prompt = `
+    const baseContext = `
 ${PORTFOLIO_CONTEXT}
 
-You received the following contact form submission:
-
-From: ${contactMessage.name} (${contactMessage.email})
-Subject: ${contactMessage.subject}
-Message: ${contactMessage.message}
-Received: ${new Date(contactMessage.createdAt).toLocaleDateString()}
-
-Please generate a professional, personalized reply email that:
-
-1. **Acknowledges** their message and thanks them for reaching out
-2. **Addresses** their specific inquiry or request appropriately
-3. **Provides** relevant information about your services/availability if applicable
-4. **Suggests** next steps or follow-up actions if appropriate
-5. **Maintains** a professional yet friendly tone
-6. **Includes** a clear call-to-action or invitation for further discussion
-
-The reply should be:
-- Professional but warm and approachable
-- Specific to their inquiry (not generic)
-- Actionable with clear next steps
-- Appropriately detailed (not too brief or too lengthy)
-- Formatted as a complete email ready to send
-
-Do not include email headers (To, From, Subject) - just the email body content.
+Contact Inquiry:
+- From: ${contactMessage.name} (${contactMessage.email})
+- Subject: ${contactMessage.subject}
+- Message: ${contactMessage.message}
+- Received: ${new Date(contactMessage.createdAt).toLocaleDateString()}
 `;
-    } else {
-      prompt = `
-${PORTFOLIO_CONTEXT}
 
-Original contact message:
-From: ${contactMessage.name} (${contactMessage.email})
-Subject: ${contactMessage.subject}
-Message: ${contactMessage.message}
+    const prompt =
+      mode === "auto-generate"
+        ? `
+${baseContext}
 
-Current draft reply:
+Write a **polished, ready-to-send email reply** that:
+1. Thanks them for reaching out
+2. Responds directly to their inquiry
+3. Shares relevant info (services, availability, etc.)
+4. Suggests next steps if applicable
+5. Maintains a **professional yet warm tone**
+6. Ends with a clear call-to-action
+
+Return **only the email body** (no headers).
+`
+        : `
+${baseContext}
+
+Here is my draft reply:
 ${draftReply}
 
-Please enhance this draft reply to make it more professional, clear, and engaging while maintaining the original intent and tone. Improve:
+Please **improve this draft** to:
+- Be clearer & more professional
+- Improve flow & tone
+- Cover all important points
+- Strengthen the call-to-action
 
-1. **Clarity**: Make the message clearer and easier to understand
-2. **Professionalism**: Enhance the professional tone while keeping it friendly
-3. **Structure**: Improve the flow and organization of ideas
-4. **Completeness**: Ensure all important points are addressed
-5. **Call-to-action**: Strengthen the next steps or follow-up invitation
-
-Keep the enhanced version similar in length to the original draft. Maintain the personal voice and any specific details the author included.
-
-Return only the enhanced email body content (no headers).
+Keep it similar in length.  
+Return only the **enhanced email body**.
 `;
-    }
 
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const content = response.text();
+    const content = result.response.text();
 
     return {
       success: true,
@@ -276,25 +272,23 @@ Return only the enhanced email body content (no headers).
       usage: {
         promptTokens: prompt.length,
         completionTokens: content.length,
-        totalTokens: prompt.length + content.length
-      }
+        totalTokens: prompt.length + content.length,
+      },
     };
-
   } catch (error) {
-    console.error('Gemini API error for contact reply:', error);
+    console.error("Gemini API error (Contact reply):", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate reply'
+      error: error instanceof Error ? error.message : "Contact reply generation failed",
     };
   }
 }
 
-// Utility function to validate API configuration
+/* -------------------- Utilities -------------------- */
 export function isGeminiConfigured(): boolean {
   return !!process.env.GEMINI_API_KEY;
 }
-
-// Clear rate limit for testing purposes
 export function clearRateLimit(identifier: string): void {
   rateLimitMap.delete(identifier);
 }
+

@@ -88,11 +88,13 @@ export function GitHubAIAnalysis({
     return `${login}:${stars}:${repos}`;
   };
 
-  // Auto-generate analysis exactly once per data snapshot (even in React StrictMode)
+  // Auto-generate analysis once per session when GitHub data becomes available
   useEffect(() => {
     if (!githubData || dataLoading) return;
     const key = getDataKey(githubData);
     if (autoRequested.current || dataKeyRef.current === key) return;
+
+    // Use sessionStorage to ensure only once per visit/session
     const requestKey = `gh-ai-analysis:${key}`;
     if (typeof window !== 'undefined') {
       try {
@@ -100,9 +102,12 @@ export function GitHubAIAnalysis({
         sessionStorage.setItem(requestKey, '1');
       } catch {}
     }
+
     dataKeyRef.current = key;
     autoRequested.current = true;
-    generateAnalysis();
+
+    // Trigger fresh generation and show loading state
+    generateAnalysis(true);
   }, [githubData, dataLoading]);
 
   useEffect(() => {

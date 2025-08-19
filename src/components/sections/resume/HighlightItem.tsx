@@ -28,7 +28,7 @@ const HighlightItem = ({ item, index, isSelected, onClick }: HighlightItemProps)
   };
 
   return (
-    <motion.li 
+    <motion.div
       initial={{ opacity: 0, x: -20 }}
       whileInView={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3, delay: 0.1 * index }}
@@ -46,19 +46,19 @@ const HighlightItem = ({ item, index, isSelected, onClick }: HighlightItemProps)
           <span className="text-neon-green text-xs uppercase tracking-wider">{item.category}</span>
         </div>
         <span className="text-github-text block mt-1">{item.highlight}</span>
-        
+
         {isSelected && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="mt-3 text-sm text-github-text/80 border-t border-github-border/30 pt-3"
           >
-            <p>This highlight showcases expertise in {item.category.toLowerCase()}. 
+            <p>This highlight showcases expertise in {item.category.toLowerCase()}.
             Click to collapse this additional information.</p>
           </motion.div>
         )}
       </div>
-    </motion.li>
+    </motion.div>
   );
 };
 

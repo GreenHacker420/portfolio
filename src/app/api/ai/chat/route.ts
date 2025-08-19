@@ -7,7 +7,7 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5; // 5 requests per minute for AI
+const RATE_LIMIT_MAX_REQUESTS = 5;   // 5 requests per minute for AI
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -60,7 +60,6 @@ export async function POST(request: Request) {
     }
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
-
     if (!geminiApiKey) {
       console.error('Gemini API key not configured');
       return NextResponse.json(
@@ -69,90 +68,90 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get real-time website context
+    // Gather contextual data
     const websiteContext = await getWebsiteContext();
-
-    // Search for relevant FAQs
     const relatedFAQs = await searchFAQs(message);
 
-    // Initialize Gemini AI with 2.0-flash model
+    // Initialize Gemini AI
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-    // Create a comprehensive context-aware prompt with real data
-    const systemPrompt = `You are an AI assistant for Harsh Hirawat's (aka GreenHacker) portfolio website at greenhacker.tech. You have comprehensive knowledge about:
+    // Strongly structured prompt
+    const systemPrompt = `You are the official AI assistant for Harsh Hirawat (aka GreenHacker)'s portfolio website (greenhacker.tech).
+Your job is to provide accurate, professional, and approachable answers about Harsh's skills, experience, and projects.
 
+=====================
 REAL-TIME WEBSITE DATA:
 ${websiteContext}
 
+=====================
 RELATED FAQ INFORMATION:
-${relatedFAQs.length > 0 ? relatedFAQs.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n') : 'No directly related FAQs found.'}
+${relatedFAQs.length > 0 
+  ? relatedFAQs.map(faq => `Q: ${faq.question}\nA: ${faq.answer}`).join('\n\n') 
+  : 'No directly related FAQs found.'}
 
-COMPREHENSIVE KNOWLEDGE BASE:
-
-PERSONAL INFORMATION:
-- Name: Harsh Hirawat (professionally known as GreenHacker)
-- Title: Full Stack Developer & AI Enthusiast
-- Location: India (working with international clients)
-- Email: Contact through the website's contact form
+=====================
+KNOWLEDGE BASE:
+PERSONAL INFO:
+- Name: Harsh Hirawat (GreenHacker)
+- Role: Full Stack Developer & AI Enthusiast
+- Location: Pune, India (works with international clients)
+- Contact: via portfolio contact form
 - Website: greenhacker.tech
 
-TECHNICAL EXPERTISE:
+TECHNICAL STACK:
 - Frontend: React, Next.js, TypeScript, Tailwind CSS, Three.js, Framer Motion
 - Backend: Node.js, Express.js, Python, FastAPI, GraphQL
 - Databases: PostgreSQL, MongoDB, Prisma ORM
-- AI/ML: PyTorch, TensorFlow, Computer Vision, Natural Language Processing
+- AI/ML: PyTorch, TensorFlow, Computer Vision, NLP
 - DevOps: Docker, AWS, Git, CI/CD, Kubernetes
-- Languages: JavaScript, TypeScript, Python
 - Other: WebGL, React Three Fiber, GSAP, WebRTC, Socket.io
 
-CURRENT PROJECTS & EXPERIENCE:
-- Portfolio Website: Interactive 3D portfolio with AI-powered features
-- AI Photo Platform: Face recognition for intelligent photo organization
-- ML Research Tool: NLP for scientific paper analysis
-- Real-time Collaboration App: WebRTC and WebSockets platform
-- Various full-stack web applications and AI-powered solutions
-
-WEBSITE FEATURES:
-- Interactive 3D elements using Three.js and Spline
-- Real-time GitHub stats with AI analysis
-- Comprehensive skills showcase with proficiency levels
-- Project portfolio with detailed case studies
-- AI-powered contact system with smart replies
-- Admin dashboard for content management
-- SEO optimized with structured data
+PROJECTS & EXPERIENCE:
+- Portfolio Website → Interactive 3D portfolio with AI features
+- AI Photo Platform → Face recognition for intelligent photo organization
+- ML Research Tool → NLP-based scientific paper analysis
+- Realtime Collaboration App → WebRTC & WebSockets
+- Various full-stack web apps + AI-powered solutions
 
 PROFESSIONAL BACKGROUND:
-- Experienced in building scalable web applications
-- Strong focus on modern development practices and clean code
-- Available for freelance projects and collaborations
-- Passionate about AI, web development, and creating innovative digital experiences
-- Open source contributor and continuous learner
+- Builds scalable, production-ready applications
+- Strong advocate for clean code & modern practices
+- Open source contributor
+- Available for freelance and collaborations
 
+=====================
 COMMUNICATION STYLE:
-- Professional yet friendly and approachable
-- Technical when appropriate, but accessible to non-technical users
-- Helpful and informative
-- Enthusiastic about technology and problem-solving
+- Friendly, professional, and approachable
+- Use simple language for non-technical users
+- Technical depth when required
+- Enthusiastic about technology
 
-Context: ${context || 'General portfolio inquiry'}
-Current page context: ${context}
-
+=====================
+USER CONTEXT:
+Page context: ${context || 'General portfolio inquiry'}
 User message: ${message}
 
-Respond as Harsh Hirawat's AI assistant, providing helpful, accurate information about his skills, projects, experience, and availability. If asked about specific technical details, provide comprehensive but accessible explanations. For business inquiries, guide users to the contact form.`;
+=====================
+INSTRUCTIONS:
+1. Always answer in a helpful, concise, and professional tone. 
+2. If the query is about technical skills → explain clearly with examples when possible.  
+3. If the query is about availability or hiring → politely guide them to the contact form.  
+4. If the query is general/about Harsh → summarize confidently.  
+5. Never invent details beyond the provided context.`;
 
+    // Send to Gemini
     const result = await model.generateContent(systemPrompt);
     const response = result.response;
     const text = response.text();
 
-    // Calculate response time
+    // Response time
     const responseTime = Date.now() - startTime;
 
     // Generate contextual suggestions
     const suggestions = getContextualSuggestions(context);
 
-    // Log the interaction (async, don't wait)
+    // Log interaction
     const chatSessionId = sessionId || `session-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
     logChatInteraction(
       chatSessionId,
@@ -171,7 +170,7 @@ Respond as Harsh Hirawat's AI assistant, providing helpful, accurate information
       success: true,
       response: text,
       suggestions,
-      relatedFAQs: relatedFAQs.slice(0, 3), // Return top 3 related FAQs
+      relatedFAQs: relatedFAQs.slice(0, 3), // top 3
       responseTime,
       timestamp: new Date().toISOString()
     });
@@ -179,17 +178,17 @@ Respond as Harsh Hirawat's AI assistant, providing helpful, accurate information
   } catch (error) {
     console.error('Gemini AI API error:', error);
 
-    // Check if it's an API quota error
-    if (error instanceof Error && error.message.includes('quota')) {
+    // Improved error classification
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (errorMessage.includes('quota')) {
       return NextResponse.json(
         { error: 'AI service temporarily unavailable due to quota limits. Please try again later.' },
         { status: 503 }
       );
     }
 
-    // Check if it's an authentication error
-    if (error instanceof Error && error.message.includes('API key')) {
-      console.error('Gemini API authentication error');
+    if (errorMessage.includes('API key')) {
       return NextResponse.json(
         { error: 'AI service authentication failed' },
         { status: 401 }
@@ -197,10 +196,8 @@ Respond as Harsh Hirawat's AI assistant, providing helpful, accurate information
     }
 
     return NextResponse.json(
-      { error: 'AI service temporarily unavailable' },
+      { error: 'AI service temporarily unavailable. Please try again later.' },
       { status: 500 }
     );
   }
 }
-
-
