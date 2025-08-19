@@ -3,8 +3,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { ThemeProvider } from "@/components/theme/ThemeProvider"
-import { Toaster as Sonner } from "@/components/ui/sonner"
 import { useState } from "react"
+
+import dynamic from 'next/dynamic'
+const Sonner = dynamic(() => import('@/components/ui/sonner').then(m => m.Toaster), { ssr: false })
 
 const queryClient = new QueryClient({
   defaultOptions: {

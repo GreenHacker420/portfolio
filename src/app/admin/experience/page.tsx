@@ -21,12 +21,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Plus, 
-  Search, 
-  MoreHorizontal, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Edit,
+  Trash2,
   Eye,
   Building,
   Calendar,
@@ -53,17 +53,21 @@ export default function ExperiencePage() {
   const [experiences, setExperiences] = useState<WorkExperience[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
+  const [pagination, setPagination] = useState<{ currentPage: number; totalPages: number; totalCount: number; hasNextPage: boolean; hasPrevPage: boolean; limit: number } | null>(null)
 
   useEffect(() => {
     fetchExperiences()
   }, [])
 
-  const fetchExperiences = async () => {
+  const fetchExperiences = async (page = 1) => {
     try {
-      const response = await fetch('/api/admin/experience')
+      const params = new URLSearchParams({ page: String(page), limit: '10' })
+      if (searchTerm) params.set('search', searchTerm)
+      const response = await fetch(`/api/admin/experience?${params.toString()}`)
       if (response.ok) {
         const data = await response.json()
         setExperiences(data.experiences || [])
+        setPagination(data.pagination)
       } else {
         toast.error('Failed to fetch work experiences')
       }
@@ -108,7 +112,7 @@ export default function ExperiencePage() {
       })
 
       if (response.ok) {
-        setExperiences(experiences.map(exp => 
+        setExperiences(experiences.map(exp =>
           exp.id === id ? { ...exp, isVisible: !isVisible } : exp
         ))
         toast.success(`Experience ${!isVisible ? 'shown' : 'hidden'} successfully`)
@@ -121,7 +125,7 @@ export default function ExperiencePage() {
     }
   }
 
-  const filteredExperiences = experiences.filter(exp => 
+  const filteredExperiences = experiences.filter(exp =>
     exp.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
     exp.position.toLowerCase().includes(searchTerm.toLowerCase())
   )
@@ -136,16 +140,16 @@ export default function ExperiencePage() {
   const calculateDuration = (startDate: string, endDate?: string) => {
     const start = new Date(startDate)
     const end = endDate ? new Date(endDate) : new Date()
-    
-    const months = (end.getFullYear() - start.getFullYear()) * 12 + 
+
+    const months = (end.getFullYear() - start.getFullYear()) * 12 +
                    (end.getMonth() - start.getMonth())
-    
+
     if (months < 12) {
       return `${months} month${months !== 1 ? 's' : ''}`
     } else {
       const years = Math.floor(months / 12)
       const remainingMonths = months % 12
-      
+
       if (remainingMonths === 0) {
         return `${years} year${years !== 1 ? 's' : ''}`
       } else {
@@ -198,17 +202,28 @@ export default function ExperiencePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center space-x-4 mb-6">
+          <div className="flex items-center gap-4 mb-6">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 placeholder="Search experiences..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => { if ((e as any).key === 'Enter') fetchExperiences(1) }}
                 className="pl-10"
+                aria-label="Search experiences"
               />
             </div>
+            {pagination && (
+              <div className="ml-auto flex gap-2">
+                <Button variant="outline" size="sm" disabled={!pagination.hasPrevPage} onClick={() => fetchExperiences(pagination.currentPage - 1)}>Previous</Button>
+                <Button variant="outline" size="sm" disabled={!pagination.hasNextPage} onClick={() => fetchExperiences(pagination.currentPage + 1)}>Next</Button>
+              </div>
+            )}
           </div>
+          {pagination && (
+            <div className="-mt-4 mb-2 text-sm text-muted-foreground">Page {pagination.currentPage} of {pagination.totalPages} • Total {pagination.totalCount}</div>
+          )}
 
           <div className="rounded-md border">
             <Table>
@@ -321,7 +336,7 @@ export default function ExperiencePage() {
                   <TableRow>
                     <TableCell colSpan={6} className="text-center py-8">
                       <div className="text-muted-foreground">
-                        {searchTerm 
+                        {searchTerm
                           ? 'No work experiences found matching your search'
                           : 'No work experiences yet. Add your first experience!'
                         }

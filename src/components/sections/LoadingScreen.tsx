@@ -68,21 +68,21 @@ const LoadingScreen = () => {
       transition={{ duration: 0.6, ease: "easeInOut" }}
     >
       <motion.div
-        className="w-full max-w-3xl bg-black border border-neon-green p-6 rounded-md shadow-neon-green terminal-window"
+        className="w-[94%] max-w-xl md:max-w-3xl bg-black border border-neon-green p-4 md:p-6 rounded-md shadow-neon-green terminal-window"
         variants={terminalVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="terminal-header flex items-center justify-between mb-4">
-          <div className="text-neon-green font-mono text-sm">~/green-hacker/portfolio</div>
+        <div className="terminal-header flex items-center justify-between mb-3 md:mb-4">
+          <div className="text-neon-green font-mono text-xs md:text-sm">~/green-hacker/portfolio</div>
           <div className="flex space-x-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-500"></div>
+            <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-yellow-500"></div>
+            <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-500"></div>
           </div>
         </div>
 
-        <div className="terminal-content space-y-2 font-mono text-sm overflow-hidden">
+        <div className="terminal-content space-y-2 font-mono text-xs md:text-sm overflow-hidden">
           <div className="line">
             <span className="text-neon-blue">$ </span>
             <span className="text-white">load portfolio --env=production --secure</span>
@@ -104,9 +104,9 @@ const LoadingScreen = () => {
             transition={{ delay: 0.5 }}
           >
             <div className="text-github-text">Progress: {loadingProgress}%</div>
-            <div className="w-full bg-github-dark rounded-full h-2 mt-1">
+            <div className="w-full bg-github-dark rounded-full h-1.5 md:h-2 mt-1">
               <motion.div
-                className="h-2 rounded-full bg-neon-green"
+                className="h-1.5 md:h-2 rounded-full bg-neon-green"
                 initial={{ width: 0 }}
                 animate={{ width: `${loadingProgress}%` }}
                 transition={{ duration: 0.5 }}
@@ -136,6 +136,8 @@ const LoadingScreen = () => {
             </>
           )}
         </div>
+
+        {/* Mobile hint: adjust copy for touch */}
 
         <div className="ascii-art mt-8 text-neon-green font-mono text-xs whitespace-pre">
 {` ██████╗ ██████╗ ███████╗███████╗███╗   ██╗██╗  ██╗ █████╗  ██████╗██╗  ██╗███████╗██████╗

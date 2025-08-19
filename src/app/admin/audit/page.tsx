@@ -13,9 +13,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { 
-  Search, 
-  FileText, 
+import {
+  Search,
+  FileText,
   Calendar,
   User,
   Activity,
@@ -44,17 +44,23 @@ export default function AuditLogsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [actionFilter, setActionFilter] = useState<string>('all')
   const [resourceFilter, setResourceFilter] = useState<string>('all')
+  const [pagination, setPagination] = useState<{ currentPage: number; totalPages: number; totalCount: number; hasNextPage: boolean; hasPrevPage: boolean; limit: number } | null>(null)
 
   useEffect(() => {
-    fetchAuditLogs()
-  }, [])
+    fetchAuditLogs(1)
+  }, [searchTerm, actionFilter, resourceFilter])
 
-  const fetchAuditLogs = async () => {
+  const fetchAuditLogs = async (page = 1) => {
     try {
-      const response = await fetch('/api/admin/audit')
+      const params = new URLSearchParams({ page: String(page), limit: '20' })
+      if (searchTerm) params.set('search', searchTerm)
+      if (actionFilter && actionFilter !== 'all') params.set('action', actionFilter)
+      if (resourceFilter && resourceFilter !== 'all') params.set('resource', resourceFilter)
+      const response = await fetch(`/api/admin/audit?${params.toString()}`)
       if (response.ok) {
         const data = await response.json()
         setLogs(data.logs || [])
+        setPagination(data.pagination)
       } else {
         toast.error('Failed to fetch audit logs')
       }
@@ -176,7 +182,7 @@ export default function AuditLogsPage() {
                 className="pl-10"
               />
             </div>
-            
+
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
@@ -198,6 +204,12 @@ export default function AuditLogsPage() {
                 <option key={resource} value={resource}>{resource}</option>
               ))}
             </select>
+            {pagination && (
+              <div className="ml-auto flex gap-2">
+                <Button variant="outline" size="sm" disabled={!pagination.hasPrevPage} onClick={() => fetchAuditLogs(pagination.currentPage - 1)}>Previous</Button>
+                <Button variant="outline" size="sm" disabled={!pagination.hasNextPage} onClick={() => fetchAuditLogs(pagination.currentPage + 1)}>Next</Button>
+              </div>
+            )}
           </div>
 
           <div className="rounded-md border">
