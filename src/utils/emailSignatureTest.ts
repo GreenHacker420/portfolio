@@ -17,7 +17,7 @@ import {
 const customSignatureConfig: SignatureConfig = createSignatureConfig({
   tagline: 'Passionate about creating innovative web solutions',
   phone: '+91 9479733955',
-  imageUrl: 'https://greenhacker.tech/image.png', // Custom image URL
+  imageUrl: 'https://greenhacker.tech/logo.jpg', // Custom image URL
   socialLinks: {
     github: 'https://github.com/GreenHacker420',
     linkedin: 'https://www.linkedin.com/in/harsh-hirawat-b657061b7/',

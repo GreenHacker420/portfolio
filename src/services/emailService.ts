@@ -45,7 +45,7 @@ const defaultSignatureConfig: SignatureConfig = {
   website: process.env.NEXT_PUBLIC_SITE_URL || 'https://greenhacker.tech',
   phone: process.env.CONTACT_PHONE,
   tagline: 'Building innovative digital solutions with cutting-edge technology',
-  imageUrl: undefined, // Will use default /image.png from public folder
+  imageUrl: 'https://greenhacker.tech/logo.jpg',
   socialLinks: {
     github: 'https://github.com/GreenHacker420',
     linkedin: 'https://www.linkedin.com/in/harsh-hirawat-b657061b7/',
@@ -64,9 +64,9 @@ function generateHtmlSignature(config: SignatureConfig = defaultSignatureConfig)
     })
     .join('');
 
-  // Get the image URL - use custom imageUrl if provided, otherwise use default image.png
+  // Get the image URL - use custom imageUrl if provided, otherwise use default logo.jpg
   const baseUrl = config.website || process.env.NEXT_PUBLIC_SITE_URL || 'https://greenhacker.tech';
-  const imageUrl = config.imageUrl || `${baseUrl}/image.png`;
+  const imageUrl = config.imageUrl || `${baseUrl}/logo.jpg`;
 
   return `
     <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb; font-family: Arial, sans-serif;">

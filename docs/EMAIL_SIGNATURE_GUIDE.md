@@ -60,7 +60,7 @@ CONTACT_PHONE=+1 (555) 123-4567  # Optional
 
 ### HTML Signature Features
 
-- **Profile Image**: Uses `/image.png` from public folder with intelligent fallback
+- **Profile Image**: Uses `/logo.jpg` from public folder with intelligent fallback
 - **Avatar Fallback**: Displays first letter of alias with gradient background if image fails
 - **Contact Information**: Email, website, phone with appropriate icons
 - **Social Media Links**: Clickable links to social platforms

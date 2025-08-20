@@ -110,11 +110,13 @@ const StructuredData = () => {
         "Node.js",
         "Three.js",
         "GSAP",
-        "Tailwind CSS"
+        "Tailwind CSS", 
+        "OpenCV",
+        "Robotics"
       ],
       alumniOf: {
         "@type": "EducationalOrganization",
-        name: "Computer Science Education"
+        name: "Newton School of Technology"
       },
       hasOccupation: {
         "@type": "Occupation",

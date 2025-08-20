@@ -59,7 +59,7 @@ const About = () => {
                 <h3 className="text-xl font-bold mb-2">Socials:</h3>
                 <div className="space-y-2">
                   <a
-                    href="https://instagram.com"
+                    href="https://www.instagram.com/harsh_hirawat/"
                     className="flex items-center space-x-2 text-github-text hover:text-neon-pink transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -70,7 +70,7 @@ const About = () => {
                     <span>Instagram</span>
                   </a>
                   <a
-                    href="https://linkedin.com"
+                    href="https://in.linkedin.com/in/harsh-hirawat-b657061b7"
                     className="flex items-center space-x-2 text-github-text hover:text-neon-blue transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -81,7 +81,7 @@ const About = () => {
                     <span>LinkedIn</span>
                   </a>
                   <a
-                    href="mailto:example@example.com"
+                    href="mailto:harsh@greenhacker.tech"
                     className="flex items-center space-x-2 text-github-text hover:text-white transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

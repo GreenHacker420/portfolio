@@ -68,10 +68,9 @@ const COMMANDS = {
   ],
   contact: [
     '📫 Contact Information:',
-    'Email: hello@greenhacker.dev',
-    'GitHub: github.com/greenhacker',
-    'LinkedIn: linkedin.com/in/greenhacker',
-    'Twitter: @greenhacker'
+    'Email: harsh@greenhacker.tech',
+    'GitHub: github.com/greenhacker420',
+    'LinkedIn: linkedin.com/in/harsh-hirawat-b657061b7',
   ],
   clear: [''],
   exit: ['👋 Goodbye! You can open me again by clicking the terminal icon.']

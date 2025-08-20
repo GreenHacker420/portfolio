@@ -32,10 +32,13 @@ export default function AdminLogin() {
       if (result?.error) {
         setError('Invalid email or password')
       } else {
-        // Check if user is authenticated and redirect
+        // Check if user is authenticated and has admin role before redirecting
         const session = await getSession()
-        if (session) {
+        const isAdmin = (session?.user as any)?.role === 'admin'
+        if (isAdmin) {
           router.push('/admin')
+        } else if (session) {
+          setError('Your account does not have admin access.')
         }
       }
     } catch (error) {
@@ -99,9 +102,9 @@ export default function AdminLogin() {
             </Button>
           </form>
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>Default credentials:</p>
+            {/* <p>Default credentials:</p>
             <p>Email: admin@greenhacker.tech</p>
-            <p>Password: admin123</p>
+            <p>Password: admin123</p> */}
           </div>
         </CardContent>
       </Card>
