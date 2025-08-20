@@ -245,5 +245,5 @@ For support and questions:
 
 ---
 
-*Last updated: 2024-12-14*
-*Version: 1.0.0*
+*Last updated: 2025-08-20*
+*Version: 1.1.0*
