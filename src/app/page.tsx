@@ -18,10 +18,6 @@ import Resume from "@/components/sections/Resume";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 // GSAP utilities removed in favor of anime.js
 
-
-
-
-
 import SectionErrorFallback from '@/components/sections/SectionErrorFallback';
 
 // Safe section wrapper with error boundary
@@ -33,7 +29,8 @@ function SafeSection({ children, name }: { children: React.ReactNode; name: stri
       <section
         id={sectionId}
         aria-label={`${name} section`}
-        className="scroll-mt-20"
+        data-snap-section
+        className="scroll-mt-20 snap-start min-h-screen"
       >
         {children}
       </section>

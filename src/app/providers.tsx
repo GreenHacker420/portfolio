@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import LoadingScreen from "@/components/sections/LoadingScreen";
 import dynamic from "next/dynamic";
 import { useLenis } from "@/hooks/useLenis";
+import SnapNavDots from "@/components/scroll/SnapNavDots";
 
 // Dynamically import client-only components
 const AnimatedCursor = dynamic(() => import("@/components/effects/AnimatedCursor"), {
@@ -39,7 +40,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   // Initialize Lenis on non-admin routes and when mounted
-  useLenis(!isAdminRoute && mounted);
+  const lenis = useLenis(!isAdminRoute && mounted);
 
   useEffect(() => {
     setMounted(true);
@@ -122,6 +123,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
           {/* Only show custom cursor on desktop and non-admin routes */}
           {!isAdminRoute && !isMobile && <AnimatedCursor />}
+
+          {/* Navigation dots for snap sections */}
+          {!isAdminRoute && <SnapNavDots lenis={lenis as any} />}
 
           {children}
 
