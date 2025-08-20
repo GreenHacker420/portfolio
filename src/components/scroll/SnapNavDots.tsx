@@ -9,7 +9,11 @@ type Props = {
   className?: string;
 };
 
-export default function SnapNavDots({ lenis, alignment = "start", className = "" }: Props) {
+export default function SnapNavDots({
+  lenis,
+  alignment = "start",
+  className = "",
+}: Props) {
   const [sections, setSections] = useState<HTMLElement[]>([]);
   const [activeIndex, setActiveIndex] = useState<number>(0);
 
@@ -17,7 +21,9 @@ export default function SnapNavDots({ lenis, alignment = "start", className = ""
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>('[data-snap-section]'));
+    const nodes = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-snap-section]")
+    );
     setSections(nodes);
 
     const updateActive = () => {
@@ -58,21 +64,51 @@ export default function SnapNavDots({ lenis, alignment = "start", className = ""
   if (!sections.length) return null;
 
   return (
-    <div className={`fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col space-y-3 ${className}`} aria-label="Section navigation">
+    <div
+      ref={null}
+      className={`fixed right-4 md:right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col space-y-3 ${className}`}
+      aria-label="Section navigation"
+    >
       {sections.map((el, i) => (
         <button
           key={el.id || i}
-          aria-label={`Go to section ${el.getAttribute('aria-label') || el.id || i + 1}`}
+          aria-label={`Go to section ${
+            el.getAttribute("aria-label") || el.id || i + 1
+          }`}
           onClick={() => {
             if (!lenis) return;
             lenis.scrollTo(el, { duration: 0.7, easing, lock: true });
           }}
-          className={`w-2.5 h-2.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-neon-green/60 ${
-            activeIndex === i ? "bg-white scale-125" : "bg-gray-500/70 hover:bg-gray-300"
-          }`}
+          className={`
+            w-2.5 h-2.5 rounded-full focus:outline-none focus:ring-2 focus:ring-neon-green/60
+            ${activeIndex === i ? "bg-neon-green" : "bg-gray-500/70 hover:bg-gray-300"}
+            transition-transform duration-500 ease-out
+            ${
+              activeIndex === i
+                ? "scale-150 animate-[pop_0.4s_ease-out]"
+                : "scale-100"
+            }
+          `}
         />
       ))}
+
+      {/* Tailwind custom animation for bounce */}
+      <style jsx>{`
+        @keyframes pop {
+          0% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.6);
+          }
+          70% {
+            transform: scale(1.4);
+          }
+          100% {
+            transform: scale(1.5);
+          }
+        }
+      `}</style>
     </div>
   );
 }
-
