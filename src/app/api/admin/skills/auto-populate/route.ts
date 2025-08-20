@@ -5,8 +5,8 @@ import { prisma } from '@/lib/db';
 import { inferSkillsFromGitHub } from '@/services/skillInferenceService';
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions as any);
-  if (!session || (session.user as any)?.role !== 'admin') {
+  const session = await getServerSession(authOptions as any) as { user?: { role?: string } } | null;
+  if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

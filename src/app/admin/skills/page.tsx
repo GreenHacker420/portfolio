@@ -186,6 +186,11 @@ export default function SkillsPage() {
             >
               <option value="all">All Categories</option>
               {categories.map(category => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+
           {selectedIds.length > 0 && (
             <div className="flex items-center justify-between bg-muted/40 border rounded-md p-3 mb-4">
               <div className="text-sm">{selectedIds.length} selected</div>
@@ -213,11 +218,6 @@ export default function SkillsPage() {
               </div>
             </div>
           )}
-
-                <option key={category} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
 
           <div className="rounded-md border">
             <Table>

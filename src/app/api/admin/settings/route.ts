@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { PrismaClient } from '@prisma/client'
-
-// Create a direct Prisma client instance to avoid type conflicts
-const directPrisma = new PrismaClient()
+import { prisma } from '@/lib/db'
 import { z } from 'zod'
 
 const settingsSchema = z.object({
@@ -30,7 +27,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const rows = await directPrisma.setting.findMany({ orderBy: { key: 'asc' } })
+    const rows = await prisma.setting.findMany({ orderBy: { key: 'asc' } })
     const data: Record<string, any> = {}
     for (const row of rows) {
       try {
@@ -69,7 +66,7 @@ export async function PUT(request: NextRequest) {
     ]
 
     for (const row of upserts) {
-      await directPrisma.setting.upsert({
+      await prisma.setting.upsert({
         where: { key: row.key },
         create: row,
         update: { value: row.value },
@@ -77,7 +74,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Audit log
-    await directPrisma.auditLog.create({
+    await prisma.auditLog.create({
       data: {
         userId: (session.user as any).id,
         action: 'UPDATE',

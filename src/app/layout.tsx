@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import '../styles/spline-overrides.css';
 import { Providers } from './providers';
 import StructuredData from '@/components/seo/StructuredData';
 import FAQStructuredData from '@/components/seo/FAQStructuredData';

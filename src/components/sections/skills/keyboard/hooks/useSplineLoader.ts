@@ -57,12 +57,10 @@ export function useSplineLoader(options: UseSplineLoaderOptions = {}) {
                 }
               }
               if (cancelled) return;
-              const blob = new Blob(chunks, { type: 'application/octet-stream' });
-              const url = URL.createObjectURL(blob);
-              console.log('Spline scene blob created:', url, 'Size:', blob.size);
-              setState((s) => ({ ...s, sceneUrl: url, progress: 100 }));
+              // Prefetch complete. Use direct public URL for Spline scene to avoid blob URL issues.
+              setState((s) => ({ ...s, sceneUrl: '/scene.splinecode', progress: 100 }));
               setReadyToMount(true);
-              console.log('Spline loader ready to mount');
+              console.log('Spline loader ready to mount (using direct URL)');
             } catch (e) {
               console.warn('Spline prefetch failed, using direct URL', e);
               setState((s) => ({ ...s, sceneUrl: '/scene.splinecode' }));
