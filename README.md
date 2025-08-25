@@ -1,11 +1,13 @@
 # 🌐 Green Hacker — Developer Portfolio & Admin Platform
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)  
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)  
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)  
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql)](https://www.postgresql.org/)  
-[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com/)  
-[![Netlify](https://img.shields.io/badge/Deploy-Netlify-00C7B7?logo=netlify)](https://www.netlify.com/)  
+<p align="left">
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js"/></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5-blue?logo=typescript" alt="TypeScript"/></a>
+  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma" alt="Prisma"/></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql" alt="PostgreSQL"/></a>
+  <a href="https://vercel.com/"><img src="https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel" alt="Vercel"/></a>
+  <a href="https://www.netlify.com/"><img src="https://img.shields.io/badge/Deploy-Netlify-00C7B7?logo=netlify" alt="Netlify"/></a>
+</p>
 
 > A modern **full-stack developer portfolio** + **admin CMS** built with **Next.js 15 & TypeScript**.  
 Showcases projects, skills, animations, GitHub analytics, and includes a secure admin panel with **Prisma/PostgreSQL**, audit logging, bulk operations, CSV export, and AI-powered tooling.
