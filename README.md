@@ -43,11 +43,10 @@ Showcases projects, skills, animations, GitHub analytics, and includes a secure 
 
 ### **Integrations**
 <p align="left">
-  <img src="https://skillicons.dev/icons?i=github" height="48"/>
-  <img src="https://img.shields.io/badge/Google-4285F4?logo=google&logoColor=white" height="28"/>
-  <img src="https://img.shields.io/badge/Gmail-D14836?logo=gmail&logoColor=white" height="28"/>
+  <img src="https://skillicons.dev/icons?i=github" height="48" />
+  <img src="https://cdn.simpleicons.org/google/4285F4" height="48" />
+  <img src="https://cdn.simpleicons.org/gmail/D14836" height="48" />
 </p>
-
 
 - GitHub REST + GraphQL APIs (profile, repos, contribution calendar)  
 - Google Generative AI (Gemini) for chatbot & content replies  
