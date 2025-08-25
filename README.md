@@ -1,171 +1,168 @@
-## Green Hacker — Developer Portfolio (Next.js, TypeScript)
+# 🌐 Green Hacker — Developer Portfolio & Admin Platform
 
-A modern, full‑stack developer portfolio and admin platform by Green Hacker. The public site showcases projects, skills, interactive 3D/animation, SEO‑optimized content, and GitHub analytics. A secure admin panel (credentials‑based) powers end‑to‑end content management with Prisma/PostgreSQL, audit logging, bulk operations, CSV export, and AI‑assisted tooling.
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)  
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)  
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma)](https://www.prisma.io/)  
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql)](https://www.postgresql.org/)  
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com/)  
+[![Netlify](https://img.shields.io/badge/Deploy-Netlify-00C7B7?logo=netlify)](https://www.netlify.com/)  
 
-Live site: https://greenhacker.tech
+> A modern **full-stack developer portfolio** + **admin CMS** built with **Next.js 15 & TypeScript**.  
+Showcases projects, skills, animations, GitHub analytics, and includes a secure admin panel with **Prisma/PostgreSQL**, audit logging, bulk operations, CSV export, and AI-powered tooling.
 
+🔗 **Live Site:** [greenhacker.tech](https://greenhacker.tech)
 
-### Highlights
-- Next.js 15 App Router + TypeScript, Tailwind CSS, Radix/shadcn‑style & Aceternity‑inspired UI
-- Admin with role‑gated access via NextAuth middleware
-- Full CRUD for portfolio entities with audit logs, bulk ops, and CSV export
-- GitHub analytics with caching and visualizations (heatmap, stats, AI insights)
-- AI endpoints powered by Google Generative AI (Gemini)
-- Production‑ready deployment configs for Netlify and Vercel
-- Strong SEO, accessibility, and performance defaults
+---
 
+## 🚀 Tech Stack
 
-## Technology Stack
+### **Frontend**
+<p align="left">
+  <img src="https://skillicons.dev/icons?i=nextjs,react,ts,tailwind,styledcomponents,threejs,framer,gsap" />
+</p>
 
-- Frontend
-  - Next.js 15 (App Router), React 18, TypeScript
-  - Tailwind CSS, tailwindcss-animate, Radix UI primitives, shadcn‑style components, lucide-react
-  - Styled-components, Framer Motion, GSAP, Three.js, Cal-Heatmap, Embla Carousel
-- Backend/API
-  - Next.js Route Handlers (API routes)
-  - Authentication: NextAuth (credentials)
-  - Validation: zod
-- Data and ORM
-  - Prisma ORM with PostgreSQL (Neon recommended)
-  - Prisma Accelerate extension
-- Integrations
-  - GitHub REST + GraphQL APIs (profile, repos, contribution calendar)
-  - Google Generative AI (Gemini) for chatbot and contact‑reply assistance
-  - Nodemailer (SMTP) for email
-  - Google Analytics (optional)
-- Tooling & DX
-  - ESLint (next/eslint-config), TypeScript, tsx
-  - Tailwind/PostCSS/Autoprefixer
-- Deployment/Infra
-  - Netlify (netlify.toml + custom build scripts), Vercel (vercel.json)
-  - Next image remote patterns and optimized builds
+- **Frameworks:** Next.js 15 (App Router), React 18, TypeScript  
+- **Styling & UI:** Tailwind CSS, Radix UI, shadcn-style, Styled-components  
+- **Animations/3D:** Framer Motion, GSAP, Three.js, Cal-Heatmap, Embla Carousel  
 
+---
 
-## Project Structure
+### **Backend / API**
+<p align="left">
+  <img src="https://skillicons.dev/icons?i=nodejs,prisma,postgres" />
+</p>
 
-- src/app
-  - Public pages: page.tsx, sitemap.xml, feed.xml
-  - Admin app: /admin (dashboard, skills, projects, contacts, education, experience, personal, social, media, settings, audit)
-  - API routes: /api (public: skills, projects; admin: full CRUD; AI, CLI, contact, FAQ, GitHub)
-  - Global layout, providers, middleware
-- src/components
-  - Sections (Hero, About, Skills, Projects, Resume, Contact, GitHub Stats, Chatbots)
-  - Admin UI (tables, dialogs, sidebar/header), UI primitives, SEO, analytics, effects, 3D
-- src/services
-  - GitHub service + cache, Gemini/chatbot, email, CLI command helpers, skill inference, retry strategies
-- src/lib
-  - auth (NextAuth options), db (Prisma client)
-- src/styles, src/hooks, src/utils, src/types
-- prisma
-  - schema.prisma (skills, projects, contacts, education, experience, media, settings, audit logs, admin users), seed.ts
-- scripts
-  - Netlify build scripts, cache setup, admin seeding, utilities
-- docs
-  - Developer, API, deployment, guides and diagrams
-- Config
-  - next.config.js, tailwind.config.ts, postcss.config.js, tsconfig.json, eslint.config.js, netlify.toml, vercel.json
+- **API:** Next.js Route Handlers (API routes)  
+- **Auth:** NextAuth (credentials, RBAC)  
+- **Validation:** zod  
+- **Database & ORM:** Prisma + PostgreSQL (Neon recommended)  
 
+---
 
-## Features
+### **Integrations**
+<p align="left">
+  <img src="https://skillicons.dev/icons?i=github,google,gmail" />
+</p>
 
-- Portfolio UX
-  - Responsive, accessible UI with light/dark themes
-  - Animated hero and interactive sections (GSAP/Three.js), particles, 3D card effects
-  - SEO: structured data, sitemap, RSS feed, social cards, canonical links
-  - GitHub analytics (contribution heatmap, stats, AI insights), performance metrics
-  - Multiple chatbot experiences (standard and enhanced/CLI‑style)
-- Admin CMS
-  - Secure admin area with credentials auth and RBAC gate via middleware
-  - CRUD for: Skills, Projects, Contacts, Education, Experience, Personal Info, Social Links, Media, Settings
-  - Bulk operations, CSV export, audit logging
-  - GitHub cache monitor and utilities
-  - AI‑assisted contact reply and content helpers (Gemini)
-- API
-  - Public: /api/skills, /api/projects
-  - Admin: /api/admin/** endpoints per entity with zod validation + auditing
-  - AI: /api/ai/** (chat, contact‑reply, GitHub analysis/overview)
+- GitHub REST + GraphQL APIs (profile, repos, contribution calendar)  
+- Google Generative AI (Gemini) for chatbot & content replies  
+- Nodemailer (SMTP) for email  
+- Google Analytics (optional)  
 
+---
 
-## Setup Instructions
+### **Deployment & Tooling**
+<p align="left">
+  <img src="https://skillicons.dev/icons?i=vercel,netlify,eslint" />
+</p>
 
-Prerequisites
-- Node.js 18+ (20 recommended), npm 10+
-- PostgreSQL database (Neon recommended)
+- **Hosting:** Vercel & Netlify (with optimized configs)  
+- **Tooling:** ESLint, TypeScript, Tailwind CLI, PostCSS, tsx  
+- **Infra:** Prisma Accelerate, caching, retry strategies  
 
-1) Install dependencies
-- npm install
+---
 
-2) Configure environment
-- Copy .env.example to .env and fill in values
-- Required: NEXTAUTH_SECRET, NEXTAUTH_URL, DATABASE_URL
-- Optional: GEMINI_API_KEY, GITHUB_TOKEN, GITHUB_USERNAME, SMTP_*, NEXT_PUBLIC_GA_MEASUREMENT_ID, GOOGLE_SITE_VERIFICATION, VERCEL_URL, NETLIFY_URL
+## ✨ Features
 
-3) Generate Prisma client and push schema
-- npm run db:generate
-- npm run db:push
+### **Portfolio UX**
+- Responsive, accessible UI (light/dark themes)  
+- Animated hero, GSAP/Three.js interactions, 3D card effects  
+- SEO-optimized: sitemap, RSS feed, structured data, OpenGraph cards  
+- GitHub analytics (heatmap, stats, AI insights)  
+- Multiple chatbot experiences (standard + CLI-style)  
 
-4) (Optional) Seed data or admin
-- npm run db:seed (if seed.ts covers your needs)
-- or: npx tsx scripts/seed-admin.ts
-- First‑run bootstrap: if no admin exists, DEFAULT_ADMIN_EMAIL/DEFAULT_ADMIN_PASSWORD can be used (see src/lib/auth.ts)
+### **Admin CMS**
+- Secure admin area with RBAC (NextAuth middleware)  
+- CRUD for Skills, Projects, Education, Experience, Media, Settings, Contacts  
+- Bulk operations + CSV export  
+- Audit logging for all changes  
+- AI-assisted tooling (contact replies, content helpers)  
 
-5) Run the dev server
-- npm run dev
-- Open http://localhost:3000
+### **API**
+- **Public:** `/api/skills`, `/api/projects`  
+- **Admin:** `/api/admin/**` (CRUD with zod + audit logs)  
+- **AI:** `/api/ai/**` (chat, contact reply, GitHub insights)  
 
-6) Build and start (production)
-- npm run build
-- npm start
+---
 
-Environment variables (see .env.example)
-- Auth: NEXTAUTH_SECRET, NEXTAUTH_URL
-- Database: DATABASE_URL
-- Bootstrap: DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD
-- Integrations: GEMINI_API_KEY, GITHUB_TOKEN, GITHUB_USERNAME, SMTP_HOST/PORT/USER/PASS, OWNER_EMAIL
-- Analytics/SEO: NEXT_PUBLIC_GA_MEASUREMENT_ID, GOOGLE_SITE_VERIFICATION, YANDEX_VERIFICATION, BING_VERIFICATION
-- Deployment: NETLIFY_URL, VERCEL_URL, NEXT_PUBLIC_SITE_URL
+## 📂 Project Structure
+```
+src/
+ ├── app/            # App Router pages
+ │   ├── admin/      # Admin dashboard
+ │   ├── api/        # API routes
+ │   └── layout.tsx  # Global layout
+ ├── components/     # UI sections, admin tables, SEO, 3D, etc.
+ ├── services/       # GitHub, Gemini, email, utils
+ ├── lib/            # Auth + Prisma client
+ ├── prisma/         # schema.prisma, seed
+ ├── styles/         # Tailwind + global styles
+ └── utils/          # Helpers, hooks, types
+```
 
+---
 
-## Usage
+## ⚡ Setup Instructions
 
-Public site
-- Explore sections: Hero, About, Skills, Projects, Resume, Contact, GitHub Stats (with AI analysis)
-- Try chatbots (standard or CLI‑style) for interactive exploration
-- Toggle theme and enjoy motion/3D effects
+### Prerequisites
+- Node.js **18+** (20 recommended)  
+- PostgreSQL (Neon recommended)  
 
-Admin
-- Visit /admin/login and sign in
-- Manage content across Skills, Projects, Contacts, Education, Experience, Personal, Social, Media, Settings
-- Use bulk actions, CSV export, and review audit logs
-- Optional AI tools for contact replies and content suggestions
+### Install & Configure
+```bash
+# Clone repo & install deps
+npm install
 
-API quick reference
-- Public: GET /api/skills, GET /api/projects
-- Admin: /api/admin/** per entity (secured)
-- AI: /api/ai/chat, /api/ai/contact-reply, /api/ai/github-* (secured/controlled)
+# Setup env
+cp .env.example .env
 
+# Generate Prisma client & push schema
+npm run db:generate
+npm run db:push
 
-## Deployment
+# (Optional) Seed data / admin
+npm run db:seed
+```
 
-Netlify
-- Build command: npm run build:netlify (uses scripts/netlify-build.sh and prisma generate without engines when needed)
-- Set env vars: DATABASE_URL, NEXTAUTH_SECRET, NEXTAUTH_URL, optional GEMINI_API_KEY, GITHUB_TOKEN/USERNAME, SMTP_*
-- After deploy (if needed): npx prisma db push && npx prisma generate
+First-run admin bootstrap:  
+Use `DEFAULT_ADMIN_EMAIL` and `DEFAULT_ADMIN_PASSWORD` (configured in `.env`).  
 
-Vercel
-- Build command: npm run build; output: .next (see vercel.json)
-- Functions config and headers are pre‑set; set the same environment variables
+### Run Dev
+```bash
+npm run dev
+```
+Visit → `http://localhost:3000`
 
-Images/Performance
-- next.config.js includes remote image domains and fallbacks
-- Types/ESLint can be skipped on CI by setting SKIP_TYPE_CHECK=true
+### Production Build
+```bash
+npm run build
+npm start
+```
 
+---
 
-## Contact — Green Hacker
-- Website: https://greenhacker.tech
-- Email: harsh@greenhacker.tech
-- GitHub: https://github.com/GreenHacker420
-- LinkedIn: https://linkedin.com/in/harsh-hirawat-b657061b7
-- Twitter/X: https://twitter.com/greenhacker
+## 🌍 Deployment
 
-If you have feedback, opportunities, or questions, feel free to reach out!
+### **Vercel**
+- Build command: `npm run build`  
+- Env vars: `DATABASE_URL, NEXTAUTH_SECRET, GEMINI_API_KEY, GITHUB_TOKEN, SMTP_*`  
+
+### **Netlify**
+- Build command: `npm run build:netlify`  
+- Post-deploy:  
+  ```bash
+  npx prisma db push
+  npx prisma generate
+  ```  
+
+---
+
+## 📬 Contact
+
+- 🌐 Website: [greenhacker.tech](https://greenhacker.tech)  
+- 📧 Email: [harsh@greenhacker.tech](mailto:harsh@greenhacker.tech)  
+- 💻 GitHub: [GreenHacker420](https://github.com/GreenHacker420)  
+- 🔗 LinkedIn: [Harsh Hirawat](https://linkedin.com/in/harsh-hirawat-b657061b7)  
+- 🐦 Twitter: [@greenhacker](https://twitter.com/greenhacker)  
+
+---
