@@ -59,70 +59,43 @@ function generateHtmlSignature(config: SignatureConfig = defaultSignatureConfig)
   const socialLinksHtml = Object.entries(config.socialLinks)
     .filter(([_, url]) => url)
     .map(([platform, url]) => {
-      const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
-      return `<a href="${url}" style="color: #3b82f6; text-decoration: none; margin-right: 15px;">${platformName}</a>`;
+      return `<a href="${url}" style="display: inline-block; margin-right: 15px;"><img src="https://greenhacker.tech/social/${platform}.png" alt="${platform}" width="24" height="24"></a>`;
     })
     .join('');
 
-  // Get the image URL - use custom imageUrl if provided, otherwise use default logo.jpg
   const baseUrl = config.website || process.env.NEXT_PUBLIC_SITE_URL || 'https://greenhacker.tech';
   const imageUrl = config.imageUrl || `${baseUrl}/logo.jpg`;
 
   return `
-    <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb; font-family: Arial, sans-serif;">
+    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #DDDDDD; font-family: 'Inter', Arial, sans-serif;">
       <table cellpadding="0" cellspacing="0" style="width: 100%; max-width: 500px;">
         <tr>
-          <td style="vertical-align: top; padding-right: 20px;">
-            <!-- Profile Image with Fallback Background -->
-            <div style="width: 80px; height: 80px; margin-bottom: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; border: 3px solid #e5e7eb; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
-              <!-- Background fallback text (shows if image doesn't load) -->
-              <div style="color: white; font-size: 28px; font-weight: bold; position: absolute; z-index: 1;">
-                ${config.alias.charAt(0)}
-              </div>
-              <!-- Profile image (overlays the background) -->
-              <img src="${imageUrl}"
-                   alt="${config.name} - ${config.alias}"
-                   style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 2;" />
+          <td style="width: 90px; vertical-align: top; padding-right: 20px;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; overflow: hidden; border: 2px solid #DDDDDD;">
+              <img src="${imageUrl}" alt="${config.name}" style="width: 100%; height: 100%; object-fit: cover;" />
             </div>
           </td>
-          <td style="vertical-align: top;">
-            <div style="color: #1f2937;">
-              <h3 style="margin: 0 0 5px 0; font-size: 18px; font-weight: bold; color: #111827;">
-                ${config.name} aka ${config.alias}
-              </h3>
-              <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; font-weight: 500;">
-                ${config.title}
-              </p>
-              ${config.tagline ? `<p style="margin: 0 0 15px 0; font-size: 13px; color: #9ca3af; font-style: italic;">${config.tagline}</p>` : ''}
-
-              <div style="margin-bottom: 10px;">
-                <p style="margin: 0 0 5px 0; font-size: 13px; color: #374151;">
-                  📧 <a href="mailto:${config.email}" style="color: #3b82f6; text-decoration: none;">${config.email}</a>
-                </p>
-                <p style="margin: 0 0 5px 0; font-size: 13px; color: #374151;">
-                  🌐 <a href="${config.website}" style="color: #3b82f6; text-decoration: none;">${config.website}</a>
-                </p>
-                ${config.phone ? `<p style="margin: 0 0 5px 0; font-size: 13px; color: #374151;">📞 ${config.phone}</p>` : ''}
+          <td style="vertical-align: top; color: #555555;">
+            <h3 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 700; color: #111111;">
+              ${config.name} <span style="color: #777777; font-weight: 400;">aka ${config.alias}</span>
+            </h3>
+            <p style="margin: 0 0 8px 0; font-size: 14px; color: #555555;">
+              ${config.title}
+            </p>
+            ${config.tagline ? `<p style="margin: 0 0 15px 0; font-size: 13px; color: #777777; font-style: italic;">${config.tagline}</p>` : ''}
+            <p style="margin: 0; font-size: 13px;">
+              <a href="mailto:${config.email}" style="color: #1F6FEB; text-decoration: none;">${config.email}</a>
+              <span style="color: #DDDDDD; margin: 0 8px;">|</span>
+              <a href="${config.website}" style="color: #1F6FEB; text-decoration: none;">${config.website}</a>
+            </p>
+            ${socialLinksHtml ? `
+              <div style="margin-top: 15px;">
+                ${socialLinksHtml}
               </div>
-
-              ${socialLinksHtml ? `
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-                  <p style="margin: 0 0 8px 0; font-size: 12px; color: #6b7280; font-weight: 500;">Connect with me:</p>
-                  <div style="font-size: 13px;">
-                    ${socialLinksHtml}
-                  </div>
-                </div>
-              ` : ''}
-            </div>
+            ` : ''}
           </td>
         </tr>
       </table>
-
-      <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f3f4f6; text-align: center;">
-        <p style="margin: 0; font-size: 11px; color: #9ca3af;">
-          This email was sent from ${config.name}'s portfolio contact system
-        </p>
-      </div>
     </div>
   `;
 }
@@ -161,7 +134,7 @@ function createTransporter() {
   };
 
   if (!config.auth.user || !config.auth.pass) {
-    console.warn('SMTP credentials not configured. Email functionality will be disabled.');
+    console.error('CRITICAL: SMTP credentials are not configured. Email functionality is disabled.');
     return null;
   }
 
@@ -171,6 +144,7 @@ function createTransporter() {
 // Auto-reply email template
 function getAutoReplyTemplate(data: ContactFormData): string {
   const signature = generateHtmlSignature();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://greenhacker.tech';
 
   return `
 <!DOCTYPE html>
@@ -178,53 +152,63 @@ function getAutoReplyTemplate(data: ContactFormData): string {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank you for contacting us</title>
+    <title>Thank You for Your Message</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .highlight { background: #e8f4fd; padding: 15px; border-left: 4px solid #3b82f6; margin: 20px 0; }
-        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 14px; }
-        .button { display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .container { background-color: #ffffff; border: 1px solid #DDDDDD; border-radius: 12px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1F6FEB 0%, #38BDF8 100%); color: white; padding: 40px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+        .header p { margin: 10px 0 0; font-size: 16px; opacity: 0.9; }
+        .content { padding: 30px; color: #333333; }
+        .content p { margin: 0 0 15px; }
+        .highlight { background-color: #F3F4F6; border: 1px solid #E5E7EB; padding: 20px; margin: 25px 0; border-radius: 8px; }
+        .highlight h3 { margin: 0 0 15px; color: #1F6FEB; font-size: 18px; border-bottom: 1px solid #E5E7EB; padding-bottom: 10px; }
+        .highlight p { margin: 0 0 8px; }
+        .highlight strong { color: #111827; }
+        .links-section { margin: 25px 0; }
+        .links-section p { margin-bottom: 10px; }
+        .links-section ul { list-style: none; padding: 0; margin: 0; }
+        .links-section li { margin-bottom: 8px; }
+        .links-section a { color: #1F6FEB; text-decoration: none; font-weight: 600; }
+        .links-section a:hover { text-decoration: underline; }
+        .footer { text-align: center; margin-top: 30px; color: #6B7280; font-size: 12px; }
+        .footer a { color: #1F6FEB; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Thank You for Reaching Out!</h1>
-        <p>Your message has been received</p>
-    </div>
-
-    <div class="content">
-        <p>Hi ${data.name},</p>
-
-        <p>Thank you for contacting me through my portfolio website. I've received your message and will get back to you as soon as possible, typically within 24-48 hours.</p>
-
-        <div class="highlight">
-            <h3>Your Message Summary:</h3>
-            <p><strong>Subject:</strong> ${data.subject}</p>
-            <p><strong>Submitted:</strong> ${new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}</p>
+    <div class="container">
+        <div class="header">
+            <h1>Thank You for Reaching Out!</h1>
+            <p>Your message has been successfully received.</p>
         </div>
 
-        <p>In the meantime, feel free to:</p>
-        <ul>
-            <li>Check out my latest projects on <a href="https://github.com/GreenHacker420">GitHub</a></li>
-            <li>Connect with me on <a href="https://www.linkedin.com/in/harsh-hirawat-b657061b7/">LinkedIn</a></li>
-            <li>Explore more of my work on my <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://greenhacker.tech'}">portfolio</a></li>
-        </ul>
+        <div class="content">
+            <p>Hi ${data.name},</p>
+            <p>Thank you for contacting me through my portfolio. I've received your message and will get back to you as soon as possible, typically within 24-48 hours.</p>
 
-        ${signature}
+            <div class="highlight">
+                <h3>Your Message Summary</h3>
+                <p><strong>Subject:</strong> ${data.subject}</p>
+                <p><strong>Submitted:</strong> ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}</p>
+            </div>
+
+            <div class="links-section">
+                <p>In the meantime, feel free to explore:</p>
+                <ul>
+                    <li><a href="https://github.com/GreenHacker420">My Projects on GitHub</a></li>
+                    <li><a href="https://www.linkedin.com/in/harsh-hirawat-b657061b7/">My Profile on LinkedIn</a></li>
+                    <li><a href="${siteUrl}">More of my work on my portfolio</a></li>
+                </ul>
+            </div>
+
+            ${signature}
+        </div>
     </div>
 
     <div class="footer">
         <p>This is an automated response. Please do not reply to this email.</p>
-        <p>If you need immediate assistance, please contact me directly at harsh@greenhacker.tech</p>
+        <p>&copy; ${new Date().getFullYear()} Harsh Hirawat. All rights reserved. | <a href="${siteUrl}">greenhacker.tech</a></p>
     </div>
 </body>
 </html>
@@ -233,7 +217,7 @@ function getAutoReplyTemplate(data: ContactFormData): string {
 
 // Notification email template for site owner
 function getNotificationTemplate(data: ContactFormData): string {
-  const signature = generateHtmlSignature();
+  const signature = generateHtmlSignature({ ...defaultSignatureConfig, tagline: '' }); // Simpler signature for internal mail
 
   return `
 <!DOCTYPE html>
@@ -243,53 +227,55 @@ function getNotificationTemplate(data: ContactFormData): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Contact Form Submission</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #dc2626; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-        .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-        .field { margin: 15px 0; padding: 15px; background: white; border-radius: 5px; border-left: 4px solid #3b82f6; }
-        .field strong { color: #1f2937; }
-        .message-box { background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0; white-space: pre-wrap; }
-        .meta { font-size: 12px; color: #666; margin-top: 20px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #ffffff; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .container { background-color: #ffffff; border: 1px solid #DDDDDD; border-radius: 12px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #34D399 0%, #2DD4BF 100%); color: #111827; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 700; }
+        .content { padding: 30px; color: #333333; }
+        .field { margin-bottom: 20px; }
+        .field-label { display: block; color: #6B7280; font-size: 14px; margin-bottom: 5px; }
+        .field-value { font-size: 16px; color: #111827; }
+        .field-value a { color: #1F6FEB; text-decoration: none; }
+        .message-box { background-color: #F3F4F6; padding: 20px; border-radius: 8px; margin-top: 10px; white-space: pre-wrap; font-family: 'Courier New', Courier, monospace; border: 1px solid #E5E7EB; color: #111827; }
+        .meta { font-size: 12px; color: #6B7280; margin-top: 30px; border-top: 1px solid #DDDDDD; padding-top: 20px; }
+        .reply-button { display: inline-block; background-color: #238636; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚨 New Contact Form Submission</h1>
-        <p>Someone has reached out through your portfolio</p>
-    </div>
-
-    <div class="content">
-        <div class="field">
-            <strong>Name:</strong> ${data.name}
+    <div class="container">
+        <div class="header">
+            <h1>📬 New Contact Form Submission</h1>
         </div>
 
-        <div class="field">
-            <strong>Email:</strong> <a href="mailto:${data.email}">${data.email}</a>
-        </div>
+        <div class="content">
+            <div class="field">
+                <span class="field-label">From</span>
+                <span class="field-value">${data.name} &lt;<a href="mailto:${data.email}">${data.email}</a>&gt;</span>
+            </div>
 
-        <div class="field">
-            <strong>Subject:</strong> ${data.subject}
-        </div>
+            <div class="field">
+                <span class="field-label">Subject</span>
+                <span class="field-value">${data.subject}</span>
+            </div>
 
-        <div class="field">
-            <strong>Message:</strong>
-            <div class="message-box">${data.message}</div>
-        </div>
+            <div class="field">
+                <span class="field-label">Message</span>
+                <div class="message-box">${data.message}</div>
+            </div>
 
-        <div class="meta">
-            <p><strong>Submitted:</strong> ${new Date().toISOString()}</p>
-            ${data.ipAddress ? `<p><strong>IP Address:</strong> ${data.ipAddress}</p>` : ''}
-            ${data.userAgent ? `<p><strong>User Agent:</strong> ${data.userAgent}</p>` : ''}
-        </div>
-
-        <p style="margin-top: 30px;">
-            <a href="mailto:${data.email}?subject=Re: ${data.subject}"
-               style="background: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
+            <a href="mailto:${data.email}?subject=Re: ${data.subject}" class="reply-button">
                Reply to ${data.name}
             </a>
-        </p>
 
-        ${signature}
+            <div class="meta">
+                <p><strong>Submitted:</strong> ${new Date().toISOString()}</p>
+                ${data.ipAddress ? `<p><strong>IP Address:</strong> ${data.ipAddress}</p>` : ''}
+                ${data.userAgent ? `<p><strong>User Agent:</strong> ${data.userAgent}</p>` : ''}
+            </div>
+
+            ${signature}
+        </div>
     </div>
 </body>
 </html>

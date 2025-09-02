@@ -1,55 +1,54 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { useToast } from "@/hooks/use-toast";
 
+const contactSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+  email: z.string().email('Please provide a valid email address'),
+  subject: z.string().min(5, 'Subject must be at least 5 characters').max(200),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(2000),
+});
+
+type ContactFormValues = z.infer<typeof contactSchema>;
+
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
+  const onSubmit = async (data: ContactFormValues) => {
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (response.ok) {
         toast({
           title: "Message sent",
           description: "Thanks for reaching out! I'll get back to you soon.",
         });
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
+        reset();
       } else {
         toast({
           title: "Error",
-          description: data.error || "Failed to send message. Please try again.",
+          description: result.error || "Failed to send message. Please try again.",
           variant: "destructive",
         });
       }
@@ -59,8 +58,6 @@ const Contact = () => {
         description: "Failed to send message. Please check your connection and try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -184,7 +181,7 @@ const Contact = () => {
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <form onSubmit={handleSubmit} className="bg-github-light p-6 rounded-lg border border-github-border">
+            <form onSubmit={handleSubmit(onSubmit)} className="bg-github-light p-6 rounded-lg border border-github-border">
               <h3 className="text-2xl font-bold text-white mb-6">Send a Message</h3>
 
               <div className="space-y-4">
@@ -195,13 +192,11 @@ const Contact = () => {
                   <input
                     type="text"
                     id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
+                    {...register('name')}
                     className="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-green/50 text-white"
                     placeholder="John Doe"
-                    required
                   />
+                  {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
                 </div>
 
                 <div>
@@ -211,13 +206,11 @@ const Contact = () => {
                   <input
                     type="email"
                     id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    {...register('email')}
                     className="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-green/50 text-white"
                     placeholder="john@example.com"
-                    required
                   />
+                  {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
                 </div>
 
                 <div>
@@ -227,13 +220,11 @@ const Contact = () => {
                   <input
                     type="text"
                     id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
+                    {...register('subject')}
                     className="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-green/50 text-white"
                     placeholder="Project Collaboration"
-                    required
                   />
+                  {errors.subject && <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>}
                 </div>
 
                 <div>
@@ -242,14 +233,12 @@ const Contact = () => {
                   </label>
                   <textarea
                     id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
+                    {...register('message')}
                     rows={5}
                     className="w-full px-4 py-3 bg-github-dark border border-github-border rounded-lg focus:outline-none focus:ring-2 focus:ring-neon-green/50 text-white"
                     placeholder="Hi there, I'd like to talk about..."
-                    required
                   ></textarea>
+                  {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>}
                 </div>
 
                 <button

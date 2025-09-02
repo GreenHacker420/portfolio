@@ -8,6 +8,7 @@ import FAQStructuredData from '@/components/seo/FAQStructuredData';
 import BreadcrumbStructuredData from '@/components/seo/BreadcrumbStructuredData';
 import GoogleAnalytics from '@/components/analytics/GoogleAnalytics';
 import WebVitals from '@/components/performance/WebVitals';
+import { Toaster } from '@/components/ui/toaster';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -215,6 +216,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Toaster />
       </body>
     </html>
   );
