@@ -305,13 +305,128 @@ async function main() {
     }
   })
 
-  if (!existingExperience) {
-    await prisma.workExperience.create({
-      data: sampleExperience,
-    })
-  }
   
   console.log('✅ Sample work experience created')
+
+  // Seed Education
+  const educationData = [
+    {
+      id: "edu1",
+      institution: "Newton School of Technology",
+      degree: "Bachelor of Technology - BTech, Computer Science",
+      startDate: new Date("2024-08-01"),
+      endDate: new Date("2028-07-01"),
+      description: "Focusing on advanced programming concepts, data structures, algorithms, and software engineering principles. Participating in coding competitions and tech community events.",
+      skills: JSON.stringify(["Programming", "Python", "Data Structures", "Algorithms"])
+    },
+    {
+      id: "edu2",
+      institution: "Royal Senior Secondary School",
+      degree: "Senior Secondary School, PCM",
+      startDate: new Date("2022-04-01"),
+      endDate: new Date("2024-05-01"),
+      description: "Completed secondary education with focus on Physics, Chemistry, and Mathematics (PCM). Participated in science exhibitions and mathematical olympiads.",
+      skills: JSON.stringify(["Mathematics", "Physics", "Chemistry", "Problem Solving"])
+    }
+  ];
+
+  for (const edu of educationData) {
+    await prisma.education.upsert({
+      where: { id: edu.id },
+      update: edu,
+      create: edu,
+    });
+  }
+  console.log('✅ Education data seeded');
+
+  // Seed Certifications
+  const certificationData = [
+    {
+      id: "cert1",
+      name: "AI For Everyone",
+      issuer: "DeepLearning.AI",
+      date: "Mar 2025",
+      certId: "GQIFS41IFAYR"
+    },
+    {
+      id: "cert2",
+      name: "Generative AI for Everyone",
+      issuer: "DeepLearning.AI",
+      date: "Mar 2025",
+      certId: "R2CGBN98KY1W"
+    }
+  ];
+
+  for (const cert of certificationData) {
+    await (prisma as any).certification.upsert({
+      where: { certId: cert.certId },
+      update: cert,
+      create: cert,
+    });
+  }
+  console.log('✅ Certification data seeded');
+
+  // Seed Achievements
+  const achievementData = [
+    {
+      id: "ach1",
+      title: "Postman API Fundamentals Student Expert",
+      date: "Feb 2025",
+      description: "Mastered API development and testing with Postman."
+    },
+    {
+      id: "ach2",
+      title: "Certified Machine Learning Specialist",
+      date: "Jan 2025",
+      description: "Completed a comprehensive course on machine learning."
+    },
+    {
+      id: "ach3",
+      title: "1st Place - Robo Soccer Competition",
+      date: "Dec 2024",
+      description: "Led a team to victory at the national Robo Soccer competition."
+    },
+    {
+      id: "ach4",
+      title: "Tekron 2025 Organizing Committee Member",
+      date: "Nov 2024",
+      description: "Contributed to organizing one of the largest technical events at my university."
+    }
+  ];
+
+  for (const ach of achievementData) {
+    await (prisma as any).achievement.upsert({
+      where: { id: ach.id },
+      update: ach,
+      create: ach,
+    });
+  }
+  console.log('✅ Achievement data seeded');
+
+  // Seed Work Experience
+  const experienceData = [
+    {
+        id: "exp1",
+        title: "Field Associate",
+        company: "Sachetparyant",
+        position: "Field Associate",
+        startDate: new Date("2021-09-01"),
+        endDate: new Date("2023-07-01"),
+        location: "India",
+        type: "Part-time",
+        description: "Database Head & Field Associate at Sachetparyant's Project Shikshan. Responsible for managing multiple database systems and ensuring data integrity across projects.",
+        skills: JSON.stringify(["Database Management", "Team Leadership", "Data Analysis"])
+    }
+  ];
+
+  for (const exp of experienceData) {
+    await prisma.workExperience.upsert({
+        where: { id: exp.id },
+        update: exp,
+        create: exp,
+    });
+  }
+  console.log('✅ Work experience data seeded');
 
   // TODO: Add FAQ data after fixing Prisma client issue
   console.log('⚠️ FAQ data creation skipped - will be added via admin panel')

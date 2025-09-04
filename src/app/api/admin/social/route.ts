@@ -66,16 +66,24 @@ export async function POST(request: NextRequest) {
       data: socialLinkData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'CREATE',
-        resource: 'social_links',
-        resourceId: socialLink.id,
-        newData: JSON.stringify(socialLink),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'CREATE',
+          resource: 'social_links',
+          resourceId: socialLink.id,
+          newData: JSON.stringify(socialLink),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ socialLink }, { status: 201 })
   } catch (error) {

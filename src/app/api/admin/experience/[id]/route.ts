@@ -96,17 +96,25 @@ export async function PUT(
       data: updateData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'UPDATE',
-        resource: 'experience',
-        resourceId: experience.id,
-        oldData: JSON.stringify(existingExperience),
-        newData: JSON.stringify(experience),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'UPDATE',
+          resource: 'experience',
+          resourceId: experience.id,
+          oldData: JSON.stringify(existingExperience),
+          newData: JSON.stringify(experience),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ experience })
   } catch (error) {
@@ -150,16 +158,24 @@ export async function DELETE(
       where: { id }
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'DELETE',
-        resource: 'experience',
-        resourceId: id,
-        oldData: JSON.stringify(existingExperience),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'DELETE',
+          resource: 'experience',
+          resourceId: id,
+          oldData: JSON.stringify(existingExperience),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ message: 'Work experience deleted successfully' })
   } catch (error) {

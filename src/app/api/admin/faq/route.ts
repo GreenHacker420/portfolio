@@ -111,16 +111,24 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'CREATE',
-        resource: 'faqs',
-        resourceId: faq.id,
-        newData: JSON.stringify(faq),
-      }
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
     });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'CREATE',
+          resource: 'faqs',
+          resourceId: faq.id,
+          newData: JSON.stringify(faq),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ 
       faq: {

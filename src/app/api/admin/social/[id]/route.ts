@@ -75,17 +75,25 @@ export async function PUT(
       data: validatedData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'UPDATE',
-        resource: 'social_links',
-        resourceId: socialLink.id,
-        oldData: JSON.stringify(existingSocialLink),
-        newData: JSON.stringify(socialLink),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'UPDATE',
+          resource: 'social_links',
+          resourceId: socialLink.id,
+          oldData: JSON.stringify(existingSocialLink),
+          newData: JSON.stringify(socialLink),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ socialLink })
   } catch (error) {
@@ -130,16 +138,24 @@ export async function DELETE(
       where: { id }
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'DELETE',
-        resource: 'social_links',
-        resourceId: id,
-        oldData: JSON.stringify(existingSocialLink),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'DELETE',
+          resource: 'social_links',
+          resourceId: id,
+          oldData: JSON.stringify(existingSocialLink),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ message: 'Social link deleted successfully' })
   } catch (error) {

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/db'
+import { PrismaClient } from '@prisma/client';
+
+const directPrisma = new PrismaClient();
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
@@ -12,6 +14,16 @@ export async function POST(request: NextRequest) {
     
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify user exists before proceeding
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!adminUser) {
+      console.error('Media upload failed: User from session not found in database.');
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const formData = await request.formData()
@@ -68,7 +80,7 @@ export async function POST(request: NextRequest) {
     await writeFile(filepath, buffer)
 
     // Save to database
-    const media = await prisma.media.create({
+    const media = await directPrisma.media.create({
       data: {
         filename,
         originalName: file.name,
@@ -76,15 +88,15 @@ export async function POST(request: NextRequest) {
         size: file.size,
         url: `/uploads/${filename}`,
         category,
-        uploadedBy: session.user.id,
+        uploadedBy: adminUser.id, // Use verified user ID
         isVisible: true,
       }
     })
 
     // Log the action
-    await prisma.auditLog.create({
+    await directPrisma.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId: adminUser.id, // Use verified user ID
         action: 'CREATE',
         resource: 'media',
         resourceId: media.id,

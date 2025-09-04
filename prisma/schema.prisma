@@ -110,11 +110,15 @@ model SocialLink {
 // Work Experience
 model WorkExperience {
   id          String   @id @default(cuid())
+  title       String
   company     String
   position    String
   startDate   DateTime
   endDate     DateTime?
   description String?
+  location    String?
+  type        String?
+  skills      String? // JSON array of skills
   companyLogo String?
   isVisible   Boolean  @default(true)
   displayOrder Int     @default(0)
@@ -139,7 +143,39 @@ model Education {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  description String?
+  skills      String? // JSON array of skills
+
   @@map("education")
+}
+
+// Certifications
+model Certification {
+  id        String   @id @default(cuid())
+  name      String
+  issuer    String
+  date      String
+  certId    String   @unique
+  isVisible Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("certifications")
+}
+
+// Achievements
+model Achievement {
+  id          String   @id @default(cuid())
+  title       String
+  date        String
+  description String?
+  isVisible   Boolean  @default(true)
+  displayOrder Int     @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("achievements")
 }
 
 // Contact Form Submissions

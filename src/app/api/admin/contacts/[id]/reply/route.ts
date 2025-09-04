@@ -40,6 +40,16 @@ export async function POST(
       return NextResponse.json({ error: 'Contact not found' }, { status: 404 });
     }
 
+    // Verify user exists before proceeding
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!adminUser) {
+      console.error('Contact reply failed: User from session not found in database.');
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     // Send the reply email
     const emailSent = await sendContactReply({
       to: contact.email,
@@ -56,7 +66,7 @@ export async function POST(
     const reply = await directPrisma.contactReply.create({
       data: {
         contactId: contact.id,
-        userId: session.user.id,
+        userId: adminUser.id, // Use verified user ID
         subject: subject,
         message: replyMessage,
         isAiGenerated: isAiGenerated,
@@ -74,7 +84,7 @@ export async function POST(
     // Log the action
     await directPrisma.auditLog.create({
       data: {
-        userId: session.user.id,
+        userId: adminUser.id, // Use verified user ID
         action: 'REPLY',
         resource: 'contacts',
         resourceId: contact.id,

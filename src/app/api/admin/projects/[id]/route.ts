@@ -130,17 +130,28 @@ export async function PUT(
       data: updateData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'UPDATE',
-        resource: 'projects',
-        resourceId: project.id,
-        oldData: JSON.stringify(existingProject),
-        newData: JSON.stringify(project),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (!adminUser) {
+      console.error('Audit log failed: User from session not found in database.');
+      // Optionally, you could return an error response here to force re-authentication
+      // return NextResponse.json({ error: 'Invalid session user' }, { status: 401 });
+    } else {
+      // Log the action
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id, // Use the verified user ID
+          action: 'UPDATE',
+          resource: 'projects',
+          resourceId: project.id,
+          oldData: JSON.stringify(existingProject),
+          newData: JSON.stringify(project),
+        }
+      });
+    }
 
     // Parse JSON fields for response
     const projectWithParsedData = {
@@ -192,16 +203,25 @@ export async function DELETE(
       where: { id }
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'DELETE',
-        resource: 'projects',
-        resourceId: id,
-        oldData: JSON.stringify(existingProject),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      // Log the action
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id, // Use the verified user ID
+          action: 'DELETE',
+          resource: 'projects',
+          resourceId: id,
+          oldData: JSON.stringify(existingProject),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ message: 'Project deleted successfully' })
   } catch (error) {

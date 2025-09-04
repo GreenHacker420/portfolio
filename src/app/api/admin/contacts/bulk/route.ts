@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
+const directPrisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +16,24 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'delete') {
-      const deleted = await prisma.contact.deleteMany({ where: { id: { in: ids } } })
-      await prisma.auditLog.create({ data: { userId: (session.user as any).id, action: 'BULK_DELETE', resource: 'contacts', newData: JSON.stringify({ ids }) } })
+      const deleted = await directPrisma.contact.deleteMany({ where: { id: { in: ids } } })
+
+      const adminUser = await directPrisma.adminUser.findUnique({
+        where: { id: session.user.id },
+      });
+
+      if (adminUser) {
+        await directPrisma.auditLog.create({ 
+          data: { 
+            userId: adminUser.id, 
+            action: 'BULK_DELETE', 
+            resource: 'contacts', 
+            newData: JSON.stringify({ ids }) 
+          } 
+        });
+      } else {
+        console.error('Audit log failed: User from session not found in database.');
+      }
       return NextResponse.json({ success: true, deleted: deleted.count })
     }
 
@@ -26,13 +42,29 @@ export async function POST(request: NextRequest) {
       if (!['pending', 'responded', 'archived'].includes(String(status))) {
         return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
       }
-      const updated = await prisma.contact.updateMany({ where: { id: { in: ids } }, data: { status } })
-      await prisma.auditLog.create({ data: { userId: (session.user as any).id, action: 'BULK_UPDATE', resource: 'contacts', newData: JSON.stringify({ ids, status }) } })
+      const updated = await directPrisma.contact.updateMany({ where: { id: { in: ids } }, data: { status } })
+
+      const adminUser = await directPrisma.adminUser.findUnique({
+        where: { id: session.user.id },
+      });
+
+      if (adminUser) {
+        await directPrisma.auditLog.create({ 
+          data: { 
+            userId: adminUser.id, 
+            action: 'BULK_UPDATE', 
+            resource: 'contacts', 
+            newData: JSON.stringify({ ids, status }) 
+          } 
+        });
+      } else {
+        console.error('Audit log failed: User from session not found in database.');
+      }
       return NextResponse.json({ success: true, updated: updated.count })
     }
 
     if (action === 'export') {
-      const rows = await prisma.contact.findMany({ where: { id: { in: ids } } })
+      const rows = await directPrisma.contact.findMany({ where: { id: { in: ids } } })
       const csvHeader = 'ID,Name,Email,Subject,Status,Created At,Updated At\n'
       const csvRows = rows.map(r => [r.id, r.name, r.email, r.subject, r.status, r.createdAt.toISOString(), r.updatedAt.toISOString()].join(','))
       const csv = csvHeader + csvRows.join('\n')

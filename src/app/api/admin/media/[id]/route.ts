@@ -72,17 +72,25 @@ export async function PUT(
       data: validatedData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'UPDATE',
-        resource: 'media',
-        resourceId: media.id,
-        oldData: JSON.stringify(existingMedia),
-        newData: JSON.stringify(media),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'UPDATE',
+          resource: 'media',
+          resourceId: media.id,
+          oldData: JSON.stringify(existingMedia),
+          newData: JSON.stringify(media),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ media })
   } catch (error) {
@@ -130,16 +138,24 @@ export async function DELETE(
       where: { id }
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'DELETE',
-        resource: 'media',
-        resourceId: id,
-        oldData: JSON.stringify(existingMedia),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'DELETE',
+          resource: 'media',
+          resourceId: id,
+          oldData: JSON.stringify(existingMedia),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ message: 'Media deleted successfully' })
   } catch (error) {

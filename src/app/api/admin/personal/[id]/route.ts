@@ -59,17 +59,25 @@ export async function PUT(
       data: updateData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'UPDATE',
-        resource: 'personal_info',
-        resourceId: personalInfo.id,
-        oldData: JSON.stringify(existingInfo),
-        newData: JSON.stringify(personalInfo),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'UPDATE',
+          resource: 'personal_info',
+          resourceId: personalInfo.id,
+          oldData: JSON.stringify(existingInfo),
+          newData: JSON.stringify(personalInfo),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ personalInfo })
   } catch (error) {

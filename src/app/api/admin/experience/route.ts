@@ -8,6 +8,7 @@ const directPrisma = new PrismaClient()
 import { z } from 'zod'
 
 const experienceSchema = z.object({
+  title: z.string().min(1).max(100),
   company: z.string().min(1).max(100),
   position: z.string().min(1).max(100),
   startDate: z.string(),
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
 
     // Convert date strings to Date objects and ensure required fields
     const experienceData = {
+      title: validatedData.title,
       company: validatedData.company,
       position: validatedData.position,
       startDate: new Date(validatedData.startDate),
@@ -100,16 +102,24 @@ export async function POST(request: NextRequest) {
       data: experienceData
     })
 
-    // Log the action
-    await directPrisma.auditLog.create({
-      data: {
-        userId: session.user.id,
-        action: 'CREATE',
-        resource: 'experience',
-        resourceId: experience.id,
-        newData: JSON.stringify(experience),
-      }
-    })
+    // Verify user exists before logging
+    const adminUser = await directPrisma.adminUser.findUnique({
+      where: { id: session.user.id },
+    });
+
+    if (adminUser) {
+      await directPrisma.auditLog.create({
+        data: {
+          userId: adminUser.id,
+          action: 'CREATE',
+          resource: 'experience',
+          resourceId: experience.id,
+          newData: JSON.stringify(experience),
+        }
+      });
+    } else {
+      console.error('Audit log failed: User from session not found in database.');
+    }
 
     return NextResponse.json({ experience }, { status: 201 })
   } catch (error) {

@@ -10,7 +10,7 @@ export interface SkillFromAPI {
   level: number;
   projects: string[];
   strengths: string[];
-  category: 'frontend' | 'backend' | 'language' | 'database' | 'devops' | 'mobile' | 'design' | 'other';
+  category: 'frontend' | 'backend' | 'language' | 'database' | 'devops' | 'mobile' | 'other';
   displayOrder: number;
   isVisible: boolean;
   createdAt: string;
