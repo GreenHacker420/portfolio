@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@/components/ui/visually-hidden';
-import { Download, Eye, FileText } from 'lucide-react';
+import { Download, Eye, FileText, ExternalLink } from 'lucide-react';
 import { trackEvent, portfolioEvents } from '@/components/analytics/GoogleAnalytics';
 import SimplePDFViewer from './SimplePDFViewer';
 
@@ -22,19 +22,22 @@ const ResumePreview = () => {
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
-      className="bg-github-light rounded-lg p-6 border border-github-border card-hover"
+      className="rounded-2xl border border-neon-green/20 bg-github-light p-6 shadow-lg shadow-neon-green/5"
     >
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center">
-          <FileText className="text-neon-green mr-3" size={24} />
-          <h3 className="text-xl font-semibold text-white">My Resume</h3>
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <FileText className="text-neon-green" size={24} />
+          <div>
+            <h3 className="text-xl font-semibold text-white">Resume (PDF)</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Compact, ATS-friendly • 1–2 pages</p>
+          </div>
         </div>
         <span className="px-3 py-1 bg-neon-green/20 text-neon-green text-xs rounded-full">PDF</span>
       </div>
 
-      <p className="text-github-text mb-4">
-        Check out my professional experience, skills, and educational background.
-        Download the PDF or view it directly on this page.
+      <p className="text-github-text mt-3">
+        Snapshot of education, projects, Computer Vision work, robotics initiatives, and full‑stack experience.
       </p>
 
       {/* Chrome-specific notice */}
@@ -45,8 +48,8 @@ const ResumePreview = () => {
           </p>
         </div>
       )}
-
-      <div className="flex flex-wrap gap-3">
+      {/* Actions row */}
+      <div className="mt-4 flex flex-wrap gap-3">
         <Dialog>
           <DialogTrigger asChild>
             <button className="flex items-center gap-2 px-4 py-2 bg-neon-green text-black font-medium rounded-md hover:bg-neon-green/90 transition-all">
@@ -94,6 +97,15 @@ const ResumePreview = () => {
         >
           <Download size={16} />
           Download PDF
+        </a>
+        <a
+          href={RESUME_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-2 px-4 py-2 bg-transparent border border-neon-green/40 text-neon-green font-medium rounded-md hover:bg-neon-green/10 transition-all"
+        >
+          <ExternalLink size={16} />
+          Open in New Tab
         </a>
       </div>
     </motion.div>
