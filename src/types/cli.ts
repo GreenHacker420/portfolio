@@ -14,6 +14,8 @@ export interface CLICommand {
 export interface CLIContext {
   currentPage: string;
   sessionId: string;
+  conversationId?: string;
+  conversationHistory?: string[];
   userAgent?: string;
   ipAddress?: string;
   history: CLIHistoryEntry[];

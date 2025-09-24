@@ -25,6 +25,8 @@ import {
   getOptimalCLIDimensions,
   isMobileEnvironment
 } from '@/utils/cliHelpers';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface CLIMessage {
   id: string;
@@ -52,6 +54,8 @@ const CLIChatbot: React.FC = () => {
 
   const [messages, setMessages] = useState<CLIMessage[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [conversationId, setConversationId] = useState<string>('');
+  const [conversationHistory, setConversationHistory] = useState<string[]>([]);
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -91,6 +95,9 @@ const CLIChatbot: React.FC = () => {
   // Initialize with welcome message
   useEffect(() => {
     if (state.isOpen && messages.length === 0) {
+      const newConversationId = `conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      setConversationId(newConversationId);
+
       const welcomeMessage: CLIMessage = {
         id: `welcome-${Date.now()}`,
         type: 'system',
@@ -98,12 +105,10 @@ const CLIChatbot: React.FC = () => {
           '🚀 Welcome to GREENHACKER CLI v1.0',
           '═══════════════════════════════════',
           '',
-          '💡 Type "help" to see available commands',
-          '💡 Use Tab for auto-completion',
-          '💡 Use ↑/↓ arrows for command history',
-          '💡 Type "chat" to switch to AI assistant mode',
+          '💡 Ask anything about the portfolio or type "help" for shortcuts',
+          '💡 Use Tab for auto-completion and ↑/↓ for command history',
           '',
-          'Ready for commands...'
+          'Ready and listening...'
         ],
         timestamp: new Date().toISOString(),
         responseType: 'info'
@@ -116,11 +121,13 @@ const CLIChatbot: React.FC = () => {
   const getCLIContext = useCallback((): CLIContext => ({
     currentPage: typeof window !== 'undefined' ? window.location.pathname : '/',
     sessionId: state.sessionId,
+    conversationId,
+    conversationHistory,
     userAgent: typeof window !== 'undefined' ? navigator.userAgent : 'unknown',
     ipAddress: 'client',
     history,
     suggestions: []
-  }), [state.sessionId, history]);
+  }), [state.sessionId, history, conversationId, conversationHistory]);
 
   // Toggle CLI visibility
   const toggleCLI = useCallback(() => {
@@ -251,36 +258,92 @@ const CLIChatbot: React.FC = () => {
     hideCompletions();
 
     try {
-      // Handle special commands locally
-      if (command.toLowerCase() === 'clear') {
-        handleClear();
+      setConversationHistory(prev => [...prev, command]);
+
+      // Local special commands
+      const lower = command.toLowerCase();
+      if (lower === 'clear') { handleClear(); return; }
+      if (lower === 'exit') { handleExit(); return; }
+
+      // Mode switching handled locally for instant UX
+      if (lower === 'chat') {
+        setState(prev => ({ ...prev, mode: 'chat' }));
+        setMessages(prev => [...prev, {
+          id: `sys-${Date.now()}`,
+          type: 'system',
+          content: ['🤖 Switched to AI chat mode. Ask anything!'],
+          timestamp: new Date().toISOString(),
+          responseType: 'info'
+        }]);
+        return;
+      }
+      if (lower === 'cmd') {
+        setState(prev => ({ ...prev, mode: 'command' }));
+        setMessages(prev => [...prev, {
+          id: `sys-${Date.now()}`,
+          type: 'system',
+          content: ['⌨️ Switched to command mode. Type `help` for commands.'],
+          timestamp: new Date().toISOString(),
+          responseType: 'info'
+        }]);
         return;
       }
 
-      if (command.toLowerCase() === 'exit') {
-        handleExit();
-        return;
-      }
-
-      // Parse command
+      // Parse for routing decision
       const { command: cmd, args } = parseCommandLine(command);
 
-      // Send to API
+      // Known command set; everything else or chat mode goes to AI
+      const KNOWN = new Set([
+        'help','ls','about','skills','projects','contact','faq','experience','github','status',
+        'whoami','date','echo','history','version'
+      ]);
+
+      const questionWords = ['how', 'what', 'when', 'where', 'why', 'who', 'explain', 'tell me', 'show', 'describe'];
+      const shouldUseAI =
+        state.mode === 'chat' ||
+        lower.startsWith('ask ') ||
+        !KNOWN.has(cmd) ||
+        questionWords.some(word => lower.includes(word));
+
+      if (shouldUseAI) {
+        const prompt = lower.startsWith('ask ') ? command.slice(4).trim() : command;
+        const aiRes = await fetch('/api/ai/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: prompt,
+            context: `CLI terminal on ${getCLIContext().currentPage} • session ${state.sessionId}`,
+            conversationId,
+            history: conversationHistory.slice(-6)
+          })
+        });
+        const aiData = await aiRes.json();
+        const outputMessage: CLIMessage = {
+          id: `output-${Date.now()}`,
+          type: 'output',
+          content: [aiData?.response || 'I could not generate a response.'],
+          timestamp: new Date().toISOString(),
+          responseType: aiRes.ok ? 'ai' : 'error'
+        };
+        setMessages(prev => [...prev, outputMessage]);
+        setConversationHistory(prev => [...prev, aiData?.response || '']);
+        // save to history as an AI query
+        addToHistory(cmd, args, {
+          type: aiRes.ok ? 'ai' : 'error',
+          output: outputMessage.content,
+          metadata: { executionTime: 0 }
+        } as unknown as CLIResponse);
+        return;
+      }
+
+      // Otherwise, treat as a normal CLI command via /api/cli
       const response = await fetch('/api/cli', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          command,
-          context: getCLIContext(),
-          sessionId: state.sessionId
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command, context: getCLIContext(), sessionId: state.sessionId })
       });
 
       const data: CLIResponse = await response.json();
-
-      // Add response message
       const outputMessage: CLIMessage = {
         id: `output-${Date.now()}`,
         type: 'output',
@@ -289,26 +352,15 @@ const CLIChatbot: React.FC = () => {
         responseType: data.type,
         executionTime: data.metadata?.executionTime
       };
-
       setMessages(prev => [...prev, outputMessage]);
-
-      // Add to history
       addToHistory(cmd, args, data);
 
-      // Handle special responses
       if (data.metadata?.special === 'mode_switch') {
-        setState(prev => ({ 
-          ...prev, 
-          mode: data.metadata?.mode === 'chat' ? 'chat' : 'command' 
-        }));
+        setState(prev => ({ ...prev, mode: data.metadata?.mode === 'chat' ? 'chat' : 'command' }));
       }
-
       if (data.metadata?.special === 'exit') {
-        setTimeout(() => {
-          setState(prev => ({ ...prev, isOpen: false }));
-        }, 1000);
+        setTimeout(() => { setState(prev => ({ ...prev, isOpen: false })); }, 1000);
       }
-
     } catch (error) {
       console.error('CLI command error:', error);
       
@@ -333,6 +385,8 @@ const CLIChatbot: React.FC = () => {
   // Handle clear command
   const handleClear = useCallback(() => {
     setMessages([]);
+    setConversationHistory([]);
+    setConversationId(`conv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
     setState(prev => ({ ...prev, isProcessing: false }));
   }, []);
 
@@ -434,25 +488,58 @@ const CLIChatbot: React.FC = () => {
               {messages.map((message) => (
                 <div key={message.id} className="space-y-1">
                   {message.content.map((line, index) => (
-                    <div
-                      key={index}
-                      className={`${
-                        message.type === 'input'
-                          ? 'text-neon-green'
-                          : message.responseType === 'error'
-                          ? 'text-red-400'
-                          : message.responseType === 'success'
-                          ? 'text-neon-green'
-                          : message.responseType === 'warning'
-                          ? 'text-yellow-400'
-                          : message.responseType === 'info'
-                          ? 'text-neon-blue'
-                          : message.responseType === 'ai'
-                          ? 'text-neon-purple'
-                          : 'text-white'
-                      } whitespace-pre-wrap`}
-                    >
-                      {line}
+                    <div key={index} className="whitespace-pre-wrap">
+                      {message.type === 'input' ? (
+                        <div className="text-neon-green">{line}</div>
+                      ) : (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            a: ({ href, children }) => (
+                              <a href={href as string} target="_blank" rel="noreferrer" className="underline text-neon-blue hover:text-neon-green">
+                                {children}
+                              </a>
+                            ),
+                            code: ({ children }) => (
+                              <code className="px-1 py-0.5 rounded bg-github-light text-neon-purple font-mono">
+                                {children as React.ReactNode}
+                              </code>
+                            ),
+                            pre: ({ children }) => (
+                              <pre className="p-3 rounded bg-github-light overflow-x-auto text-white">
+                                {children as React.ReactNode}
+                              </pre>
+                            ),
+                            li: ({ children }) => (
+                              <li className="ml-4 list-disc">{children}</li>
+                            ),
+                            strong: ({ children }) => (
+                              <strong className="text-white">{children}</strong>
+                            ),
+                            p: ({ children }) => (
+                              <p
+                                className={`${
+                                  message.responseType === 'error'
+                                    ? 'text-red-400'
+                                    : message.responseType === 'success'
+                                    ? 'text-neon-green'
+                                    : message.responseType === 'warning'
+                                    ? 'text-yellow-400'
+                                    : message.responseType === 'info'
+                                    ? 'text-neon-blue'
+                                    : message.responseType === 'ai'
+                                    ? 'text-neon-purple'
+                                    : 'text-white'
+                                }`}
+                              >
+                                {children}
+                              </p>
+                            ),
+                          }}
+                        >
+                          {line}
+                        </ReactMarkdown>
+                      )}
                     </div>
                   ))}
                   {message.executionTime && (

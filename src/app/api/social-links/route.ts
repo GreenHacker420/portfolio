@@ -11,7 +11,6 @@ export async function GET() {
         platform: true,
         username: true,
         url: true,
-        icon: true,
         displayOrder: true
       }
     })
