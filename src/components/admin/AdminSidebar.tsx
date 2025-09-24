@@ -21,7 +21,10 @@ import {
   Link as LinkIcon,
   GraduationCap,
   Building,
-  MessageSquare
+  MessageSquare,
+  MessageCircle,
+  Award,
+  Trophy
 } from 'lucide-react'
 
 const navigation = [
@@ -29,11 +32,15 @@ const navigation = [
   { name: 'Skills', href: '/admin/skills', icon: BarChart3 },
   { name: 'Projects', href: '/admin/projects', icon: Briefcase },
   { name: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
+  { name: 'Chat Interactions', href: '/admin/chat-interactions', icon: MessageCircle },
   { name: 'Personal Info', href: '/admin/personal', icon: User },
   { name: 'Social Links', href: '/admin/social', icon: LinkIcon },
   { name: 'Experience', href: '/admin/experience', icon: Building },
   { name: 'Education', href: '/admin/education', icon: GraduationCap },
+  { name: 'Achievements', href: '/admin/achievements', icon: Trophy },
+  { name: 'Certifications', href: '/admin/certifications', icon: Award },
   { name: 'Media', href: '/admin/media', icon: Image },
+  { name: 'System Settings', href: '/admin/system-settings', icon: Database },
   { name: 'Audit Logs', href: '/admin/audit', icon: FileText },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]

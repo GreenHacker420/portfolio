@@ -64,13 +64,21 @@ export async function GET(request: Request) {
       }
 
       if (result.error?.includes('token required') || result.error?.includes('not configured')) {
-        console.warn('GitHub token not configured, using mock data');
-        return getMockRepos();
+        console.warn('GitHub token not configured');
+        return NextResponse.json({ 
+          success: false, 
+          error: 'GitHub token not configured. Please add GITHUB_TOKEN to your environment variables.',
+          data: []
+        }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
       }
 
-      // Fallback to mock data on other errors
-      console.warn('GitHub repos API error, using mock data:', result.error);
-      return NextResponse.json({ success: false, error: result.error || 'Unknown error' }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
+      // Return error on other failures
+      console.error('GitHub repos API error:', result.error);
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error || 'Failed to fetch GitHub repositories',
+        data: []
+      }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
     }
 
     // Filter and format repository data
@@ -104,81 +112,15 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('GitHub repos API error:', error);
-    return getMockRepos();
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Internal server error while fetching repositories',
+      data: []
+    }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
   } finally {
     // Clean up Prisma connection
     await prisma.$disconnect();
   }
-}
-
-function getMockRepos() {
-  const mockRepos = [
-    {
-      id: 1,
-      name: 'portfolio-nextjs',
-      full_name: 'GreenHacker420/portfolio-nextjs',
-      description: 'Modern portfolio website built with Next.js, Three.js, and AI integration',
-      html_url: 'https://github.com/GreenHacker420/portfolio-nextjs',
-      homepage: 'https://greenhacker420.vercel.app',
-      language: 'TypeScript',
-      stargazers_count: 15,
-      forks_count: 3,
-      watchers_count: 15,
-      size: 2048,
-      created_at: '2024-01-15T00:00:00Z',
-      updated_at: new Date().toISOString(),
-      pushed_at: new Date().toISOString(),
-      topics: ['nextjs', 'portfolio', 'threejs', 'ai', 'typescript'],
-      license: 'MIT',
-      default_branch: 'main',
-      open_issues_count: 2,
-    },
-    {
-      id: 2,
-      name: 'ai-chat-assistant',
-      full_name: 'GreenHacker420/ai-chat-assistant',
-      description: 'Intelligent chat assistant powered by Gemini AI with advanced conversation capabilities',
-      html_url: 'https://github.com/GreenHacker420/ai-chat-assistant',
-      homepage: null,
-      language: 'Python',
-      stargazers_count: 8,
-      forks_count: 2,
-      watchers_count: 8,
-      size: 1024,
-      created_at: '2024-02-01T00:00:00Z',
-      updated_at: new Date(Date.now() - 86400000).toISOString(),
-      pushed_at: new Date(Date.now() - 86400000).toISOString(),
-      topics: ['ai', 'chatbot', 'gemini', 'python', 'machine-learning'],
-      license: 'Apache-2.0',
-      default_branch: 'main',
-      open_issues_count: 1,
-    },
-    {
-      id: 3,
-      name: 'react-3d-components',
-      full_name: 'GreenHacker420/react-3d-components',
-      description: 'Collection of reusable 3D React components using Three.js and React Three Fiber',
-      html_url: 'https://github.com/GreenHacker420/react-3d-components',
-      homepage: 'https://react-3d-components.vercel.app',
-      language: 'JavaScript',
-      stargazers_count: 12,
-      forks_count: 4,
-      watchers_count: 12,
-      size: 1536,
-      created_at: '2023-11-20T00:00:00Z',
-      updated_at: new Date(Date.now() - 172800000).toISOString(),
-      pushed_at: new Date(Date.now() - 172800000).toISOString(),
-      topics: ['react', 'threejs', 'components', '3d', 'webgl'],
-      license: 'MIT',
-      default_branch: 'main',
-      open_issues_count: 0,
-    }
-  ];
-
-  return NextResponse.json(
-    { success: true, data: mockRepos, cached: false, mock: true, timestamp: new Date().toISOString() },
-    { status: 200, headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=600' } }
-  );
 }
 
 export async function POST() {

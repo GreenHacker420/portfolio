@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { CacheManager } from '@/lib/cache'
 
 const prisma = new PrismaClient()
 
@@ -18,6 +19,10 @@ export async function POST(request: NextRequest) {
     if (action === 'delete') {
       const deleted = await prisma.skill.deleteMany({ where: { id: { in: ids } } })
       await prisma.auditLog.create({ data: { userId: (session.user as any).id, action: 'BULK_DELETE', resource: 'skills', newData: JSON.stringify({ ids }) } })
+      
+      // Invalidate skills cache after successful deletion
+      CacheManager.invalidateSkills()
+      
       return NextResponse.json({ success: true, deleted: deleted.count })
     }
 
@@ -25,6 +30,10 @@ export async function POST(request: NextRequest) {
       const visible = !!payload?.isVisible
       const updated = await prisma.skill.updateMany({ where: { id: { in: ids } }, data: { isVisible: visible } })
       await prisma.auditLog.create({ data: { userId: (session.user as any).id, action: 'BULK_UPDATE', resource: 'skills', newData: JSON.stringify({ ids, isVisible: visible }) } })
+      
+      // Invalidate skills cache after successful update
+      CacheManager.invalidateSkills()
+      
       return NextResponse.json({ success: true, updated: updated.count })
     }
 

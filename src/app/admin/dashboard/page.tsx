@@ -43,10 +43,19 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard/stats')
+      const response = await fetch('/api/admin/analytics')
       if (response.ok) {
         const data = await response.json()
-        setStats(data)
+        if (data.success && data.analytics) {
+          const analytics = data.analytics
+          setStats({
+            totalSkills: analytics.overview.totalSkills,
+            totalProjects: analytics.overview.totalProjects,
+            publishedProjects: analytics.overview.publishedProjects,
+            draftProjects: analytics.overview.totalProjects - analytics.overview.publishedProjects,
+            recentActivity: analytics.overview.recentAuditLogs
+          })
+        }
       }
     } catch (error) {
       console.error('Failed to fetch dashboard stats:', error)

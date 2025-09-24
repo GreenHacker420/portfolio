@@ -9,8 +9,20 @@ const settingsSchema = z.object({
   heroSubtitle: z.string().max(240).optional().or(z.literal('')),
   seo: z
     .object({
+      title: z.string().max(120).optional().or(z.literal('')),
       description: z.string().max(300).optional().or(z.literal('')),
       keywords: z.array(z.string()).optional(),
+      ogTitle: z.string().max(120).optional().or(z.literal('')),
+      ogDescription: z.string().max(300).optional().or(z.literal('')),
+      ogImage: z.string().url().optional().or(z.literal('')),
+      twitterCard: z.enum(['summary', 'summary_large_image']).optional(),
+      twitterSite: z.string().optional().or(z.literal('')),
+      twitterCreator: z.string().optional().or(z.literal('')),
+      canonicalUrl: z.string().url().optional().or(z.literal('')),
+      robots: z.string().optional().or(z.literal('')),
+      author: z.string().optional().or(z.literal('')),
+      language: z.string().optional().or(z.literal('')),
+      themeColor: z.string().optional().or(z.literal('')),
     })
     .optional(),
   features: z
@@ -18,6 +30,33 @@ const settingsSchema = z.object({
       enableBlog: z.boolean().optional(),
       enableContactAutoReply: z.boolean().optional(),
       enableDarkMode: z.boolean().optional(),
+      enableAnalytics: z.boolean().optional(),
+      enableChatbot: z.boolean().optional(),
+    })
+    .optional(),
+  contact: z
+    .object({
+      email: z.string().email().optional().or(z.literal('')),
+      phone: z.string().optional().or(z.literal('')),
+      location: z.string().optional().or(z.literal('')),
+      availability: z.string().optional().or(z.literal('')),
+    })
+    .optional(),
+  social: z
+    .object({
+      github: z.string().url().optional().or(z.literal('')),
+      linkedin: z.string().url().optional().or(z.literal('')),
+      twitter: z.string().url().optional().or(z.literal('')),
+      instagram: z.string().url().optional().or(z.literal('')),
+      youtube: z.string().url().optional().or(z.literal('')),
+      website: z.string().url().optional().or(z.literal('')),
+    })
+    .optional(),
+  emailTemplates: z
+    .object({
+      contactReply: z.string().optional().or(z.literal('')),
+      welcomeMessage: z.string().optional().or(z.literal('')),
+      signature: z.string().optional().or(z.literal('')),
     })
     .optional(),
 })
@@ -27,7 +66,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const rows = await prisma.setting.findMany({ orderBy: { key: 'asc' } })
+    const rows = await prisma.systemSettings.findMany({ orderBy: { key: 'asc' } })
     const data: Record<string, any> = {}
     for (const row of rows) {
       try {
@@ -40,8 +79,48 @@ export async function GET() {
     const response = {
       siteTitle: data.siteTitle ?? 'Portfolio Admin',
       heroSubtitle: data.heroSubtitle ?? '',
-      seo: data.seo ?? { description: '', keywords: [] },
-      features: data.features ?? { enableBlog: false, enableContactAutoReply: false, enableDarkMode: true },
+      seo: data.seo ?? { 
+        title: '',
+        description: '', 
+        keywords: [],
+        ogTitle: '',
+        ogDescription: '',
+        ogImage: '',
+        twitterCard: 'summary',
+        twitterSite: '',
+        twitterCreator: '',
+        canonicalUrl: '',
+        robots: 'index, follow',
+        author: '',
+        language: 'en',
+        themeColor: '#000000'
+      },
+      features: data.features ?? { 
+        enableBlog: false, 
+        enableContactAutoReply: false, 
+        enableDarkMode: true,
+        enableAnalytics: false,
+        enableChatbot: true
+      },
+      contact: data.contact ?? {
+        email: '',
+        phone: '',
+        location: '',
+        availability: ''
+      },
+      social: data.social ?? {
+        github: '',
+        linkedin: '',
+        twitter: '',
+        instagram: '',
+        youtube: '',
+        website: ''
+      },
+      emailTemplates: data.emailTemplates ?? {
+        contactReply: '',
+        welcomeMessage: '',
+        signature: ''
+      }
     }
     return NextResponse.json({ settings: response })
   } catch (error) {
@@ -61,12 +140,15 @@ export async function PUT(request: NextRequest) {
     const upserts = [
       { key: 'siteTitle', value: JSON.stringify(validated.siteTitle) },
       { key: 'heroSubtitle', value: JSON.stringify(validated.heroSubtitle ?? '') },
-      { key: 'seo', value: JSON.stringify(validated.seo ?? { description: '', keywords: [] }) },
-      { key: 'features', value: JSON.stringify(validated.features ?? { enableBlog: false, enableContactAutoReply: false, enableDarkMode: true }) },
+      { key: 'seo', value: JSON.stringify(validated.seo ?? {}) },
+      { key: 'features', value: JSON.stringify(validated.features ?? {}) },
+      { key: 'contact', value: JSON.stringify(validated.contact ?? {}) },
+      { key: 'social', value: JSON.stringify(validated.social ?? {}) },
+      { key: 'emailTemplates', value: JSON.stringify(validated.emailTemplates ?? {}) },
     ]
 
     for (const row of upserts) {
-      await prisma.setting.upsert({
+      await prisma.systemSettings.upsert({
         where: { key: row.key },
         create: row,
         update: { value: row.value },

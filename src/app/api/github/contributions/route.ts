@@ -55,13 +55,21 @@ export async function GET(request: Request) {
       }
 
       if (result.error?.includes('token required')) {
-        console.warn('GitHub token not configured, using mock data');
-        return getMockContributions(year);
+        console.warn('GitHub token not configured');
+        return NextResponse.json({ 
+          success: false, 
+          error: 'GitHub token not configured. Please add GITHUB_TOKEN to your environment variables.',
+          data: { weeks: [], totalContributions: 0 }
+        }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
       }
 
-      // Fallback to mock data on other errors
-      console.warn('GitHub contributions API error, using mock data:', result.error);
-      return getMockContributions(year);
+      // Return error on other failures
+      console.error('GitHub contributions API error:', result.error);
+      return NextResponse.json({ 
+        success: false, 
+        error: result.error || 'Failed to fetch GitHub contributions',
+        data: { weeks: [], totalContributions: 0 }
+      }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
     }
 
     return NextResponse.json(
@@ -71,56 +79,15 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('GitHub contributions API error:', error);
-    return getMockContributions(new Date().getFullYear());
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Internal server error while fetching contributions',
+      data: { weeks: [], totalContributions: 0 }
+    }, { status: 500, headers: { 'Cache-Control': 'no-store' } });
   } finally {
     // Clean up Prisma connection
     await prisma.$disconnect();
   }
-}
-
-function getMockContributions(year: number) {
-  // Generate simple mock contribution data
-  const mockContributions: GitHubContribution[] = [];
-  const startDate = new Date(year, 0, 1);
-  const endDate = new Date(year, 11, 31);
-  const currentDate = new Date();
-
-  for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-    // Don't generate contributions for future dates
-    if (date > currentDate) {
-      mockContributions.push({
-        date: date.toISOString().split('T')[0],
-        count: 0,
-        level: 0,
-      });
-      continue;
-    }
-
-    // Generate random contributions with some patterns
-    const dayOfWeek = date.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const baseActivity = isWeekend ? 0.3 : 0.8;
-
-    let count = 0;
-    if (Math.random() < baseActivity) {
-      count = Math.floor(Math.random() * 12) + 1;
-    }
-
-    const level = count === 0 ? 0 : Math.min(Math.floor((count - 1) / 3) + 1, 4);
-
-    mockContributions.push({
-      date: date.toISOString().split('T')[0],
-      count,
-      level,
-    });
-  }
-
-  const mockCalendar = transformContributionsToCalendar(mockContributions, year);
-
-  return NextResponse.json(
-    { success: true, data: mockCalendar, mock: true, timestamp: new Date().toISOString() },
-    { status: 200, headers: { 'Cache-Control': 'public, s-maxage=43200, stale-while-revalidate=21600' } }
-  );
 }
 
 function transformContributionsToCalendar(

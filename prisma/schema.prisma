@@ -1,167 +1,291 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x", "linux-musl"]
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres", "postgresqlExtensions"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  extensions = [pg_trgm]
 }
 
-// Admin User model for authentication
+// ================================
+// AUTHENTICATION & ADMIN MODELS
+// ================================
+
 model AdminUser {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
-  name      String
+  name      String?
   role      String   @default("admin")
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  auditLogs      AuditLog[]
+  auditLogs    AuditLog[]
   contactReplies ContactReply[]
 
   @@map("admin_users")
 }
 
-// Skills management
-model Skill {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  category    String
-  level       Int      // 1-100 proficiency level
-  color       String
-  logo        String?
-  experience  Int?     // years of experience
-  projects    String?  // JSON array of project names
-  strengths   String?  // JSON array of strengths
-  displayOrder Int     @default(0)
-  isVisible   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String   // CREATE, UPDATE, DELETE, BULK_DELETE, BULK_UPDATE, REPLY, etc.
+  resource   String   // contacts, skills, projects, etc.
+  resourceId String?
+  oldData    String?  @db.Text
+  newData    String?  @db.Text
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 
-  @@map("skills")
+  // Relations
+  user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
-// Projects management
-model Project {
-  id              String   @id @default(cuid())
-  title           String
-  description     String
-  longDescription String?
-  category        String
-  technologies    String   // JSON array of technologies
-  status          String   @default("draft") // draft, published, archived
-  featured        Boolean  @default(false)
-  githubUrl       String?
-  liveUrl         String?
-  imageUrl        String?
-  screenshots     String?  // JSON array of screenshot URLs
-  startDate       DateTime?
-  endDate         DateTime?
-  highlights      String?  // JSON array of highlights
-  displayOrder    Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+// ================================
+// PERSONAL INFORMATION
+// ================================
 
-  @@map("projects")
-}
-
-// Personal Information
 model PersonalInfo {
-  id          String   @id @default(cuid())
+  id          String   @id @default("default")
   fullName    String
   title       String
-  bio         String?
+  bio         String?  @db.Text
   email       String
   phone       String?
   location    String?
-  profilePhoto String?
-  resumeUrl   String?
+  website     String?
+  avatar      String?
+  resume      String?
+  isVisible   Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@map("personal_info")
 }
 
-// Social Media Links
-model SocialLink {
-  id          String   @id @default(cuid())
-  platform    String   // linkedin, github, twitter, etc.
-  url         String
-  username    String?
-  icon        String?  // Icon name or URL
-  isVisible   Boolean  @default(true)
-  displayOrder Int     @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// ================================
+// SKILLS & EXPERTISE
+// ================================
 
-  @@map("social_links")
+model Skill {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?  @db.Text
+  category     String   // language, frontend, backend, database, devops, design, etc.
+  level        Int      @default(0) // 0-100
+  color        String?  // Hex color for UI
+  logo         String?  // URL to skill logo/icon
+  experience   Int?     // Years of experience
+  projects     String?  @db.Text // JSON array of project names
+  strengths    String?  @db.Text // JSON array of specific strengths
+  isVisible    Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("skills")
 }
 
-// Work Experience
-model WorkExperience {
-  id          String   @id @default(cuid())
-  company     String
-  position    String
-  startDate   DateTime
-  endDate     DateTime?
-  description String?
-  companyLogo String?
-  isVisible   Boolean  @default(true)
-  displayOrder Int     @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// ================================
+// PROJECTS & PORTFOLIO
+// ================================
 
+model Project {
+  id              String   @id @default(cuid())
+  title           String
+  description     String   @db.Text
+  longDescription String?  @db.Text
+  category        String   // web-app, mobile-app, api, library, etc.
+  technologies    String?  @db.Text // JSON array
+  status          ProjectStatus @default(draft)
+  featured        Boolean  @default(false)
+  githubUrl       String?
+  liveUrl         String?
+  imageUrl        String?
+  gallery         String?  @db.Text // JSON array of image URLs
+  highlights      String?  @db.Text // JSON array of key features
+  challenges      String?  @db.Text // JSON array of technical challenges
+  learnings       String?  @db.Text // JSON array of key learnings
+  startDate       DateTime?
+  endDate         DateTime?
+  teamSize        Int?
+  role            String?  // Lead Developer, Full Stack Developer, etc.
+  isVisible       Boolean  @default(true)
+  displayOrder    Int      @default(0)
+  viewCount       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([featured])
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  draft
+  published
+  archived
+}
+
+// ================================
+// WORK EXPERIENCE
+// ================================
+
+model WorkExperience {
+  id           String    @id @default(cuid())
+  company      String
+  position     String
+  startDate    DateTime
+  endDate      DateTime?
+  description  String?   @db.Text
+  achievements String?   @db.Text // JSON array
+  technologies String?   @db.Text // JSON array
+  companyLogo  String?
+  companyUrl   String?
+  location     String?
+  employmentType String? // Full-time, Part-time, Contract, Freelance
+  isVisible    Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible])
+  @@index([displayOrder])
   @@map("work_experience")
 }
 
-// Education
-model Education {
-  id          String   @id @default(cuid())
-  institution String
-  degree      String
-  fieldOfStudy String?
-  startDate   DateTime
-  endDate     DateTime?
-  gpa         String?
-  honors      String?
-  isVisible   Boolean  @default(true)
-  displayOrder Int     @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// ================================
+// EDUCATION
+// ================================
 
+model Education {
+  id           String    @id @default(cuid())
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  startDate    DateTime
+  endDate      DateTime?
+  gpa          String?
+  honors       String?
+  description  String?   @db.Text
+  activities   String?   @db.Text // JSON array
+  isVisible    Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible])
+  @@index([displayOrder])
   @@map("education")
 }
 
-// Contact Form Submissions
+// ================================
+// CERTIFICATIONS & ACHIEVEMENTS
+// ================================
+
+model Certification {
+  id           String    @id @default(cuid())
+  name         String
+  issuer       String
+  issueDate    DateTime
+  expiryDate   DateTime?
+  credentialId String?
+  credentialUrl String?
+  description  String?   @db.Text
+  skills       String?   @db.Text // JSON array
+  isVisible    Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("certifications")
+}
+
+model Achievement {
+  id           String   @id @default(cuid())
+  title        String
+  description  String   @db.Text
+  category     String   // award, recognition, milestone, etc.
+  date         DateTime
+  issuer       String?
+  url          String?
+  imageUrl     String?
+  isVisible    Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("achievements")
+}
+
+// ================================
+// CONTACT & COMMUNICATION
+// ================================
+
 model Contact {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   name      String
   email     String
   subject   String
-  message   String   @db.Text
-  status    String   @default("pending") // pending, responded, archived
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  message   String        @db.Text
+  phone     String?
+  company   String?
+  status    ContactStatus @default(pending)
+  priority  ContactPriority @default(normal)
+  source    String?       // website, linkedin, referral, etc.
+  tags      String?       @db.Text // JSON array
+  notes     String?       @db.Text
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
   // Relations
-  replies   ContactReply[]
+  replies ContactReply[]
 
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
   @@map("contacts")
 }
 
-// Contact Replies
+enum ContactStatus {
+  pending
+  responded
+  archived
+  spam
+}
+
+enum ContactPriority {
+  low
+  normal
+  high
+  urgent
+}
+
 model ContactReply {
   id            String   @id @default(cuid())
   contactId     String
@@ -172,209 +296,309 @@ model ContactReply {
   aiMode        String?  // auto-generate, enhance-draft, manual
   emailSent     Boolean  @default(false)
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
 
   // Relations
-  contact       Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  user          AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user    AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([contactId])
+  @@index([userId])
   @@map("contact_replies")
 }
 
+// ================================
+// SOCIAL LINKS & PROFILES
+// ================================
 
+model SocialLink {
+  id           String   @id @default(cuid())
+  platform     String   // github, linkedin, twitter, instagram, etc.
+  url          String
+  username     String?
+  isVisible    Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-// Media Files
+  @@index([platform])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("social_links")
+}
+
+// ================================
+// MEDIA & ASSETS
+// ================================
+
 model Media {
-  id          String   @id @default(cuid())
-  filename    String
+  id           String   @id @default(cuid())
+  filename     String
   originalName String
-  mimeType    String
-  size        Int      // File size in bytes
-  url         String   // File URL or path
-  alt         String?  // Alt text for images
-  category    String   @default("general") // profile, project, gallery, etc.
-  isVisible   Boolean  @default(true)
-  uploadedBy  String?  // Admin user ID
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  mimeType     String
+  size         Int
+  url          String
+  alt          String?
+  category     String?  // avatar, project, gallery, document, etc.
+  tags         String?  @db.Text // JSON array
+  isPublic     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
+  @@index([category])
+  @@index([isPublic])
   @@map("media")
 }
 
-// FAQ System
-model Faq {
-  id          String   @id @default(cuid())
-  question    String
-  answer      String   @db.Text
-  category    String   // technical, projects, contact, general, etc.
-  tags        String?  // JSON array of searchable tags
-  isVisible   Boolean  @default(true)
-  displayOrder Int     @default(0)
-  viewCount   Int      @default(0)
-  helpful     Int      @default(0)
-  notHelpful  Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// ================================
+// FAQ & SUPPORT
+// ================================
 
+model FAQ {
+  id           String   @id @default(cuid())
+  question     String
+  answer       String   @db.Text
+  category     String
+  tags         String?  @db.Text // JSON array
+  isVisible    Boolean  @default(true)
+  viewCount    Int      @default(0)
+  helpful      Int      @default(0)
+  notHelpful   Int      @default(0)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
   @@map("faqs")
 }
 
-// Chat Interactions for analytics and improvement
-model ChatInteraction {
-  id          String   @id @default(cuid())
-  sessionId   String   // Anonymous session identifier
-  userMessage String   @db.Text
-  botResponse String   @db.Text
-  context     String?  // Page context or additional info
-  isHelpful   Boolean? // User feedback
-  ipAddress   String?
-  userAgent   String?
-  responseTime Int?    // Response time in milliseconds
-  createdAt   DateTime @default(now())
+// ================================
+// CHAT & AI INTERACTIONS
+// ================================
 
+model ChatInteraction {
+  id           String   @id @default(cuid())
+  sessionId    String
+  userMessage  String   @db.Text
+  botResponse  String   @db.Text
+  context      String?  @db.Text // JSON object with page, userAgent, etc.
+  responseTime Int?     // milliseconds
+  helpful      Boolean?
+  feedback     String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([createdAt])
   @@map("chat_interactions")
 }
 
-// Audit Log for tracking admin actions
-model AuditLog {
-  id        String   @id @default(cuid())
-  userId    String
-  action    String   // CREATE, UPDATE, DELETE
-  resource  String   // skills, projects, contacts, etc.
-  resourceId String?
-  oldData   String?  // JSON of old data
-  newData   String?  // JSON of new data
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
+// ================================
+// GITHUB CACHE SYSTEM
+// ================================
 
-  // Relations
-  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("audit_logs")
-}
-
-
-// Site Settings (key-value JSON store)
-model Setting {
-  id        String   @id @default(cuid())
-  key       String   @unique
-  value     String   // JSON string
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("settings")
-}
-
-// GitHub Cache Models for Netlify Edge Functions with Neon PostgreSQL
-
-// GitHub Profile Cache
 model GitHubProfileCache {
   id          String   @id @default(cuid())
   username    String   @unique
-  profileData String   @db.Text // JSON data of GitHub profile
-  dataHash    String   // Hash of the data for change detection
-  expiresAt   DateTime // Cache expiration timestamp
-  lastFetch   DateTime @default(now()) // Last successful fetch from GitHub API
-  fetchCount  Int      @default(1) // Number of times fetched
-  isStale     Boolean  @default(false) // Whether cache is stale but still usable
-  errorCount  Int      @default(0) // Consecutive error count
-  lastError   String?  // Last error message if any
-  rateLimit   String?  @db.Text // JSON of rate limit info
+  profileData String   @db.Text // JSON
+  dataHash    String   // For change detection
+  expiresAt   DateTime
+  lastFetch   DateTime @default(now())
+  fetchCount  Int      @default(1)
+  errorCount  Int      @default(0)
+  lastError   String?  @db.Text
+  isStale     Boolean  @default(false)
+  rateLimit   String?  @db.Text // JSON
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([username])
+  @@index([expiresAt])
   @@map("github_profile_cache")
 }
 
-// GitHub Repositories Cache
 model GitHubRepoCache {
   id          String   @id @default(cuid())
   username    String
   page        Int      @default(1)
   perPage     Int      @default(30)
-  reposData   String   @db.Text // JSON array of repositories
-  dataHash    String   // Hash of the data for change detection
-  totalCount  Int?     // Total number of repositories
-  expiresAt   DateTime // Cache expiration timestamp
+  repoData    String   @db.Text // JSON array
+  dataHash    String
+  expiresAt   DateTime
   lastFetch   DateTime @default(now())
   fetchCount  Int      @default(1)
-  isStale     Boolean  @default(false)
   errorCount  Int      @default(0)
-  lastError   String?
-  rateLimit   String?  @db.Text // JSON of rate limit info
+  lastError   String?  @db.Text
+  isStale     Boolean  @default(false)
+  rateLimit   String?  @db.Text // JSON
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([username, page, perPage])
+  @@index([username])
+  @@index([expiresAt])
   @@map("github_repo_cache")
 }
 
-// GitHub Contributions Cache
 model GitHubContributionCache {
-  id              String   @id @default(cuid())
-  username        String
-  year            Int
-  contributionData String  @db.Text // JSON of contribution calendar data
-  dataHash        String   // Hash of the data for change detection
-  totalContributions Int   @default(0)
-  currentStreak   Int      @default(0)
-  longestStreak   Int      @default(0)
-  expiresAt       DateTime // Cache expiration timestamp
-  lastFetch       DateTime @default(now())
-  fetchCount      Int      @default(1)
-  isStale         Boolean  @default(false)
-  errorCount      Int      @default(0)
-  lastError       String?
-  rateLimit       String?  @db.Text // JSON of rate limit info
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String   @id @default(cuid())
+  username         String
+  year             Int
+  contributionData String   @db.Text // JSON
+  dataHash         String
+  expiresAt        DateTime
+  lastFetch        DateTime @default(now())
+  fetchCount       Int      @default(1)
+  errorCount       Int      @default(0)
+  lastError        String?  @db.Text
+  isStale          Boolean  @default(false)
+  rateLimit        String?  @db.Text // JSON
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([username, year])
+  @@index([username])
+  @@index([year])
+  @@index([expiresAt])
   @@map("github_contribution_cache")
 }
 
-// GitHub Statistics Cache
 model GitHubStatsCache {
-  id              String   @id @default(cuid())
-  username        String   @unique
-  statsData       String   @db.Text // JSON of computed statistics
-  dataHash        String   // Hash of the data for change detection
-  totalStars      Int      @default(0)
-  totalForks      Int      @default(0)
-  totalRepos      Int      @default(0)
-  totalCommits    Int      @default(0)
-  languagesData   String?  @db.Text // JSON of language statistics
-  expiresAt       DateTime // Cache expiration timestamp
-  lastFetch       DateTime @default(now())
-  fetchCount      Int      @default(1)
-  isStale         Boolean  @default(false)
-  errorCount      Int      @default(0)
-  lastError       String?
-  rateLimit       String?  @db.Text // JSON of rate limit info
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id          String   @id @default(cuid())
+  username    String   @unique
+  statsData   String   @db.Text // JSON
+  dataHash    String
+  expiresAt   DateTime
+  lastFetch   DateTime @default(now())
+  fetchCount  Int      @default(1)
+  errorCount  Int      @default(0)
+  lastError   String?  @db.Text
+  isStale     Boolean  @default(false)
+  rateLimit   String?  @db.Text // JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
+  @@index([username])
+  @@index([expiresAt])
   @@map("github_stats_cache")
 }
 
-// GitHub Cache Analytics for monitoring and optimization
 model GitHubCacheAnalytics {
-  id            String   @id @default(cuid())
-  cacheType     String   // profile, repos, contributions, stats
-  operation     String   // hit, miss, refresh, error
-  username      String
-  responseTime  Int?     // Response time in milliseconds
-  cacheAge      Int?     // Age of cached data in seconds
-  dataSize      Int?     // Size of cached data in bytes
-  userAgent     String?
-  ipAddress     String?
-  edgeLocation  String?  // Netlify edge location
-  errorMessage  String?
-  metadata      String?  @db.Text // Additional metadata as JSON
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  cacheType    String   // profile, repos, contributions, stats
+  operation    String   // hit, miss, stale-hit, edge-hit, error, invalidate
+  username     String
+  responseTime Int?     // milliseconds
+  cacheAge     Int?     // seconds
+  dataSize     Int?     // bytes
+  errorMessage String?  @db.Text
+  metadata     String?  @db.Text // JSON
+  createdAt    DateTime @default(now())
 
-  @@index([cacheType, operation, createdAt])
-  @@index([username, createdAt])
+  @@index([cacheType])
+  @@index([operation])
+  @@index([username])
+  @@index([createdAt])
   @@map("github_cache_analytics")
+}
+
+// ================================
+// MOTIA INTEGRATION (AI AUTOMATION)
+// ================================
+
+model MotiaWorkflow {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?  @db.Text
+  config      String   @db.Text // JSON configuration
+  isActive    Boolean  @default(true)
+  schedule    String?  // Cron expression
+  lastRun     DateTime?
+  nextRun     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  executions MotiaExecution[]
+
+  @@index([isActive])
+  @@index([nextRun])
+  @@map("motia_workflows")
+}
+
+model MotiaExecution {
+  id         String            @id @default(cuid())
+  workflowId String
+  status     MotiaExecutionStatus @default(pending)
+  input      String?           @db.Text // JSON
+  output     String?           @db.Text // JSON
+  error      String?           @db.Text
+  startedAt  DateTime          @default(now())
+  completedAt DateTime?
+  duration   Int?              // milliseconds
+
+  // Relations
+  workflow MotiaWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([startedAt])
+  @@map("motia_executions")
+}
+
+enum MotiaExecutionStatus {
+  pending
+  running
+  completed
+  failed
+  cancelled
+}
+
+model MotiaAutomation {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // portfolio-sync, github-analytics, contact-auto-reply
+  config      String   @db.Text // JSON
+  isEnabled   Boolean  @default(true)
+  lastTrigger DateTime?
+  triggerCount Int     @default(0)
+  successCount Int     @default(0)
+  errorCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type])
+  @@index([isEnabled])
+  @@map("motia_automations")
+}
+
+model MotiaAnalytics {
+  id        String   @id @default(cuid())
+  event     String   // workflow_executed, automation_triggered, etc.
+  data      String?  @db.Text // JSON
+  metadata  String?  @db.Text // JSON
+  createdAt DateTime @default(now())
+
+  @@index([event])
+  @@index([createdAt])
+  @@map("motia_analytics")
+}
+
+// ================================
+// SYSTEM SETTINGS
+// ================================
+
+model SystemSettings {
+  id        String   @id @default("default")
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("string") // string, number, boolean, json
+  category  String?  // general, email, github, ai, etc.
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([isPublic])
+  @@map("system_settings")
 }

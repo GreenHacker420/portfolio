@@ -2,133 +2,112 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 interface ExperienceItem {
   id: string;
-  title: string;
   company: string;
-  period: string;
-  location: string;
+  position: string;
+  startDate: string;
+  endDate?: string;
   description?: string;
-  skills?: string[];
-  type: string;
+  companyLogo?: string;
+}
+
+interface EducationItem {
+  id: string;
+  institution: string;
+  degree: string;
+  fieldOfStudy?: string;
+  startDate: string;
+  endDate?: string;
+  gpa?: string;
+  honors?: string;
+}
+
+interface CertificationItem {
+  id: string;
+  name: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate?: string;
+  credentialId?: string;
+  credentialUrl?: string;
+  description?: string;
+}
+
+interface AchievementItem {
+  id: string;
+  title: string;
+  description?: string;
+  date: string;
 }
 
 const Experience = () => {
   const [activeTab, setActiveTab] = useState('work');
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [experiences, setExperiences] = useState<ExperienceItem[]>([]);
+  const [education, setEducation] = useState<EducationItem[]>([]);
+  const [certifications, setCertifications] = useState<CertificationItem[]>([]);
+  const [achievements, setAchievements] = useState<AchievementItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
+    try {
+      const [expRes, eduRes, certRes, achRes] = await Promise.all([
+        fetch('/api/experience'),
+        fetch('/api/education'),
+        fetch('/api/certifications'),
+        fetch('/api/achievements')
+      ]);
+
+      if (expRes.ok) {
+        const expData = await expRes.json();
+        setExperiences(expData.experiences || []);
+      }
+
+      if (eduRes.ok) {
+        const eduData = await eduRes.json();
+        setEducation(eduData.education || []);
+      }
+
+      if (certRes.ok) {
+        const certData = await certRes.json();
+        setCertifications(certData.certifications || []);
+      }
+
+      if (achRes.ok) {
+        const achData = await achRes.json();
+        setAchievements(achData.achievements || []);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleItem = (id: string) => {
     setExpandedItem(expandedItem === id ? null : id);
   };
 
-  const experiences: ExperienceItem[] = [
-    {
-      id: "exp1",
-      title: "Field Associate",
-      company: "Sachetparyant",
-      period: "Sep 2021 - Jul 2023",
-      location: "India",
-      type: "Part-time",
-      description: "Database Head & Field Associate at Sachetparyant's Project Shikshan. Responsible for managing multiple database systems and ensuring data integrity across projects.",
-      skills: ["Database Management", "Team Leadership", "Data Analysis"]
-    },
-    {
-      id: "exp2",
-      title: "Field Associate",
-      company: "Sachetparyant",
-      period: "Sep 2021 - Apr 2022",
-      location: "India",
-      type: "Part-time",
-      description: "Database Head & Field Associate at Sachetparyant's Project Shikshan. Worked with stakeholders to identify data needs and implement appropriate solutions.",
-      skills: ["Team Management", "Data Analysis", "Stakeholder Communication"]
-    },
-    {
-      id: "exp3",
-      title: "Field Associate",
-      company: "Sachetparyant",
-      period: "Sep 2021 - Sep 2021",
-      location: "India",
-      type: "Internship",
-      description: "Assisted in field operations and data collection activities. Participated in team meetings and contributed to project documentation.",
-      skills: ["Field Operations", "Data Collection", "Documentation"]
-    },
-    {
-      id: "exp4",
-      title: "Executive",
-      company: "Sachetparyant",
-      period: "Jul 2021 - Sep 2021",
-      location: "India",
-      type: "Internship",
-      description: "Supported executive team in daily operations and special projects. Developed reporting templates and assisted with presentation materials.",
-      skills: ["Executive Support", "Reporting", "Office Administration"]
-    }
-  ];
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short' 
+    });
+  };
 
-  const education = [
-    {
-      id: "edu1",
-      school: "Newton School of Technology",
-      degree: "Bachelor of Technology - BTech, Computer Science",
-      period: "Aug 2024 - Jul 2028",
-      description: "Focusing on advanced programming concepts, data structures, algorithms, and software engineering principles. Participating in coding competitions and tech community events.",
-      skills: ["Programming", "Python", "Data Structures", "Algorithms"]
-    },
-    {
-      id: "edu2",
-      school: "Royal Senior Secondary School",
-      degree: "Senior Secondary School, PCM",
-      period: "Apr 2022 - May 2024",
-      description: "Completed secondary education with focus on Physics, Chemistry, and Mathematics (PCM). Participated in science exhibitions and mathematical olympiads.",
-      skills: ["Mathematics", "Physics", "Chemistry", "Problem Solving"]
-    }
-  ];
-
-  const certifications = [
-    {
-      id: "cert1",
-      name: "AI For Everyone",
-      issuer: "DeepLearning.AI",
-      date: "Mar 2025",
-      certId: "GQIFS41IFAYR"
-    },
-    {
-      id: "cert2",
-      name: "Generative AI for Everyone",
-      issuer: "DeepLearning.AI",
-      date: "Mar 2025",
-      certId: "R2CGBN98KY1W"
-    }
-  ];
-
-  const achievements = [
-    {
-      id: "ach1",
-      title: "Postman API Fundamentals Student Expert",
-      date: "Feb 2025",
-      description: "Mastered API development and testing with Postman."
-    },
-    {
-      id: "ach2",
-      title: "Certified Machine Learning Specialist",
-      date: "Jan 2025",
-      description: "Completed a comprehensive course on machine learning."
-    },
-    {
-      id: "ach3",
-      title: "1st Place - Robo Soccer Competition",
-      date: "Dec 2024",
-      description: "Led a team to victory at the national Robo Soccer competition."
-    },
-    {
-      id: "ach4",
-      title: "Tekron 2025 Organizing Committee Member",
-      date: "Nov 2024",
-      description: "Contributed to organizing one of the largest technical events at my university."
-    }
-  ];
+  const formatPeriod = (startDate: string, endDate?: string) => {
+    const start = formatDate(startDate);
+    const end = endDate ? formatDate(endDate) : 'Present';
+    return `${start} - ${end}`;
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -144,6 +123,19 @@ const Experience = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
+
+  if (isLoading) {
+    return (
+      <section id="experience" className="py-20 bg-github-dark">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neon-green mx-auto"></div>
+            <p className="text-white mt-4">Loading experience data...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="experience" className="py-20 bg-github-dark">
@@ -233,12 +225,11 @@ const Experience = () => {
                     <div className="p-6">
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                         <div>
-                          <h4 className="font-semibold text-white text-lg">{exp.title}</h4>
+                          <h4 className="font-semibold text-white text-lg">{exp.position}</h4>
                           <p className="text-neon-green">{exp.company}</p>
                         </div>
                         <div className="mt-2 sm:mt-0 text-right">
-                          <p className="text-github-text text-sm">{exp.type}</p>
-                          <p className="mt-1 text-github-text text-sm">{exp.period}</p>
+                          <p className="mt-1 text-github-text text-sm">{formatPeriod(exp.startDate, exp.endDate)}</p>
                         </div>
                       </div>
 
@@ -265,18 +256,6 @@ const Experience = () => {
                       <div className="px-6 pb-6 border-t border-github-border pt-4 mt-4">
                         {exp.description && (
                           <p className="text-github-text">{exp.description}</p>
-                        )}
-                        {exp.skills && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {exp.skills.map((skill, skillIndex) => (
-                              <span
-                                key={skillIndex}
-                                className="tech-badge bg-github-dark"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
                         )}
                       </div>
                     </CollapsibleContent>
@@ -313,9 +292,9 @@ const Experience = () => {
                     onOpenChange={() => toggleItem(edu.id)}
                   >
                     <div className="p-6">
-                      <h4 className="font-semibold text-white text-lg">{edu.school}</h4>
-                      <p className="text-neon-purple">{edu.degree}</p>
-                      <p className="mt-2 text-github-text text-sm">{edu.period}</p>
+                      <h4 className="font-semibold text-white text-lg">{edu.institution}</h4>
+                      <p className="text-neon-purple">{edu.degree}{edu.fieldOfStudy ? `, ${edu.fieldOfStudy}` : ''}</p>
+                      <p className="mt-2 text-github-text text-sm">{formatPeriod(edu.startDate, edu.endDate)}</p>
 
                       <CollapsibleTrigger className="mt-4 text-sm text-github-text hover:text-white transition-colors flex items-center">
                         {expandedItem === edu.id ? 'Show less' : 'Show more'}
@@ -338,20 +317,11 @@ const Experience = () => {
 
                     <CollapsibleContent>
                       <div className="px-6 pb-6 border-t border-github-border pt-4 mt-4">
-                        {edu.description && (
-                          <p className="text-github-text">{edu.description}</p>
+                        {edu.gpa && (
+                          <p className="text-github-text">GPA: {edu.gpa}</p>
                         )}
-                        {edu.skills && (
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {edu.skills.map((skill, skillIndex) => (
-                              <span
-                                key={skillIndex}
-                                className="tech-badge bg-github-dark"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
+                        {edu.honors && (
+                          <p className="text-github-text mt-2">Honors: {edu.honors}</p>
                         )}
                       </div>
                     </CollapsibleContent>
@@ -388,8 +358,10 @@ const Experience = () => {
                     <h4 className="font-semibold text-white text-lg">{cert.name}</h4>
                     <p className="text-neon-blue">{cert.issuer}</p>
                     <div className="mt-2 text-github-text text-sm flex justify-between">
-                      <span>Issued {cert.date}</span>
-                      <span className="text-xs bg-github-dark px-2 py-1 rounded-full">ID: {cert.certId}</span>
+                      <span>Issued {formatDate(cert.issueDate)}</span>
+                      {cert.credentialId && (
+                        <span className="text-xs bg-github-dark px-2 py-1 rounded-full">ID: {cert.credentialId}</span>
+                      )}
                     </div>
                     <div className="mt-4 flex">
                       <button className="text-sm text-white px-3 py-1 border border-neon-blue/50 rounded hover:bg-neon-blue/10 transition-colors">
@@ -429,7 +401,7 @@ const Experience = () => {
                     <div className="flex justify-between items-start">
                       <h4 className="font-semibold text-white text-lg">{achievement.title}</h4>
                       <span className="bg-github-dark text-neon-green px-2 py-1 text-xs rounded-full">
-                        {achievement.date}
+                        {formatDate(achievement.date)}
                       </span>
                     </div>
                     <p className="mt-2 text-github-text">{achievement.description}</p>

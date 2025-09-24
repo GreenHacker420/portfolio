@@ -313,8 +313,70 @@ async function main() {
   
   console.log('✅ Sample work experience created')
 
-  // TODO: Add FAQ data after fixing Prisma client issue
-  console.log('⚠️ FAQ data creation skipped - will be added via admin panel')
+  // Create sample education entry
+  const sampleEducation = {
+    institution: 'Update University Name',
+    degree: 'Update Degree',
+    fieldOfStudy: 'Update Field of Study',
+    startDate: new Date('2018-01-01'),
+    endDate: new Date('2022-01-01'),
+    isVisible: false,
+    displayOrder: 1,
+  }
+
+  const existingEducation = await prisma.education.findFirst({
+    where: {
+      institution: sampleEducation.institution,
+      degree: sampleEducation.degree
+    }
+  })
+
+  if (!existingEducation) {
+    await prisma.education.create({
+      data: sampleEducation,
+    })
+  }
+  
+  console.log('✅ Sample education created')
+
+  // Create sample social links
+  const socialLinks = [
+    {
+      platform: 'github',
+      url: 'https://github.com/yourusername',
+      username: 'yourusername',
+      isVisible: true,
+      displayOrder: 1,
+    },
+    {
+      platform: 'linkedin',
+      url: 'https://linkedin.com/in/yourprofile',
+      username: 'yourprofile',
+      isVisible: true,
+      displayOrder: 2,
+    },
+    {
+      platform: 'twitter',
+      url: 'https://twitter.com/yourusername',
+      username: 'yourusername',
+      isVisible: true,
+      displayOrder: 3,
+    }
+  ]
+
+  for (const link of socialLinks) {
+    const existing = await prisma.socialLink.findFirst({
+      where: { platform: link.platform }
+    })
+
+    if (!existing) {
+      await prisma.socialLink.create({
+        data: link,
+      })
+    }
+  }
+  
+  console.log('✅ Sample social links created')
 
   console.log('🎉 Database seeding completed!')
   console.log(`\n📧 Admin Login:`)
