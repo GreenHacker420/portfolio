@@ -23,8 +23,9 @@ export function useGitHubStats(): UseGitHubStatsReturn {
       setIsLoading(true);
       setError(null);
 
-      // Fetch unified aggregate payload in one request
-      const aggRes = await fetch(GITHUB_API_ENDPOINTS.AGGREGATE);
+      // Fetch unified aggregate payload with cache-busting to avoid stale edge cache
+      const aggUrl = `${GITHUB_API_ENDPOINTS.AGGREGATE}?t=${Date.now()}`;
+      const aggRes = await fetch(aggUrl);
       if (!aggRes.ok) {
         const errorText = await aggRes.text();
         console.error('Aggregate API error:', aggRes.status, errorText);
@@ -36,7 +37,25 @@ export function useGitHubStats(): UseGitHubStatsReturn {
       }
       const { data: aggregate } = agg;
 
-      // Use aggregated data directly
+      // Fallback client-side enhancement: compute totals and streaks from contributions
+      try {
+        const days = (aggregate.contributions?.weeks || []).flatMap(w => (w as any).contributionDays || []);
+        if (days.length) {
+          const { calculateContributionStreaks, calculateTotalContributions } = await import('@/utils/githubCalculations');
+          const totals = calculateTotalContributions(days);
+          const { currentStreak, longestStreak } = calculateContributionStreaks(days);
+          aggregate.stats = {
+            ...aggregate.stats,
+            totalContributions: totals,
+            currentStreak,
+            longestStreak,
+          };
+        }
+      } catch (e) {
+        // non-blocking; rely on server values
+        console.warn('Client-side streak computation skipped:', e);
+      }
+
       const githubData = aggregate;
       setData(githubData);
       setLastUpdated(new Date());

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import ResumeAIExplainer from './ResumeAIExplainer'
-import { Gauge, SlidersHorizontal, Play, Pause, RefreshCw } from 'lucide-react'
+import { Gauge, SlidersHorizontal, Play, Pause, RefreshCw, ChevronDown } from 'lucide-react'
 
 // Simple PID simulation of a 1D plant: x'' = u with damping
 // Discrete-time Euler integration for demonstration purposes
@@ -44,6 +44,7 @@ export default function RobotControl() {
   const [kd, setKd] = useState(0.08)
   const [setpoint, setSetpoint] = useState(10)
   const [running, setRunning] = useState(true)
+  const [open, setOpen] = useState(false)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const W = 520
@@ -100,9 +101,11 @@ export default function RobotControl() {
   }
 
   useEffect(() => {
-    render()
+    if (open) {
+      render()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kp, ki, kd, setpoint])
+  }, [kp, ki, kd, setpoint, open])
 
   return (
     <motion.div
@@ -112,12 +115,32 @@ export default function RobotControl() {
       viewport={{ once: true }}
       className="rounded-2xl border border-neon-purple/25 bg-black/30 p-6"
     >
-      <div className="flex items-center justify-between gap-3">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => { const willOpen = !open; setOpen(willOpen); if (!willOpen) setRunning(false); }}
+        className="flex w-full items-center justify-between gap-3"
+      >
         <div className="flex items-center gap-2 text-neon-purple">
           <Gauge size={18} />
           <h3 className="font-mono text-sm">Robotics — PID Control Simulator</h3>
         </div>
         <div className="flex items-center gap-2">
+          <span className="text-xs text-neon-purple/70">{open ? 'Hide' : 'Show'}</span>
+          <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : 'rotate-0'}`} />
+        </div>
+      </button>
+
+      {open && (
+        <motion.div
+          key="pid-content"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="mt-4 overflow-hidden"
+        >
+        <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => setRunning((r) => !r)}
             className="rounded-md border border-neon-purple/40 px-3 py-1 text-xs text-neon-purple hover:bg-black/40"
@@ -131,7 +154,6 @@ export default function RobotControl() {
             <span className="inline-flex items-center gap-1"><RefreshCw size={12}/>Reset</span>
           </button>
         </div>
-      </div>
 
       <div className="mt-4 overflow-hidden rounded-xl border border-github-border bg-github-dark">
         <canvas ref={canvasRef} width={W} height={H} />
@@ -169,6 +191,8 @@ export default function RobotControl() {
         contextLabel="pid"
         parameters={{ kp: kp.toFixed(2), ki: ki.toFixed(2), kd: kd.toFixed(2), setpoint: setpoint.toFixed(1) }}
       />
+      </motion.div>
+      )}
     </motion.div>
   )
 }

@@ -159,29 +159,55 @@ export function calculateContributionStreaks(contributions: GitHubContribution[]
   let longestStreak = 0;
   let tempStreak = 0;
 
-  // Sort contributions by date (newest first)
-  const sortedContributions = contributions
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  // Sort contributions by date (ascending) to build a robust set
+  const sortedAsc = [...contributions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  // Calculate current streak (from today backwards)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  for (let i = 0; i < sortedContributions.length; i++) {
-    const contributionDate = new Date(sortedContributions[i].date);
-    contributionDate.setHours(0, 0, 0, 0);
-    
-    const daysDiff = Math.floor((today.getTime() - contributionDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysDiff === i && sortedContributions[i].count > 0) {
-      currentStreak++;
-    } else {
-      break;
+  // Build a set of YYYY-MM-DD for days with at least one contribution
+  const activeDays = new Set<string>();
+  for (const c of sortedAsc) {
+    const d = new Date(c.date);
+    d.setHours(0, 0, 0, 0);
+    if (c.count > 0) {
+      activeDays.add(d.toISOString().split('T')[0]);
     }
   }
 
+  // Walk backwards from today (or yesterday if no contribution today)
+  const walkStreak = (useLocal = false) => {
+    let streak = 0;
+    const cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+    const fmt = (d: Date) => useLocal
+      ? `${d.getFullYear().toString().padStart(4, '0')}-${(d.getMonth()+1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`
+      : d.toISOString().split('T')[0];
+
+    const todayKey = fmt(cursor);
+    if (!activeDays.has(todayKey)) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    while (true) {
+      const key = fmt(cursor);
+      if (activeDays.has(key)) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  // Try UTC-based first; if zero, retry with local date formatting
+  currentStreak = walkStreak(false);
+  if (currentStreak === 0) {
+    currentStreak = walkStreak(true);
+  }
+
   // Calculate longest streak
-  for (const contribution of sortedContributions) {
+  // Using contributions order is fine since zero-count days reset the streak
+  const sortedDesc = [...contributions].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  for (const contribution of sortedDesc) {
     if (contribution.count > 0) {
       tempStreak++;
       longestStreak = Math.max(longestStreak, tempStreak);

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Camera, SlidersHorizontal, Image as ImageIcon, Layers } from 'lucide-react'
+import { Camera, SlidersHorizontal, Image as ImageIcon, Layers, ChevronDown } from 'lucide-react'
 import ResumeAIExplainer from './ResumeAIExplainer'
 
 // Lightweight Canvas-based edge detection (Sobel) — no WASM deps
@@ -49,6 +49,7 @@ export default function CVDemo() {
   const [threshold, setThreshold] = useState(30)
   const [scale, setScale] = useState(1)
   const [mode, setMode] = useState<'source' | 'edges'>('edges')
+  const [open, setOpen] = useState(false)
   const W = 480, H = 270
 
   // Draw a simple synthetic scene (grid + shapes) if no image is provided
@@ -99,9 +100,11 @@ export default function CVDemo() {
   }
 
   useEffect(() => {
-    render()
+    if (open) {
+      render()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threshold, mode])
+  }, [threshold, mode, open, scale])
 
   return (
     <motion.div
@@ -111,15 +114,32 @@ export default function CVDemo() {
       viewport={{ once: true }}
       className="rounded-2xl border border-neon-green/25 bg-black/30 p-6"
     >
-      <div className="flex items-center justify-between gap-3">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between gap-3"
+      >
         <div className="flex items-center gap-2 text-neon-green">
           <Camera size={18} />
           <h3 className="font-mono text-sm">Computer Vision — Edge Detection (Sobel)</h3>
         </div>
-        <span className="rounded-full border border-neon-green/30 px-3 py-0.5 text-[10px] text-neon-green uppercase tracking-[0.25em]">Live</span>
-      </div>
+        <div className="flex items-center gap-2">
+          <span className="rounded-full border border-neon-green/30 px-3 py-0.5 text-[10px] text-neon-green uppercase tracking-[0.25em]">Live</span>
+          <ChevronDown size={16} className={`transition-transform ${open ? 'rotate-180' : 'rotate-0'}`} />
+        </div>
+      </button>
 
-      <div className="mt-4 overflow-hidden rounded-xl border border-github-border bg-github-dark">
+      {open && (
+        <motion.div
+          key="cv-content"
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="mt-4 overflow-hidden"
+        >
+      <div className="overflow-hidden rounded-xl border border-github-border bg-github-dark">
         <div className="relative w-full">
           <canvas ref={canvasRef} width={W} height={H} style={{ width: W * scale, height: H * scale }} />
         </div>
@@ -171,6 +191,8 @@ export default function CVDemo() {
         contextLabel="cv"
         parameters={{ mode, threshold, scale }}
       />
+      </motion.div>
+      )}
     </motion.div>
   )
 }
