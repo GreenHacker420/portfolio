@@ -11,16 +11,16 @@ const LoadingScreen = () => {
   const [commandComplete, setCommandComplete] = useState(false);
 
   const loadingSteps = [
-    { text: 'Initializing system...', duration: 1200 },
-    { text: 'Establishing secure connection...', duration: 1000 },
-    { text: 'Authenticating credentials...', duration: 800 },
-    { text: 'Bypassing security protocols...', duration: 1500 },
-    { text: 'Loading developer assets...', duration: 1000 },
-    { text: 'Compiling portfolio data...', duration: 1200 },
-    { text: 'Optimizing display modules...', duration: 900 },
-    { text: 'Rendering interface...', duration: 1300 },
-    { text: 'System ready. Welcome to GreenHacker portfolio v2.0', duration: 1000 }
-  ];
+    { text: 'Initializing system...', duration: 610 },
+    { text: 'Establishing secure connection...', duration: 510 },
+    { text: 'Authenticating credentials...', duration: 410 },
+    { text: 'Bypassing security protocols...', duration: 765 },
+    { text: 'Loading developer assets...', duration: 510 },
+    { text: 'Compiling portfolio data...', duration: 610 },
+    { text: 'Optimizing display modules...', duration: 460 },
+    { text: 'Rendering interface...', duration: 660 },
+    { text: 'System ready. Welcome to GreenHacker portfolio v2.0', duration: 510 }
+  ];  
 
   useEffect(() => {
     // Cursor blinking effect

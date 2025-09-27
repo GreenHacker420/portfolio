@@ -2,19 +2,32 @@
 
 import { useEffect } from 'react';
 
+// Project interface matching exact Prisma schema (API serialized format)
 interface Project {
   id: string;
   title: string;
   description: string;
   longDescription?: string;
   category: string;
-  technologies?: string[];
-  github_url?: string;
-  live_url?: string;
-  image_url?: string;
-  start_date?: string;
-  end_date?: string;
-  highlights?: string[];
+  technologies?: string; // JSON string from Prisma
+  status: 'draft' | 'published' | 'archived';
+  featured: boolean;
+  githubUrl?: string;
+  liveUrl?: string;
+  imageUrl?: string;
+  gallery?: string; // JSON string from Prisma
+  highlights?: string; // JSON string from Prisma
+  challenges?: string; // JSON string from Prisma
+  learnings?: string; // JSON string from Prisma
+  startDate?: string | Date; // Can be string from API or Date
+  endDate?: string | Date; // Can be string from API or Date
+  teamSize?: number;
+  role?: string;
+  isVisible: boolean;
+  displayOrder: number;
+  viewCount: number;
+  createdAt: string | Date; // Can be string from API or Date
+  updatedAt: string | Date; // Can be string from API or Date
 }
 
 interface ProjectStructuredDataProps {
@@ -22,6 +35,22 @@ interface ProjectStructuredDataProps {
 }
 
 const ProjectStructuredData: React.FC<ProjectStructuredDataProps> = ({ projects }) => {
+  // Helper function to safely convert date to ISO string
+  const toISOString = (date: string | Date | undefined | null): string => {
+    if (!date) return new Date().toISOString();
+    
+    if (typeof date === 'string') {
+      const parsedDate = new Date(date);
+      return isNaN(parsedDate.getTime()) ? new Date().toISOString() : parsedDate.toISOString();
+    }
+    
+    if (date instanceof Date) {
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    }
+    
+    return new Date().toISOString();
+  };
+
   useEffect(() => {
     if (!projects || projects.length === 0) return;
 
@@ -29,6 +58,30 @@ const ProjectStructuredData: React.FC<ProjectStructuredDataProps> = ({ projects 
 
     // Create structured data for each project
     projects.forEach((project, index) => {
+      // Skip projects with missing required fields
+      if (!project.id || !project.title || !project.description) {
+        console.warn('Skipping project with missing required fields:', project);
+        return;
+      }
+      // Parse JSON fields with error handling
+      let technologies: string[] = [];
+      let highlights: string[] = [];
+      
+      // Safe JSON parsing helper
+      const safeJsonParse = (jsonString: string | undefined | null, fallback: any[] = []): any[] => {
+        if (!jsonString || typeof jsonString !== 'string') return fallback;
+        try {
+          const parsed = JSON.parse(jsonString);
+          return Array.isArray(parsed) ? parsed : fallback;
+        } catch (error) {
+          console.warn('Failed to parse JSON:', jsonString, error);
+          return fallback;
+        }
+      };
+      
+      technologies = safeJsonParse(project.technologies);
+      highlights = safeJsonParse(project.highlights);
+      
       const projectSchema = {
         "@context": "https://schema.org",
         "@type": "CreativeWork",
@@ -41,24 +94,33 @@ const ProjectStructuredData: React.FC<ProjectStructuredDataProps> = ({ projects 
           alternateName: "GreenHacker",
           url: baseUrl
         },
-        dateCreated: project.start_date || new Date().toISOString(),
-        dateModified: project.end_date || new Date().toISOString(),
+        dateCreated: toISOString(project.startDate),
+        dateModified: toISOString(project.endDate || project.updatedAt),
         genre: project.category,
-        keywords: project.technologies?.join(', ') || '',
-        url: project.live_url || project.github_url || `${baseUrl}/#projects`,
-        image: project.image_url ? `${baseUrl}${project.image_url}` : `${baseUrl}/logo.jpg`,
-        ...(project.github_url && {
-          codeRepository: project.github_url
+        keywords: technologies.join(', ') || '',
+        url: project.liveUrl || project.githubUrl || `${baseUrl}/#projects`,
+        image: project.imageUrl 
+          ? (project.imageUrl.startsWith('http') ? project.imageUrl : `${baseUrl}${project.imageUrl.startsWith('/') ? '' : '/'}${project.imageUrl}`)
+          : `${baseUrl}/logo.jpg`,
+        ...(project.githubUrl && {
+          codeRepository: project.githubUrl
         }),
-        ...(project.live_url && {
+        ...(project.liveUrl && {
           workExample: {
             "@type": "WebSite",
-            url: project.live_url,
+            url: project.liveUrl,
             name: `${project.title} - Live Demo`
           }
         }),
-        ...(project.highlights && project.highlights.length > 0 && {
-          abstract: project.highlights.join('. ')
+        ...(highlights.length > 0 && {
+          abstract: highlights.join('. ')
+        }),
+        ...(project.role && {
+          contributor: {
+            "@type": "Person",
+            name: "Harsh Hirawat",
+            jobTitle: project.role
+          }
         }),
         inLanguage: "en-US",
         isAccessibleForFree: true,
@@ -99,7 +161,7 @@ const ProjectStructuredData: React.FC<ProjectStructuredDataProps> = ({ projects 
         "@type": "CreativeWork",
         "@id": `${baseUrl}/#project-${project.id}`,
         name: project.title,
-        url: project.live_url || project.github_url || `${baseUrl}/#projects`
+        url: project.liveUrl || project.githubUrl || `${baseUrl}/#projects`
       })),
       inLanguage: "en-US",
       dateModified: new Date().toISOString()

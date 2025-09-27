@@ -5,57 +5,38 @@ import { motion } from 'framer-motion';
 type ProjectFiltersProps = {
   filter: string;
   setFilter: (filter: string) => void;
+  categories?: string[];
 };
 
-const ProjectFilters = ({ filter, setFilter }: ProjectFiltersProps) => {
+const ProjectFilters = ({ filter, setFilter, categories = ['all', 'web-app', 'mobile-app', 'api', 'library'] }: ProjectFiltersProps) => {
+  const formatCategoryName = (category: string) => {
+    if (category === 'all') return 'All Projects';
+    return category.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       viewport={{ once: true }}
-      className="flex flex-wrap gap-3 mb-8 justify-center sm:justify-start"
+      className="flex flex-wrap gap-3 mb-12 justify-center"
     >
-      <button
-        onClick={() => setFilter('all')}
-        className={`px-4 py-2 rounded-md text-sm transition-colors ${
-          filter === 'all'
-            ? 'bg-neon-green text-black font-medium'
-            : 'bg-github-dark text-github-text hover:bg-github-dark/80'
-        }`}
-      >
-        All Projects
-      </button>
-      <button
-        onClick={() => setFilter('web')}
-        className={`px-4 py-2 rounded-md text-sm transition-colors ${
-          filter === 'web'
-            ? 'bg-neon-green text-black font-medium'
-            : 'bg-github-dark text-github-text hover:bg-github-dark/80'
-        }`}
-      >
-        Web
-      </button>
-      <button
-        onClick={() => setFilter('app')}
-        className={`px-4 py-2 rounded-md text-sm transition-colors ${
-          filter === 'app'
-            ? 'bg-neon-green text-black font-medium'
-            : 'bg-github-dark text-github-text hover:bg-github-dark/80'
-        }`}
-      >
-        Apps
-      </button>
-      <button
-        onClick={() => setFilter('design')}
-        className={`px-4 py-2 rounded-md text-sm transition-colors ${
-          filter === 'design'
-            ? 'bg-neon-green text-black font-medium'
-            : 'bg-github-dark text-github-text hover:bg-github-dark/80'
-        }`}
-      >
-        Design
-      </button>
+      {categories.map((category) => (
+        <button
+          key={category}
+          onClick={() => setFilter(category)}
+          className={`px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+            filter === category
+              ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/25'
+              : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50 hover:text-white border border-slate-700/50 hover:border-slate-600/50'
+          }`}
+        >
+          {formatCategoryName(category)}
+        </button>
+      ))}
     </motion.div>
   );
 };

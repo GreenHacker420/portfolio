@@ -18,10 +18,14 @@ const projectSchema = z.object({
   githubUrl: z.string().url().optional().or(z.literal('')),
   liveUrl: z.string().url().optional().or(z.literal('')),
   imageUrl: z.string().url().optional().or(z.literal('')),
-  screenshots: z.array(z.string()).optional(),
+  gallery: z.array(z.string()).optional(),
+  highlights: z.array(z.string()).optional(),
+  challenges: z.array(z.string()).optional(),
+  learnings: z.array(z.string()).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  highlights: z.array(z.string()).optional(),
+  teamSize: z.number().optional(),
+  role: z.string().optional(),
   displayOrder: z.number().default(0),
 })
 
@@ -67,8 +71,10 @@ export async function GET(request: NextRequest) {
     const projectsWithParsedData = projects.map(project => ({
       ...project,
       technologies: project.technologies ? JSON.parse(project.technologies) : [],
-      screenshots: project.screenshots ? JSON.parse(project.screenshots) : [],
+      gallery: project.gallery ? JSON.parse(project.gallery) : [],
       highlights: project.highlights ? JSON.parse(project.highlights) : [],
+      challenges: project.challenges ? JSON.parse(project.challenges) : [],
+      learnings: project.learnings ? JSON.parse(project.learnings) : [],
     }))
 
     const totalPages = Math.ceil(totalCount / limit)
@@ -114,10 +120,14 @@ export async function POST(request: NextRequest) {
       featured: validatedData.featured ?? false,
       displayOrder: validatedData.displayOrder ?? 0,
       technologies: JSON.stringify(validatedData.technologies || []),
-      screenshots: validatedData.screenshots ? JSON.stringify(validatedData.screenshots) : JSON.stringify([]),
+      gallery: validatedData.gallery ? JSON.stringify(validatedData.gallery) : JSON.stringify([]),
       highlights: validatedData.highlights ? JSON.stringify(validatedData.highlights) : JSON.stringify([]),
+      challenges: validatedData.challenges ? JSON.stringify(validatedData.challenges) : JSON.stringify([]),
+      learnings: validatedData.learnings ? JSON.stringify(validatedData.learnings) : JSON.stringify([]),
       startDate: validatedData.startDate ? new Date(validatedData.startDate) : null,
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
+      teamSize: validatedData.teamSize || null,
+      role: validatedData.role || null,
       githubUrl: validatedData.githubUrl || null,
       liveUrl: validatedData.liveUrl || null,
       imageUrl: validatedData.imageUrl || null,
@@ -142,8 +152,10 @@ export async function POST(request: NextRequest) {
     const projectWithParsedData = {
       ...project,
       technologies: JSON.parse(project.technologies),
-      screenshots: project.screenshots ? JSON.parse(project.screenshots) : [],
+      gallery: project.gallery ? JSON.parse(project.gallery) : [],
       highlights: project.highlights ? JSON.parse(project.highlights) : [],
+      challenges: project.challenges ? JSON.parse(project.challenges) : [],
+      learnings: project.learnings ? JSON.parse(project.learnings) : [],
     }
 
     return NextResponse.json({ project: projectWithParsedData }, { status: 201 })

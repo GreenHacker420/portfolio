@@ -13,6 +13,7 @@ import { getProjectsDataFromAPI } from '../../utils/dataUtils';
 const Projects = () => {
   const [filter, setFilter] = useState('all');
   const [projects, setProjects] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>(['all']);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,8 +23,10 @@ const Projects = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const projectsData = await getProjectsDataFromAPI();
-        setProjects(projectsData);
+        const response = await fetch('/api/projects');
+        const data = await response.json();
+        setProjects(data.projects || []);
+        setCategories(data.categories || ['all']);
       } catch (error) {
         console.error('Failed to load projects:', error);
         setError('Failed to load projects');
@@ -36,9 +39,16 @@ const Projects = () => {
   }, []);
 
   return (
-    <section id="projects" className="py-20 bg-github-light">
-      <div className="section-container">
-        <h2 className="section-title">Projects</h2>
+    <section id="projects" className="py-20 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen">
+      <div className="container mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            Featured Projects
+          </h2>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            A collection of projects showcasing modern web technologies, innovative solutions, and creative problem-solving.
+          </p>
+        </div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
@@ -57,7 +67,7 @@ const Projects = () => {
         ) : (
           <>
             <ProjectStructuredData projects={projects} />
-            <ProjectFilters filter={filter} setFilter={setFilter} />
+            <ProjectFilters filter={filter} setFilter={setFilter} categories={categories} />
             <ProjectGrid projects={projects} filter={filter} />
             <ProjectCTA />
           </>

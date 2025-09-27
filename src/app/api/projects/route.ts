@@ -9,7 +9,8 @@ export async function GET(request: Request) {
 
     // Build where clause for filtering
     const where: any = {
-      status: 'published' // Only show published projects
+      status: 'published', // Only show published projects
+      isVisible: true // Only show visible projects
     };
 
     if (category && category !== 'all') {
@@ -33,30 +34,16 @@ export async function GET(request: Request) {
       ]
     });
 
-    // Parse JSON fields and transform data
-    const transformedProjects = projects.map((project: any) => ({
-      id: project.id,
-      title: project.title,
-      description: project.description,
-      longDescription: project.longDescription,
-      category: project.category,
-      technologies: project.technologies ? JSON.parse(project.technologies) : [],
-      featured: project.featured,
-      status: project.status,
-      github_url: project.githubUrl,
-      live_url: project.liveUrl,
-      image_url: project.imageUrl,
-      screenshots: project.screenshots ? JSON.parse(project.screenshots) : [],
-      start_date: project.startDate,
-      end_date: project.endDate,
-      highlights: project.highlights ? JSON.parse(project.highlights) : [],
-      created_at: project.createdAt,
-      updated_at: project.updatedAt
-    }));
+    // Return projects with exact Prisma field names (no transformation needed)
+    // The frontend components now handle JSON parsing directly
+    const transformedProjects = projects;
 
     // Get unique categories from database
     const allProjects = await prisma.project.findMany({
-      where: { status: 'published' },
+      where: { 
+        status: 'published',
+        isVisible: true 
+      },
       select: { category: true }
     });
 

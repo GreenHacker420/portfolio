@@ -27,6 +27,8 @@ const projectSchema = z.object({
   imageUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
+  teamSize: z.number().min(1).optional(),
+  role: z.string().optional(),
   displayOrder: z.number().min(0),
 })
 
@@ -50,6 +52,12 @@ export default function NewProjectPage() {
   const [newTechnology, setNewTechnology] = useState('')
   const [highlights, setHighlights] = useState<string[]>([])
   const [newHighlight, setNewHighlight] = useState('')
+  const [gallery, setGallery] = useState<string[]>([])
+  const [newGalleryUrl, setNewGalleryUrl] = useState('')
+  const [challenges, setChallenges] = useState<string[]>([])
+  const [newChallenge, setNewChallenge] = useState('')
+  const [learnings, setLearnings] = useState<string[]>([])
+  const [newLearning, setNewLearning] = useState('')
 
   const {
     register,
@@ -88,6 +96,39 @@ export default function NewProjectPage() {
     setHighlights(highlights.filter((_, i) => i !== index))
   }
 
+  const addGalleryUrl = () => {
+    if (newGalleryUrl.trim() && !gallery.includes(newGalleryUrl.trim())) {
+      setGallery([...gallery, newGalleryUrl.trim()])
+      setNewGalleryUrl('')
+    }
+  }
+
+  const removeGalleryUrl = (index: number) => {
+    setGallery(gallery.filter((_, i) => i !== index))
+  }
+
+  const addChallenge = () => {
+    if (newChallenge.trim()) {
+      setChallenges([...challenges, newChallenge.trim()])
+      setNewChallenge('')
+    }
+  }
+
+  const removeChallenge = (index: number) => {
+    setChallenges(challenges.filter((_, i) => i !== index))
+  }
+
+  const addLearning = () => {
+    if (newLearning.trim()) {
+      setLearnings([...learnings, newLearning.trim()])
+      setNewLearning('')
+    }
+  }
+
+  const removeLearning = (index: number) => {
+    setLearnings(learnings.filter((_, i) => i !== index))
+  }
+
   const onSubmit = async (data: ProjectFormData) => {
     setIsSubmitting(true)
 
@@ -96,12 +137,17 @@ export default function NewProjectPage() {
         ...data,
         technologies,
         highlights,
+        gallery,
+        challenges,
+        learnings,
         githubUrl: data.githubUrl || undefined,
         liveUrl: data.liveUrl || undefined,
         imageUrl: data.imageUrl || undefined,
         longDescription: data.longDescription || undefined,
         startDate: data.startDate || undefined,
         endDate: data.endDate || undefined,
+        teamSize: data.teamSize || undefined,
+        role: data.role || undefined,
       }
 
       const response = await fetch('/api/admin/projects', {
@@ -332,6 +378,40 @@ export default function NewProjectPage() {
               )}
             </div>
 
+            <div className="space-y-4">
+              <Label>Gallery Images</Label>
+              <div className="flex space-x-2">
+                <Input
+                  value={newGalleryUrl}
+                  onChange={(e) => setNewGalleryUrl(e.target.value)}
+                  placeholder="Add gallery image URL..."
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addGalleryUrl())}
+                />
+                <Button type="button" onClick={addGalleryUrl} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {gallery.map((url, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-1 bg-secondary text-secondary-foreground px-2 py-1 rounded-md text-sm max-w-xs"
+                  >
+                    <span className="truncate">{url}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeGalleryUrl(index)}
+                      className="h-4 w-4 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="startDate">Start Date</Label>
@@ -348,6 +428,111 @@ export default function NewProjectPage() {
                   type="date"
                   {...register('endDate')}
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="teamSize">Team Size</Label>
+                <Input
+                  id="teamSize"
+                  type="number"
+                  {...register('teamSize', { valueAsNumber: true })}
+                  placeholder="Number of team members"
+                  min="1"
+                />
+                {errors.teamSize && (
+                  <p className="text-sm text-red-600">{errors.teamSize.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="role">Your Role</Label>
+                <Input
+                  id="role"
+                  {...register('role')}
+                  placeholder="Lead Developer, Full Stack Developer, etc."
+                />
+                {errors.role && (
+                  <p className="text-sm text-red-600">{errors.role.message}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Challenges & Learnings</CardTitle>
+            <CardDescription>
+              Document the challenges faced and key learnings from this project
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <Label>Technical Challenges</Label>
+              <div className="flex space-x-2">
+                <Input
+                  value={newChallenge}
+                  onChange={(e) => setNewChallenge(e.target.value)}
+                  placeholder="Add a challenge you faced..."
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addChallenge())}
+                />
+                <Button type="button" onClick={addChallenge} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {challenges.map((challenge, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-1 bg-orange-100 text-orange-800 px-2 py-1 rounded-md text-sm"
+                  >
+                    <span>{challenge}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeChallenge(index)}
+                      className="h-4 w-4 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <Label>Key Learnings</Label>
+              <div className="flex space-x-2">
+                <Input
+                  value={newLearning}
+                  onChange={(e) => setNewLearning(e.target.value)}
+                  placeholder="Add a key learning..."
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addLearning())}
+                />
+                <Button type="button" onClick={addLearning} size="sm">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {learnings.map((learning, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center space-x-1 bg-green-100 text-green-800 px-2 py-1 rounded-md text-sm"
+                  >
+                    <span>{learning}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeLearning(index)}
+                      className="h-4 w-4 p-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
               </div>
             </div>
           </CardContent>
