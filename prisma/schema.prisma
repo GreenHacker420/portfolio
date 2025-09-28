@@ -585,6 +585,28 @@ model MotiaAnalytics {
 }
 
 // ================================
+// EMAIL TEMPLATES
+// ================================
+
+model EmailTemplate {
+  id           String   @id @default(cuid())
+  name         String   @unique // auto-reply, notification, welcome, etc.
+  subject      String
+  htmlContent  String   @db.Text
+  textContent  String?  @db.Text
+  variables    String?  @db.Text // JSON array of available variables
+  isActive     Boolean  @default(true)
+  description  String?  @db.Text
+  category     String   @default("contact") // contact, marketing, system
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+  @@map("email_templates")
+}
+
+// ================================
 // SYSTEM SETTINGS
 // ================================
 

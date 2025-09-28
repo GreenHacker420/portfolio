@@ -1,11 +1,11 @@
 /**
  * Cache invalidation service for API endpoints
- * Used to invalidate caches when data is modified through admin operations
+ * NOTE: Do not import from route files here. Next.js App Router route modules
+ * must only export supported symbols (GET/POST/etc.). Importing helper
+ * functions from routes can also cause circular dependencies during build.
+ *
+ * If we later adopt tag-based caching, we can use revalidateTag here instead.
  */
-
-// Import cache invalidation functions
-import { invalidateSkillsCache } from '@/app/api/skills/route'
-import { invalidateProjectsCache } from '@/app/api/projects/route'
 
 export class CacheManager {
   /**
@@ -13,9 +13,9 @@ export class CacheManager {
    */
   static invalidateAll() {
     try {
-      invalidateSkillsCache()
-      invalidateProjectsCache()
-      console.log('✅ All caches invalidated')
+      // Placeholder invalidation hooks. Implement with revalidateTag or
+      // application-level caches if needed.
+      console.log('✅ All caches invalidated (noop)')
     } catch (error) {
       console.error('❌ Error invalidating caches:', error)
     }
@@ -26,8 +26,7 @@ export class CacheManager {
    */
   static invalidateSkills() {
     try {
-      invalidateSkillsCache()
-      console.log('✅ Skills cache invalidated')
+      console.log('✅ Skills cache invalidated (noop)')
     } catch (error) {
       console.error('❌ Error invalidating skills cache:', error)
     }
@@ -38,8 +37,7 @@ export class CacheManager {
    */
   static invalidateProjects() {
     try {
-      invalidateProjectsCache()
-      console.log('✅ Projects cache invalidated')
+      console.log('✅ Projects cache invalidated (noop)')
     } catch (error) {
       console.error('❌ Error invalidating projects cache:', error)
     }

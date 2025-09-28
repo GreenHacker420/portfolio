@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +13,6 @@ const Contact = () => {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -36,9 +35,8 @@ const Contact = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast({
-          title: "Message sent",
-          description: "Thanks for reaching out! I'll get back to you soon.",
+        toast.success("Thanks for reaching out! I'll get back to you soon.", {
+          description: "Your message has been sent successfully."
         });
         setFormData({
           name: '',
@@ -47,17 +45,13 @@ const Contact = () => {
           message: ''
         });
       } else {
-        toast({
-          title: "Error",
-          description: data.error || "Failed to send message. Please try again.",
-          variant: "destructive",
+        toast.error("Failed to send message", {
+          description: data.error || "Please try again later."
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please check your connection and try again.",
-        variant: "destructive",
+      toast.error("Connection error", {
+        description: "Failed to send message. Please check your connection and try again."
       });
     } finally {
       setIsSubmitting(false);

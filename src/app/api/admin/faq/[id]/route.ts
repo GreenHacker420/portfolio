@@ -27,7 +27,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const faq = await directPrisma.faq.findUnique({
+    const faq = await directPrisma.fAQ.findUnique({
       where: { id }
     });
 
@@ -66,7 +66,7 @@ export async function PATCH(
     const validatedData = faqUpdateSchema.parse(body);
 
     // Get the current FAQ for audit log
-    const currentFAQ = await directPrisma.faq.findUnique({
+    const currentFAQ = await directPrisma.fAQ.findUnique({
       where: { id }
     });
 
@@ -80,7 +80,7 @@ export async function PATCH(
       updateData.tags = JSON.stringify(validatedData.tags);
     }
 
-    const faq = await directPrisma.faq.update({
+    const faq = await directPrisma.fAQ.update({
       where: { id },
       data: updateData
     });
@@ -132,7 +132,7 @@ export async function DELETE(
 
     const { id } = await params;
     // Get the current FAQ for audit log
-    const currentFAQ = await directPrisma.faq.findUnique({
+    const currentFAQ = await directPrisma.fAQ.findUnique({
       where: { id }
     });
 
@@ -140,7 +140,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'FAQ not found' }, { status: 404 });
     }
 
-    await directPrisma.faq.delete({
+    await directPrisma.fAQ.delete({
       where: { id }
     });
 

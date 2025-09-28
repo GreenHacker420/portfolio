@@ -13,7 +13,12 @@ const experienceSchema = z.object({
   startDate: z.string(),
   endDate: z.string().optional(),
   description: z.string().optional(),
+  achievements: z.array(z.string()).optional(),
+  technologies: z.array(z.string()).optional(),
   companyLogo: z.string().url().optional().or(z.literal('')),
+  companyUrl: z.string().url().optional().or(z.literal('')),
+  location: z.string().optional(),
+  employmentType: z.string().optional(),
   isVisible: z.boolean().default(true),
   displayOrder: z.number().default(0),
 })
@@ -53,8 +58,15 @@ export async function GET(request: NextRequest) {
       directPrisma.workExperience.count({ where })
     ])
 
+    // Parse JSON fields for response
+    const experiencesWithParsedData = experiences.map(exp => ({
+      ...exp,
+      achievements: exp.achievements ? JSON.parse(exp.achievements) : [],
+      technologies: exp.technologies ? JSON.parse(exp.technologies) : [],
+    }))
+
     return NextResponse.json({
-      experiences,
+      experiences: experiencesWithParsedData,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -91,7 +103,12 @@ export async function POST(request: NextRequest) {
       startDate: new Date(validatedData.startDate),
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
       description: validatedData.description || null,
+      achievements: validatedData.achievements ? JSON.stringify(validatedData.achievements) : null,
+      technologies: validatedData.technologies ? JSON.stringify(validatedData.technologies) : null,
       companyLogo: validatedData.companyLogo || null,
+      companyUrl: validatedData.companyUrl || null,
+      location: validatedData.location || null,
+      employmentType: validatedData.employmentType || null,
       isVisible: validatedData.isVisible ?? true,
       displayOrder: validatedData.displayOrder ?? 0,
     }
@@ -111,7 +128,14 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ experience }, { status: 201 })
+    // Parse JSON fields for response
+    const experienceWithParsedData = {
+      ...experience,
+      achievements: experience.achievements ? JSON.parse(experience.achievements) : [],
+      technologies: experience.technologies ? JSON.parse(experience.technologies) : [],
+    }
+
+    return NextResponse.json({ experience: experienceWithParsedData }, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

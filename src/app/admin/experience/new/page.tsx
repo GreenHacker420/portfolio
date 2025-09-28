@@ -22,6 +22,9 @@ const experienceSchema = z.object({
   endDate: z.string().optional(),
   description: z.string().optional(),
   companyLogo: z.string().url('Invalid URL').optional().or(z.literal('')),
+  companyUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+  location: z.string().optional(),
+  employmentType: z.string().optional(),
   isVisible: z.boolean(),
   displayOrder: z.number().min(0),
 })
@@ -31,6 +34,10 @@ type ExperienceFormData = z.infer<typeof experienceSchema>
 export default function NewExperiencePage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [achievements, setAchievements] = useState<string[]>([])
+  const [newAchievement, setNewAchievement] = useState('')
+  const [technologies, setTechnologies] = useState<string[]>([])
+  const [newTechnology, setNewTechnology] = useState('')
 
   const {
     register,
@@ -48,13 +55,40 @@ export default function NewExperiencePage() {
 
   const watchEndDate = watch('endDate')
 
+  const addAchievement = () => {
+    if (newAchievement.trim()) {
+      setAchievements([...achievements, newAchievement.trim()])
+      setNewAchievement('')
+    }
+  }
+
+  const removeAchievement = (index: number) => {
+    setAchievements(achievements.filter((_, i) => i !== index))
+  }
+
+  const addTechnology = () => {
+    if (newTechnology.trim() && !technologies.includes(newTechnology.trim())) {
+      setTechnologies([...technologies, newTechnology.trim()])
+      setNewTechnology('')
+    }
+  }
+
+  const removeTechnology = (index: number) => {
+    setTechnologies(technologies.filter((_, i) => i !== index))
+  }
+
   const onSubmit = async (data: ExperienceFormData) => {
     setIsSubmitting(true)
 
     try {
       const experienceData = {
         ...data,
+        achievements,
+        technologies,
         companyLogo: data.companyLogo || undefined,
+        companyUrl: data.companyUrl || undefined,
+        location: data.location || undefined,
+        employmentType: data.employmentType || undefined,
         description: data.description || undefined,
         endDate: data.endDate || undefined,
       }

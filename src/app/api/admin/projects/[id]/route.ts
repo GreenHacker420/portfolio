@@ -18,10 +18,12 @@ const projectUpdateSchema = z.object({
   githubUrl: z.string().url().optional().or(z.literal('')),
   liveUrl: z.string().url().optional().or(z.literal('')),
   imageUrl: z.string().url().optional().or(z.literal('')),
-  screenshots: z.array(z.string()).optional(),
+  gallery: z.array(z.string()).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   highlights: z.array(z.string()).optional(),
+  challenges: z.array(z.string()).optional(),
+  learnings: z.array(z.string()).optional(),
   displayOrder: z.number().optional(),
 })
 
@@ -49,8 +51,10 @@ export async function GET(
     const projectWithParsedData = {
       ...project,
       technologies: project.technologies ? JSON.parse(project.technologies) : [],
-      screenshots: project.screenshots ? JSON.parse(project.screenshots) : [],
+      gallery: project.gallery ? JSON.parse(project.gallery) : [],
       highlights: project.highlights ? JSON.parse(project.highlights) : [],
+      challenges: project.challenges ? JSON.parse(project.challenges) : [],
+      learnings: project.learnings ? JSON.parse(project.learnings) : [],
     }
 
     return NextResponse.json({ project: projectWithParsedData })
@@ -101,11 +105,17 @@ export async function PUT(
     if (validatedData.technologies !== undefined) {
       updateData.technologies = JSON.stringify(validatedData.technologies)
     }
-    if (validatedData.screenshots !== undefined) {
-      updateData.screenshots = JSON.stringify(validatedData.screenshots)
+    if (validatedData.gallery !== undefined) {
+      updateData.gallery = JSON.stringify(validatedData.gallery)
     }
     if (validatedData.highlights !== undefined) {
       updateData.highlights = JSON.stringify(validatedData.highlights)
+    }
+    if (validatedData.challenges !== undefined) {
+      updateData.challenges = JSON.stringify(validatedData.challenges)
+    }
+    if (validatedData.learnings !== undefined) {
+      updateData.learnings = JSON.stringify(validatedData.learnings)
     }
     
     if (validatedData.githubUrl !== undefined) {
@@ -146,8 +156,10 @@ export async function PUT(
     const projectWithParsedData = {
       ...project,
       technologies: project.technologies ? JSON.parse(project.technologies) : [],
-      screenshots: project.screenshots ? JSON.parse(project.screenshots) : [],
+      gallery: project.gallery ? JSON.parse(project.gallery) : [],
       highlights: project.highlights ? JSON.parse(project.highlights) : [],
+      challenges: project.challenges ? JSON.parse(project.challenges) : [],
+      learnings: project.learnings ? JSON.parse(project.learnings) : [],
     }
 
     return NextResponse.json({ project: projectWithParsedData })

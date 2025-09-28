@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
         orderBy: { createdAt: 'desc' }
       })
 
-      // Convert to CSV format
-      const csvHeader = 'ID,Name,Email,Subject,Message,Status,IP Address,Created At,Updated At\n'
+      // Convert to CSV format (no IP column in schema)
+      const csvHeader = 'ID,Name,Email,Subject,Message,Status,Priority,Source,Created At,Updated At\n'
       const csvRows = contacts.map(contact => {
         const escapeCsv = (str: string) => `"${str.replace(/"/g, '""')}"`
         return [
@@ -125,7 +125,8 @@ export async function POST(request: NextRequest) {
           escapeCsv(contact.subject),
           escapeCsv(contact.message),
           contact.status,
-          contact.ipAddress || '',
+          contact.priority,
+          contact.source || '',
           contact.createdAt.toISOString(),
           contact.updatedAt.toISOString()
         ].join(',')

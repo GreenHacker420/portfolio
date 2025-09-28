@@ -103,7 +103,7 @@ export async function PUT(
     })
 
     // Log the action
-    await directPrisma.audit_logs.create({
+    await directPrisma.auditLog.create({
       data: {
         id: 'audit-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
         userId: session.user.id,
@@ -158,7 +158,7 @@ export async function DELETE(
     })
 
     // Log the action
-    await directPrisma.audit_logs.create({
+    await directPrisma.auditLog.create({
       data: {
         id: 'audit-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
         userId: session.user.id,

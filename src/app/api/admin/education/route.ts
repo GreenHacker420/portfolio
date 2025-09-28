@@ -15,6 +15,8 @@ const educationSchema = z.object({
   endDate: z.string().optional(),
   gpa: z.string().optional(),
   honors: z.string().optional(),
+  description: z.string().optional(),
+  activities: z.array(z.string()).optional(),
   isVisible: z.boolean().default(true),
   displayOrder: z.number().default(0),
 })
@@ -54,8 +56,14 @@ export async function GET(request: NextRequest) {
       directPrisma.education.count({ where })
     ])
 
+    // Parse JSON fields for response
+    const educationWithParsedData = education.map(edu => ({
+      ...edu,
+      activities: edu.activities ? JSON.parse(edu.activities) : [],
+    }))
+
     return NextResponse.json({
-      education,
+      education: educationWithParsedData,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -94,6 +102,8 @@ export async function POST(request: NextRequest) {
       endDate: validatedData.endDate ? new Date(validatedData.endDate) : null,
       gpa: validatedData.gpa || null,
       honors: validatedData.honors || null,
+      description: validatedData.description || null,
+      activities: validatedData.activities ? JSON.stringify(validatedData.activities) : null,
       isVisible: validatedData.isVisible ?? true,
       displayOrder: validatedData.displayOrder ?? 0,
     }
@@ -113,7 +123,13 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ education }, { status: 201 })
+    // Parse JSON fields for response
+    const educationWithParsedData = {
+      ...education,
+      activities: education.activities ? JSON.parse(education.activities) : [],
+    }
+
+    return NextResponse.json({ education: educationWithParsedData }, { status: 201 })
 
   } catch (error) {
     if (error instanceof z.ZodError) {

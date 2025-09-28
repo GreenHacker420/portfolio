@@ -15,7 +15,7 @@ const certificationSchema = z.object({
   credentialId: z.string().optional(),
   credentialUrl: z.string().url().optional().or(z.literal('')),
   description: z.string().optional(),
-  skills: z.string().optional(),
+  skills: z.array(z.string()).optional(),
   isVisible: z.boolean().default(true),
   displayOrder: z.number().default(0),
 })
@@ -55,8 +55,14 @@ export async function GET(request: NextRequest) {
       directPrisma.certification.count({ where })
     ])
 
+    // Parse JSON fields for response
+    const certificationsWithParsedData = certifications.map(cert => ({
+      ...cert,
+      skills: cert.skills ? JSON.parse(cert.skills) : [],
+    }))
+
     return NextResponse.json({
-      certifications,
+      certifications: certificationsWithParsedData,
       pagination: {
         currentPage: page,
         totalPages: Math.ceil(totalCount / limit),
@@ -95,7 +101,7 @@ export async function POST(request: NextRequest) {
       credentialId: validatedData.credentialId || null,
       credentialUrl: validatedData.credentialUrl || null,
       description: validatedData.description || null,
-      skills: validatedData.skills || null,
+      skills: validatedData.skills ? JSON.stringify(validatedData.skills) : null,
       isVisible: validatedData.isVisible ?? true,
       displayOrder: validatedData.displayOrder ?? 0,
     }
@@ -115,7 +121,13 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ certification }, { status: 201 })
+    // Parse JSON fields for response
+    const certificationWithParsedData = {
+      ...certification,
+      skills: certification.skills ? JSON.parse(certification.skills) : [],
+    }
+
+    return NextResponse.json({ certification: certificationWithParsedData }, { status: 201 })
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

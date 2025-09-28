@@ -131,8 +131,8 @@ export async function GET(request: NextRequest) {
 // Cache the response for 5 minutes
 export const revalidate = 300
 
-// Function to invalidate cache (can be called from admin operations)
-export function invalidateSkillsCache() {
+// Function to invalidate cache (internal helper)
+function invalidateSkillsCache() {
   skillsCache.data = null
   skillsCache.timestamp = 0
   skillsCache.etag = ''
