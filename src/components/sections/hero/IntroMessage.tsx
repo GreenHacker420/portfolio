@@ -18,7 +18,7 @@ const IntroMessage = () => {
       </div>
 
       <div className="intro-block">
-        <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-4 relative leading-tight">
+        <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4 relative leading-tight">
           Harsh Hirawat aka Green Hacker
           <span className="absolute -bottom-1 sm:-bottom-2 left-0 h-0.5 sm:h-1 bg-neon-green w-0 animate-expand"></span>
         </h1>
