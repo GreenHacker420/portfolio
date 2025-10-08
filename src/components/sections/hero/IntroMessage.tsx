@@ -19,7 +19,7 @@ const IntroMessage = () => {
 
       <div className="intro-block">
         <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-3 sm:mb-4 relative leading-tight">
-          Green Hacker
+          Harsh Hirawat aka Green Hacker
           <span className="absolute -bottom-1 sm:-bottom-2 left-0 h-0.5 sm:h-1 bg-neon-green w-0 animate-expand"></span>
         </h1>
       </div>
@@ -33,11 +33,15 @@ const IntroMessage = () => {
             </span>
             <span className="flex items-center text-sm sm:text-base md:text-xl">
               <span className="bg-neon-purple w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-2"></span>
-              ML Expert
+              Robotics Enthusiast
             </span>
             <span className="flex items-center text-sm sm:text-base md:text-xl">
               <span className="bg-neon-blue w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-2"></span>
-              OSS Contributor
+              Open Source Contributor
+            </span>
+            <span className="flex items-center text-sm sm:text-base md:text-xl">
+              <span className="bg-neon-yellow w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-2"></span>
+              AI/ML Practitioner
             </span>
           </div>
         </div>

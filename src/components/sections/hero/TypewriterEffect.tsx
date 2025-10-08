@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { m, motion } from 'framer-motion';
 
 const TypewriterEffect = () => {
   const [displayText, setDisplayText] = useState('');
@@ -11,7 +11,14 @@ const TypewriterEffect = () => {
     "Building innovative web applications",
     "Creating ML-powered solutions", 
     "Contributing to open source",
-    "Solving complex problems"
+    "Solving complex problems",
+    "Exploring new technologies",
+    "Crafting seamless user experiences",
+    "Turning ideas into reality",
+    "Empowering through code",
+    "Innovating for a better tomorrow",
+    "Passionate about technology and learning",
+    "Driven by curiosity and creativity"
   ];
 
   useEffect(() => {
