@@ -40,7 +40,7 @@ const IntroMessage = () => {
               Open Source Contributor
             </span>
             <span className="flex items-center text-sm sm:text-base md:text-xl">
-              <span className="bg-neon-yellow w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-2"></span>
+              <span className="bg-neon-pink w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-2"></span>
               AI/ML Practitioner
             </span>
           </div>
