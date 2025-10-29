@@ -1,0 +1,32 @@
+[
+  {
+    "id": "default",
+    "key": "site_title",
+    "value": "GreenHacker Portfolio",
+    "type": "string",
+    "category": "general",
+    "isPublic": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "setting_002",
+    "key": "github_username",
+    "value": "greenhacker",
+    "type": "string",
+    "category": "github",
+    "isPublic": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "setting_003",
+    "key": "enable_chatbot",
+    "value": "true",
+    "type": "boolean",
+    "category": "ai",
+    "isPublic": false,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

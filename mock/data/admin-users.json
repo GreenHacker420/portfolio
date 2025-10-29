@@ -1,0 +1,12 @@
+[
+  {
+    "id": "admin_001",
+    "email": "admin@greenhacker.tech",
+    "password": "$2a$10$rOzJw5K5K5K5K5K5K5K5K.K5K5K5K5K5K5K5K5K5K5K5K5K5K5K5",
+    "name": "Admin User",
+    "role": "admin",
+    "isActive": true,
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+]

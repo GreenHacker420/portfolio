@@ -1,0 +1,17 @@
+[
+  {
+    "id": "cert_001",
+    "name": "AWS Certified Solutions Architect",
+    "issuer": "Amazon Web Services",
+    "issueDate": "2023-06-15T00:00:00.000Z",
+    "expiryDate": "2026-06-15T00:00:00.000Z",
+    "credentialId": "AWS-SAA-123456",
+    "credentialUrl": "https://aws.amazon.com/verification/123456",
+    "description": "Demonstrated expertise in designing distributed systems on AWS",
+    "skills": "[\"AWS\", \"Cloud Architecture\", \"System Design\"]",
+    "isVisible": true,
+    "displayOrder": 1,
+    "createdAt": "2023-06-15T00:00:00.000Z",
+    "updatedAt": "2023-06-15T00:00:00.000Z"
+  }
+]
