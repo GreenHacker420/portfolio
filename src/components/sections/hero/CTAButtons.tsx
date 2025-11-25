@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Download, MessageSquare, Github, Linkedin } from 'lucide-react';
+import { Download, MessageSquare } from 'lucide-react';
+import { GithubIcon, LinkedinIcon } from '@/components/ui/social-icons';
 
 const CTAButtons = () => {
   const handleContactClick = () => {
@@ -54,7 +55,7 @@ const CTAButtons = () => {
           rel="noopener noreferrer"
           className="group p-3 sm:p-4 rounded-full border border-github-border hover:border-neon-green transition-all duration-300 hover:scale-110 min-h-[48px] min-w-[48px] sm:min-h-[52px] sm:min-w-[52px] flex items-center justify-center"
         >
-          <Github className="w-5 h-5 sm:w-6 sm:h-6 text-github-text group-hover:text-neon-green transition-colors" />
+          <GithubIcon className="w-5 h-5 sm:w-6 sm:h-6 text-github-text group-hover:text-neon-green transition-colors" />
         </a>
 
         <a
@@ -63,7 +64,7 @@ const CTAButtons = () => {
           rel="noopener noreferrer"
           className="group p-3 sm:p-4 rounded-full border border-github-border hover:border-neon-blue transition-all duration-300 hover:scale-110 min-h-[48px] min-w-[48px] sm:min-h-[52px] sm:min-w-[52px] flex items-center justify-center"
         >
-          <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 text-github-text group-hover:text-neon-blue transition-colors" />
+          <LinkedinIcon className="w-5 h-5 sm:w-6 sm:h-6 text-github-text group-hover:text-neon-blue transition-colors" />
         </a>
       </div>
     </motion.div>

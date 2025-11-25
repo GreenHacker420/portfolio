@@ -1,8 +1,18 @@
-
 'use client';
 
 import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Mail, Rocket, Users, Brain, Code, Zap } from 'lucide-react';
+import { InstagramIcon, LinkedinIcon } from '@/components/ui/social-icons';
 import { animateIn } from '@/utils/animation-anime';
+
+const aboutItems = [
+  { icon: Rocket, text: "I'm currently working on a photo-sharing platform with face recognition.", color: 'text-neon-green' },
+  { icon: Users, text: "Open to contributing to the open-source community.", color: 'text-neon-purple' },
+  { icon: Brain, text: "Learning Machine Learning for face detection.", color: 'text-neon-blue' },
+  { icon: Code, text: "Passionate developer and open-source contributor.", color: 'text-neon-pink' },
+  { icon: Zap, text: "Fun fact: I can spend hours debugging code but still forget where I kept my phone! 😄", color: 'text-neon-green' },
+];
 
 const About = () => {
   useEffect(() => {
@@ -11,88 +21,92 @@ const About = () => {
   }, []);
 
   return (
-    <section id="about" className="bg-github-light py-20">
+    <section id="about" className="bg-github-light py-16 sm:py-20">
       <div className="section-container">
         <h2 className="section-title">
           About Me
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="about-item md:col-span-2 space-y-4">
-            <p className="text-lg">
-              🚀 I'm currently working on a photo-sharing platform with face recognition.
-            </p>
-            <p className="text-lg">
-              👐 Open to contributing to the open-source community.
-            </p>
-            <p className="text-lg">
-              🧠 Learning Machine Learning for face detection.
-            </p>
-            <p className="text-lg">
-              💻 Passionate developer and open-source contributor.
-            </p>
-            <p className="text-lg">
-              ⚡ Fun fact: I can spend hours debugging code but still forget where I kept my phone! 😄
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          <div className="about-item lg:col-span-2 space-y-3 sm:space-y-4">
+            {aboutItems.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="flex items-start gap-3 p-3 sm:p-4 rounded-lg bg-github-dark/30 hover:bg-github-dark/50 transition-colors"
+              >
+                <item.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${item.color} flex-shrink-0 mt-0.5`} />
+                <p className="text-sm sm:text-base lg:text-lg text-github-text leading-relaxed">
+                  {item.text}
+                </p>
+              </motion.div>
+            ))}
 
-            <div className="pt-4">
-              <h3 className="text-xl font-semibold mb-2">Call to Action:</h3>
-              <p className="text-lg">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="pt-4 sm:pt-6"
+            >
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 text-white">Let's Connect!</h3>
+              <p className="text-sm sm:text-base lg:text-lg text-github-text">
                 Feel free to reach out if you'd like to collaborate, discuss tech, or share some awesome ideas!
               </p>
-            </div>
+            </motion.div>
           </div>
 
-          <div className="about-item md:col-span-1">
-            <div className="bg-github-dark border border-github-border rounded-2xl overflow-hidden card-hover">
-              <div className="aspect-square w-full relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-neon-green/20 to-neon-purple/20 z-10"></div>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="about-item lg:col-span-1"
+          >
+            <div className="bg-github-dark border border-github-border rounded-2xl overflow-hidden hover:border-neon-green/50 transition-colors">
+              <div className="aspect-video sm:aspect-square w-full relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-neon-green/20 to-neon-purple/20 z-10" />
                 <img
                   src="https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwxfDB8MXxyYW5kb218MHx8dGVjaHx8fHx8fDE2MjM2MzYyODE&ixlib=rb-1.2.1&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=1080"
                   alt="Programming code on computer screen - representing Harsh Hirawat's full-stack development expertise in modern web technologies"
                   className="w-full h-full object-cover object-center"
                   loading="lazy"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-github-dark to-transparent h-1/3 z-20"></div>
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-github-dark to-transparent h-1/3 z-20" />
               </div>
-              <div className="p-6 about-item">
-                <h3 className="text-xl font-bold mb-2">Socials:</h3>
-                <div className="space-y-2">
+              <div className="p-4 sm:p-6 about-item">
+                <h3 className="text-lg sm:text-xl font-bold mb-3 text-white">Connect with me</h3>
+                <div className="space-y-2 sm:space-y-3">
                   <a
                     href="https://www.instagram.com/harsh_hirawat/"
-                    className="flex items-center space-x-2 text-github-text hover:text-neon-pink transition-colors"
+                    className="flex items-center gap-3 p-2 sm:p-3 rounded-lg text-github-text hover:text-neon-pink hover:bg-neon-pink/10 transition-all"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                    <span>Instagram</span>
+                    <InstagramIcon className="w-5 h-5" />
+                    <span className="text-sm sm:text-base">Instagram</span>
                   </a>
                   <a
                     href="https://in.linkedin.com/in/harsh-hirawat-b657061b7"
-                    className="flex items-center space-x-2 text-github-text hover:text-neon-blue transition-colors"
+                    className="flex items-center gap-3 p-2 sm:p-3 rounded-lg text-github-text hover:text-neon-blue hover:bg-neon-blue/10 transition-all"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                    </svg>
-                    <span>LinkedIn</span>
+                    <LinkedinIcon className="w-5 h-5" />
+                    <span className="text-sm sm:text-base">LinkedIn</span>
                   </a>
                   <a
                     href="mailto:harsh@greenhacker.tech"
-                    className="flex items-center space-x-2 text-github-text hover:text-white transition-colors"
+                    className="flex items-center gap-3 p-2 sm:p-3 rounded-lg text-github-text hover:text-neon-green hover:bg-neon-green/10 transition-all"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                    </svg>
-                    <span>Email</span>
+                    <Mail className="w-5 h-5" />
+                    <span className="text-sm sm:text-base">Email</span>
                   </a>
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
