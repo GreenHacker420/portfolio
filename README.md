@@ -10,7 +10,7 @@
 > A modern **full-stack developer portfolio** + **admin CMS** built with **Next.js 15 & TypeScript**.  
 Showcases projects, skills, animations, GitHub analytics, and includes a secure admin panel with **Prisma/PostgreSQL**, audit logging, bulk operations, CSV export, and AI-powered tooling.
 
-🔗 **Live Site:** [greenhacker.tech](https://greenhacker.tech)
+🔗 **Live Site:** [greenhacker.tech](https://greenhacker.in)
 
 ---
 
@@ -159,8 +159,8 @@ npm start
 
 ## 📬 Contact
 
-- 🌐 Website: [greenhacker.tech](https://greenhacker.tech)  
-- 📧 Email: [harsh@greenhacker.tech](mailto:harsh@greenhacker.tech)  
+- 🌐 Website: [greenhacker.tech](https://greenhacker.in)  
+- 📧 Email: [harsh@greenhacker.tech](mailto:harsh@greenhacker.in)  
 - 💻 GitHub: [GreenHacker420](https://github.com/GreenHacker420)  
 - 🔗 LinkedIn: [Harsh Hirawat](https://linkedin.com/in/harsh-hirawat-b657061b7)  
 - 🐦 Twitter: [@greenhacker](https://twitter.com/greenhacker)  
