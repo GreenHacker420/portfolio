@@ -12,3 +12,378 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+
+// ================================
+// AUTHENTICATION & ADMIN MODELS
+// ================================
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("admin")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  auditLogs    AuditLog[]
+  contactReplies ContactReply[]
+
+  @@map("admin_users")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  action     String   // CREATE, UPDATE, DELETE, BULK_DELETE, BULK_UPDATE, REPLY, etc.
+  resource   String   // contacts, skills, projects, etc.
+  resourceId String?
+  oldData    String?  @db.Text
+  newData    String?  @db.Text
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resource])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ================================
+// PERSONAL INFORMATION
+// ================================
+
+model PersonalInfo {
+  id          String   @id @default("default")
+  fullName    String
+  title       String
+  bio         String?  @db.Text
+  email       String
+  phone       String?
+  location    String?
+  website     String?
+  avatar      String?
+  resume      String?
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("personal_info")
+}
+
+// ================================
+// SKILLS & EXPERTISE
+// ================================
+
+model Skill {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  description  String?  @db.Text
+  category     String   // language, frontend, backend, database, devops, design, etc.
+  level        Int      @default(0) // 0-100
+  color        String?  // Hex color for UI
+  logo         String?  // URL to skill logo/icon
+  experience   Int?     // Years of experience
+  projects     String?  @db.Text // JSON array of project names
+  strengths    String?  @db.Text // JSON array of specific strengths
+  isVisible    Boolean  @default(true)
+  isFeatured   Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("skills")
+}
+
+// ================================
+// PROJECTS & PORTFOLIO
+// ================================
+
+model Project {
+  id              String   @id @default(cuid())
+  title           String
+  description     String   @db.Text
+  longDescription String?  @db.Text
+  category        String   // web-app, mobile-app, api, library, etc.
+  technologies    String?  @db.Text // JSON array
+  status          ProjectStatus @default(draft)
+  featured        Boolean  @default(false)
+  githubUrl       String?
+  liveUrl         String?
+  imageUrl        String?
+  gallery         String?  @db.Text // JSON array of image URLs
+  highlights      String?  @db.Text // JSON array of key features
+  challenges      String?  @db.Text // JSON array of technical challenges
+  learnings       String?  @db.Text // JSON array of key learnings
+  startDate       DateTime?
+  endDate         DateTime?
+  teamSize        Int?
+  role            String?  // Lead Developer, Full Stack Developer, etc.
+  isVisible       Boolean  @default(true)
+  displayOrder    Int      @default(0)
+  viewCount       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([featured])
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("projects")
+}
+
+enum ProjectStatus {
+  draft
+  published
+  archived
+}
+
+// ================================
+// WORK EXPERIENCE
+// ================================
+
+model WorkExperience {
+  id           String    @id @default(cuid())
+  company      String
+  position     String
+  startDate    DateTime
+  endDate      DateTime?
+  description  String?   @db.Text
+  achievements String?   @db.Text // JSON array
+  technologies String?   @db.Text // JSON array
+  companyLogo  String?
+  companyUrl   String?
+  location     String?
+  employmentType String? // Full-time, Part-time, Contract, Freelance
+  isVisible    Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("work_experience")
+}
+
+// ================================
+// EDUCATION
+// ================================
+
+model Education {
+  id           String    @id @default(cuid())
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  startDate    DateTime
+  endDate      DateTime?
+  gpa          String?
+  honors       String?
+  description  String?   @db.Text
+  activities   String?   @db.Text // JSON array
+  isVisible    Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("education")
+}
+
+// ================================
+// CERTIFICATIONS & ACHIEVEMENTS
+// ================================
+
+model Certification {
+  id           String    @id @default(cuid())
+  name         String
+  issuer       String
+  issueDate    DateTime
+  expiryDate   DateTime?
+  credentialId String?
+  credentialUrl String?
+  description  String?   @db.Text
+  skills       String?   @db.Text // JSON array
+  isVisible    Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("certifications")
+}
+
+model Achievement {
+  id           String   @id @default(cuid())
+  title        String
+  description  String   @db.Text
+  category     String   // award, recognition, milestone, etc.
+  date         DateTime
+  issuer       String?
+  url          String?
+  imageUrl     String?
+  isVisible    Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("achievements")
+}
+
+// ================================
+// CONTACT & COMMUNICATION
+// ================================
+
+model Contact {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String        @db.Text
+  phone     String?
+  company   String?
+  status    ContactStatus @default(pending)
+  priority  ContactPriority @default(normal)
+  source    String?       // website, linkedin, referral, etc.
+  tags      String?       @db.Text // JSON array
+  notes     String?       @db.Text
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  replies ContactReply[]
+
+  // New "Hire Me" Fields
+  inquiryType    InquiryType @default(GENERAL)
+  projectDetails String?     @db.Text // JSON from Configurator
+  budget         String?
+  salary         String?
+  metadata       String?     @db.Text // JSON
+
+  @@index([status])
+  @@index([priority])
+  @@index([createdAt])
+  @@map("contacts")
+}
+
+enum InquiryType {
+  GENERAL
+  PROJECT
+  JOB
+}
+
+enum ContactStatus {
+  pending
+  responded
+  archived
+  spam
+}
+
+enum ContactPriority {
+  low
+  normal
+  high
+  urgent
+}
+
+model ContactReply {
+  id            String   @id @default(cuid())
+  contactId     String
+  userId        String
+  subject       String
+  message       String   @db.Text
+  isAiGenerated Boolean  @default(false)
+  aiMode        String?  // auto-generate, enhance-draft, manual
+  emailSent     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  // Relations
+  contact Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  user    AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([contactId])
+  @@index([userId])
+  @@map("contact_replies")
+}
+
+// ================================
+// SOCIAL LINKS & PROFILES
+// ================================
+
+model SocialLink {
+  id           String   @id @default(cuid())
+  platform     String   // github, linkedin, twitter, instagram, etc.
+  url          String
+  username     String?
+  isVisible    Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([platform])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("social_links")
+}
+
+// ================================
+// MEDIA & ASSETS
+// ================================
+
+model Media {
+  id           String   @id @default(cuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+  alt          String?
+  category     String?  // avatar, project, gallery, document, etc.
+  tags         String?  @db.Text // JSON array
+  isPublic     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isPublic])
+  @@map("media")
+}
+
+// ================================
+// FAQ & SUPPORT
+// ================================
+
+model FAQ {
+  id           String   @id @default(cuid())
+  question     String
+  answer       String   @db.Text
+  category     String
+  tags         String?  @db.Text // JSON array
+  isVisible    Boolean  @default(true)
+  viewCount    Int      @default(0)
+  helpful      Int      @default(0)
+  notHelpful   Int      @default(0)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isVisible])
+  @@index([displayOrder])
+  @@map("faqs")
+}
