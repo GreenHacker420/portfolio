@@ -70,9 +70,11 @@ export default function AdminProjectsPage() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
-                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-400 hover:text-white hover:bg-white/10">
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
+                                        <Link href={`/admin/projects/${project.id}`}>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-400 hover:text-white hover:bg-white/10">
+                                                <Edit className="h-4 w-4" />
+                                            </Button>
+                                        </Link>
                                         <Button size="icon" variant="ghost" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
