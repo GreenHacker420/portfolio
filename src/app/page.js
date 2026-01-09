@@ -1,5 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
+import { DotBackground } from "@/components/ui/DotBackground";
+import { FloatingNav } from "@/components/ui/floating-navbar";
 import Skills from "@/components/sections/Skills";
 import Projects from "@/components/sections/Projects";
 import Experience from "@/components/sections/Experience";
@@ -27,42 +29,45 @@ function SafeSection({ children, name }) {
 }
 
 export default async function Home() {
-    // Optional: Fetch data here if needed in future
-    // const projects = await prisma.project.findMany({ where: { isVisible: true } });
+    const { MOCK_PROJECTS, MOCK_SKILLS, MOCK_EXPERIENCE } = await import('@/lib/mockData');
 
     return (
         <main className="flex min-h-screen flex-col bg-black text-white">
-            <SafeSection name="Hero">
-                <Hero />
-            </SafeSection>
+            <DotBackground>
+                <FloatingNav />
 
-            <SafeSection name="About">
-                <About />
-            </SafeSection>
+                    <SafeSection name="Hero">
+                        <Hero />
+                    </SafeSection>
 
-            <SafeSection name="Skills">
-                <Skills />
-            </SafeSection>
+                    <SafeSection name="About">
+                        <About />
+                    </SafeSection>
 
-            <SafeSection name="Projects">
-                <Projects />
-            </SafeSection>
+                    <SafeSection name="Skills">
+                        <Skills />
+                    </SafeSection>
 
-            <SafeSection name="Experience">
-                <Experience />
-            </SafeSection>
+                    <SafeSection name="Projects">
+                        <Projects data={MOCK_PROJECTS} />
+                    </SafeSection>
 
-            <SafeSection name="Resume">
-                <Resume />
-            </SafeSection>
+                    <SafeSection name="Experience">
+                        <Experience data={MOCK_EXPERIENCE} />
+                    </SafeSection>
 
-            <SafeSection name="Stats">
-                <Stats />
-            </SafeSection>
+                    <SafeSection name="Resume">
+                        <Resume />
+                    </SafeSection>
 
-            <SafeSection name="Contact">
-                <Contact />
-            </SafeSection>
-        </main>
-    );
-}
+                    <SafeSection name="Stats">
+                        <Stats />
+                    </SafeSection>
+
+                    <SafeSection name="Contact">
+                        <Contact />
+                    </SafeSection>
+                </DotBackground>
+            </main>
+        );
+    }
