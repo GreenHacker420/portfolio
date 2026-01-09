@@ -5,7 +5,7 @@ import { FloatingNav } from "@/components/ui/floating-navbar";
 import Skills from "@/components/sections/Skills";
 import Projects from "@/components/sections/Projects";
 import Experience from "@/components/sections/Experience";
-import Stats from "@/components/sections/Stats";
+import GitHubAnalysis from "@/components/sections/GitHubAnalysis";
 import Contact from "@/components/sections/Contact";
 import Resume from "@/components/sections/Resume";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
@@ -29,45 +29,45 @@ function SafeSection({ children, name }) {
 }
 
 export default async function Home() {
-    const { MOCK_PROJECTS, MOCK_SKILLS, MOCK_EXPERIENCE } = await import('@/lib/mockData');
+    const { MOCK_PROJECTS, MOCK_SKILLS, MOCK_EXPERIENCE, MOCK_GITHUB_STATS } = await import('@/lib/mockData');
 
     return (
         <main className="flex min-h-screen flex-col bg-black text-white">
             <DotBackground>
                 <FloatingNav />
 
-                    <SafeSection name="Hero">
-                        <Hero />
-                    </SafeSection>
+                <SafeSection name="Hero">
+                    <Hero />
+                </SafeSection>
 
-                    <SafeSection name="About">
-                        <About />
-                    </SafeSection>
+                <SafeSection name="About">
+                    <About />
+                </SafeSection>
 
-                    <SafeSection name="Skills">
-                        <Skills />
-                    </SafeSection>
+                <SafeSection name="Skills">
+                    <Skills />
+                </SafeSection>
 
-                    <SafeSection name="Projects">
-                        <Projects data={MOCK_PROJECTS} />
-                    </SafeSection>
+                <SafeSection name="Projects">
+                    <Projects data={MOCK_PROJECTS} />
+                </SafeSection>
 
-                    <SafeSection name="Experience">
-                        <Experience data={MOCK_EXPERIENCE} />
-                    </SafeSection>
+                <SafeSection name="Experience">
+                    <Experience data={MOCK_EXPERIENCE} />
+                </SafeSection>
 
-                    <SafeSection name="Resume">
-                        <Resume />
-                    </SafeSection>
+                <SafeSection name="Resume">
+                    <Resume />
+                </SafeSection>
 
-                    <SafeSection name="Stats">
-                        <Stats />
-                    </SafeSection>
+                <SafeSection name="GitHub Activity">
+                    <GitHubAnalysis data={MOCK_GITHUB_STATS} />
+                </SafeSection>
 
-                    <SafeSection name="Contact">
-                        <Contact />
-                    </SafeSection>
-                </DotBackground>
-            </main>
-        );
-    }
+                <SafeSection name="Contact">
+                    <Contact />
+                </SafeSection>
+            </DotBackground>
+        </main>
+    );
+}

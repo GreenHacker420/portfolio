@@ -1,4 +1,26 @@
 
+export const MOCK_GITHUB_STATS = {
+    username: "GreenHacker420",
+    totalCommits: 1243,
+    totalPRs: 45,
+    totalIssues: 28,
+    totalStars: 156,
+    contributions: Array.from({ length: 52 * 7 }, () => Math.floor(Math.random() * 5)), // 0-4 intensity
+    languages: [
+        { name: "JavaScript", percentage: 45, color: "#f7df1e" },
+        { name: "TypeScript", percentage: 30, color: "#3178c6" },
+        { name: "Python", percentage: 15, color: "#3572A5" },
+        { name: "Rust", percentage: 5, color: "#dea584" },
+        { name: "Other", percentage: 5, color: "#ededed" }
+    ],
+    recentActivity: [
+        { type: "Push", repo: "portfolio-2024", message: "feat: implemented 3d skills", time: "2h ago" },
+        { type: "PR", repo: "awesome-tools", message: "fix: typography issues", time: "5h ago" },
+        { type: "Star", repo: "aceternity-ui", message: "Starred repository", time: "1d ago" },
+        { type: "Create", repo: "nextjs-starter", message: "Created new repository", time: "2d ago" }
+    ]
+};
+
 // MOCK DATA - Migrated from legacy JSON files
 
 export const MOCK_PROJECTS = [

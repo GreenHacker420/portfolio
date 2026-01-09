@@ -1,63 +1,87 @@
-import prisma from "../../../lib/db";
-import Link from "next/link";
-import { Plus } from "lucide-react";
 
+'use client';
+import React from 'react';
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Edit, Trash2, ExternalLink } from "lucide-react";
+import Link from 'next/link';
+import { MOCK_PROJECTS } from '@/lib/mockData';
 
-export const dynamic = 'force-dynamic';
-
-export default async function AdminProjects() {
-    // Fetch projects from DB
-    const projects = await prisma.project.findMany({
-        orderBy: { createdAt: 'desc' }
-    });
-
+export default function AdminProjectsPage() {
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-bold">Projects</h2>
-                <Link href="/admin/projects/new" className="flex items-center gap-2 px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700">
-                    <Plus className="w-4 h-4" />
-                    <span>Add New</span>
-                </Link>
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-white mb-2">Projects</h1>
+                    <p className="text-neutral-400">Manage your portfolio projects.</p>
+                </div>
+                <div className="flex gap-2">
+                    <Link href="/admin/projects/new">
+                        <Button className="bg-neon-green text-black hover:bg-neon-green/90 font-bold">
+                            <Plus className="mr-2 h-4 w-4" /> Add Project
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-                <table className="w-full text-left">
-                    <thead className="bg-neutral-950 text-neutral-400">
-                        <tr>
-                            <th className="p-4 font-medium">Title</th>
-                            <th className="p-4 font-medium">Status</th>
-                            <th className="p-4 font-medium">Category</th>
-                            <th className="p-4 font-medium">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-800">
-                        {projects.length === 0 ? (
-                            <tr>
-                                <td colSpan={4} className="p-8 text-center text-neutral-500">
-                                    No projects found. Start by creating one!
-                                </td>
-                            </tr>
-                        ) : (
-                            projects.map((project) => (
-                                <tr key={project.id} className="hover:bg-neutral-800/50">
-                                    <td className="p-4 font-medium text-white">{project.title}</td>
-                                    <td className="p-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs ${project.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-neutral-800 text-neutral-400'
-                                            }`}>
-                                            {project.status}
-                                        </span>
-                                    </td>
-                                    <td className="p-4 text-neutral-400">{project.category}</td>
-                                    <td className="p-4">
-                                        <button className="text-blue-400 hover:text-blue-300 mr-4">Edit</button>
-                                        <button className="text-red-400 hover:text-red-300">Delete</button>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+            <div className="bg-neutral-900/50 border border-white/10 rounded-xl p-4">
+                <div className="flex items-center mb-4">
+                    <div className="relative max-w-sm w-full">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-500" />
+                        <Input placeholder="Search projects..." className="pl-8 bg-neutral-900 border-white/10 text-white placeholder:text-neutral-500" />
+                    </div>
+                </div>
+
+                <Table>
+                    <TableCaption>A list of your featured projects.</TableCaption>
+                    <TableHeader>
+                        <TableRow className="border-white/10 hover:bg-white/5">
+                            <TableHead className="text-neutral-400">Project Name</TableHead>
+                            <TableHead className="text-neutral-400">Tech Stack</TableHead>
+                            <TableHead className="text-neutral-400">Status</TableHead>
+                            <TableHead className="text-right text-neutral-400">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {MOCK_PROJECTS.map((project) => (
+                            <TableRow key={project.id} className="border-white/10 hover:bg-white/5">
+                                <TableCell className="font-medium text-white">{project.title}</TableCell>
+                                <TableCell className="text-neutral-300">
+                                    <div className="flex flex-wrap gap-1">
+                                        {project.techStack.slice(0, 3).map((tech, i) => (
+                                            <span key={i} className="px-2 py-0.5 bg-white/5 rounded text-xs">{tech}</span>
+                                        ))}
+                                        {project.techStack.length > 3 && <span className="text-xs text-neutral-500">+{project.techStack.length - 3}</span>}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-500/10 text-green-500 border border-green-500/20">
+                                        Active
+                                    </span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <div className="flex justify-end gap-2">
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-neutral-400 hover:text-white hover:bg-white/10">
+                                            <Edit className="h-4 w-4" />
+                                        </Button>
+                                        <Button size="icon" variant="ghost" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-500/10">
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </div>
         </div>
     );
