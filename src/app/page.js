@@ -12,9 +12,11 @@ import ParallaxStars from '@/components/canvas/ParallaxStars';
 import prisma from '@/lib/db';
 import AllData from './AllData';
 import { getMockData } from '@/lib/mockData';
+import { getGithubStats } from '@/lib/github';
 
 
 // Ensure dynamic rendering for fresh data
+// Updated: Force clearing stale cache
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
@@ -31,6 +33,9 @@ export default async function Home() {
 
     const data = await AllData();
     const { MOCK_GITHUB_STATS } = getMockData();
+
+    // Fetch real Github stats (fallback to mock)
+    const githubStats = await getGithubStats("GreenHacker420") || MOCK_GITHUB_STATS;
 
 
     return (
@@ -60,7 +65,7 @@ export default async function Home() {
             </SafeSection>
 
             <SafeSection section="github">
-                <GitHubAnalysis data={MOCK_GITHUB_STATS} />
+                <GitHubAnalysis data={githubStats} />
             </SafeSection>
 
             <SafeSection section="contact">
