@@ -4,12 +4,13 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Spline from '@splinetool/react-spline';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IconCloud } from '@/components/ui/interactive-icon-cloud';
 import { getKeyById } from '@/lib/keyboardLayout';
 import { getMockData } from '@/lib/mockData';
 
 const SplineSkills = () => {
 
-    const {MOCK_SKILLS} = getMockData();
+    const { MOCK_SKILLS } = getMockData();
     const [loading, setLoading] = useState(true);
     const [selectedSkill, setSelectedSkill] = useState(null);
     const splineRef = useRef(null);
@@ -61,7 +62,8 @@ const SplineSkills = () => {
     };
 
     return (
-        <div className="relative w-full h-[600px] md:h-screen bg-transparent">
+        <div className="relative w-full min-h-screen bg-transparent flex flex-col items-center gap-8 py-20">
+            <h1 className="text-6xl font-bold text-white mb-8">Skills</h1>
             {/* Loading State */}
             {loading && (
                 <div className="absolute inset-0 flex items-center justify-center text-white z-10">
@@ -69,14 +71,32 @@ const SplineSkills = () => {
                 </div>
             )}
 
-            {/* 3D Scene */}
-            <Spline
-                scene="/scene.splinecode"
-                onLoad={onSplineLoad}
-                onError={onSplineError}
-                onMouseDown={onSplineMouseDown}
-                className="w-full h-full"
-            />
+            {/* Icon Cloud & Info - Top Section */}
+            <div className="relative w-full h-[400px] flex items-center justify-center p-4">
+                <div className="w-full max-w-lg opacity-80 hover:opacity-100 transition-opacity duration-500">
+                    <IconCloud iconSlugs={[
+                        "typescript", "javascript", "react", "html5", "css3", "nodedotjs",
+                        "express", "nextdotjs", "prisma", "amazonaws", "postgresql",
+                        "firebase", "docker", "git", "github", "visualstudiocode", "figma"
+                    ]} />
+                </div>
+            </div>
+
+            {/* 3D Scene - Bottom Section */}
+            <div className="relative w-full h-[600px] flex items-center justify-center">
+                <Spline
+                    scene="/scene.splinecode"
+                    onLoad={onSplineLoad}
+                    onError={onSplineError}
+                    onMouseDown={onSplineMouseDown}
+                    className="w-full h-full"
+                />
+
+                {/* Click Hint */}
+                <div className="absolute bottom-4 left-4 text-xs text-white/30 pointer-events-none">
+                    Click on keys to explore skills
+                </div>
+            </div>
 
             {/* Skill Overlay */}
             <AnimatePresence>
@@ -112,10 +132,6 @@ const SplineSkills = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            <div className="absolute bottom-4 left-4 text-xs text-white/30 pointer-events-none">
-                Click on keys to explore skills
-            </div>
         </div>
     );
 };
