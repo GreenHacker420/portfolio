@@ -1,6 +1,6 @@
-
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import prisma from '@/lib/db';
 
 export async function POST(req) {
     try {
@@ -9,6 +9,26 @@ export async function POST(req) {
         // Basic validation
         if (!name || !email || !message) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+        }
+
+        // Save to Database
+        try {
+            await prisma.contact.create({
+                data: {
+                    name,
+                    email,
+                    message,
+                    subject: projectType ? `Project Inquiry: ${projectType}` : 'General Inquiry',
+                    inquiryType: projectType ? 'PROJECT' : 'GENERAL',
+                    phone: 'N/A', // Schema requires phone? No, it's optional? Let's check schema. phone String? -> Optional.
+                    source: 'portfolio-contact-form',
+                    status: 'pending'
+                }
+            });
+        } catch (dbError) {
+            console.error('Failed to save contact to DB:', dbError);
+            // We continue to send email even if DB fails, or should we warn?
+            // Logging is enough for now.
         }
 
         // Configure transporter
