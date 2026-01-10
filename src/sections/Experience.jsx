@@ -24,7 +24,7 @@ export default function Experience({ data = [] }) {
                                     <p className="text-xl text-white">{item.company}</p>
                                 </div>
                                 <div className="text-neutral-400 mt-2 md:mt-0 font-mono">
-                                    {new Date(item.startDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })} - {item.endDate ? new Date(item.endDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short' }) : 'Present'}
+                                    {new Date(item.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })} - {item.endDate ? new Date(item.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' }) : 'Present'}
                                 </div>
                             </div>
 

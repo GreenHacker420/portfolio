@@ -1,12 +1,12 @@
 
 import { SafeSection } from '@/components/layout/SafeSection';
-import Hero from '@/components/sections/Hero';
-import About from '@/components/sections/About';
-import SplineSkills from '@/components/sections/SplineSkills';
-import Projects from '@/components/sections/Projects';
-import Experience from '@/components/sections/Experience';
-import Contact from '@/components/sections/Contact';
-import GitHubAnalysis from '@/components/sections/GitHubAnalysis';
+import Hero from '@/sections/Hero';
+import About from '@/sections/About';
+import SplineSkills from '@/sections/SplineSkills';
+import Projects from '@/sections/Projects';
+import Experience from '@/sections/Experience';
+import Contact from '@/sections/Contact';
+import GitHubAnalysis from '@/sections/GitHubAnalysis';
 import { DotBackground } from '@/components/ui/DotBackground';
 import { FloatingNav } from "@/components/ui/floating-navbar";
 import prisma from '@/lib/db';
@@ -33,7 +33,7 @@ export default async function Home() {
     const { MOCK_GITHUB_STATS } = getMockData();
 
     return (
-        <main className="min-h-screen bg-black text-white relative w-full overflow-hidden">
+        <main className="min-h-screen bg-black text-white w-full">
             <DotBackground />
             <FloatingNav navItems={navItems} />
 

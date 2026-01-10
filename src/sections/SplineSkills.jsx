@@ -4,8 +4,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import Spline from '@splinetool/react-spline';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getKeyById } from '../../lib/keyboardLayout';
-import { getMockData } from '../../lib/mockData';
+import { getKeyById } from '@/lib/keyboardLayout';
+import { getMockData } from '@/lib/mockData';
 
 const SplineSkills = () => {
 

@@ -14,7 +14,7 @@ export function DotBackground({ children, className }) {
     const encodedDotSvg = `data:image/svg+xml;utf8,${encodeURIComponent(dotSvg)}`;
 
     return (
-        <div className={`relative min-h-screen w-full bg-black ${className}`}>
+        <div className={`relative w-full bg-black overflow-hidden min-h-screen ${className}`}>
             {/* Background Pattern */}
             <div
                 className="absolute pointer-events-none inset-0 flex items-center justify-center [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_90%)]"

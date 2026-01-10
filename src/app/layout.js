@@ -1,3 +1,4 @@
+import SmoothScroll from "@/components/layout/SmoothScroll";
 import "./globals.css";
 import { Inter } from "next/font/google";
 
@@ -11,7 +12,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <html lang="en" className="dark">
-            <body className={inter.className}>{children}</body>
+            <body className={inter.className}>
+                <SmoothScroll>
+                    {children}
+                </SmoothScroll>
+            </body>
         </html>
     );
 }

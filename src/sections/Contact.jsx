@@ -2,8 +2,9 @@
 'use client';
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Github, Twitter, Linkedin, CheckCircle, Smartphone, Send } from "lucide-react";
+import { Mail, Github, Instagram, Linkedin, CheckCircle, Smartphone, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 // Simple Label component
 const Label = ({ children, className, htmlFor }) => {
@@ -55,16 +56,33 @@ export default function Contact() {
     });
     const [status, setStatus] = useState("idle"); // idle, submitting, success, error
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setStatus("submitting");
-        // Simulate sending
-        setTimeout(() => {
-            console.log("Form Submitted:", formData);
-            setStatus("success");
-            setFormData({ name: "", email: "", projectType: "", message: "" });
+
+        try {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setStatus("success");
+                setFormData({ name: "", email: "", projectType: "", message: "" });
+                setTimeout(() => setStatus("idle"), 3000);
+            } else {
+                console.error("Form Error:", data);
+                setStatus("error"); // You might want to handle error state visually
+                setTimeout(() => setStatus("idle"), 3000);
+            }
+        } catch (error) {
+            console.error("Submission Error:", error);
+            setStatus("error");
             setTimeout(() => setStatus("idle"), 3000);
-        }, 1500);
+        }
     };
 
     return (
@@ -98,21 +116,21 @@ export default function Contact() {
                                 <div className="p-2 bg-neutral-900 rounded-lg border border-neutral-800">
                                     <Mail className="w-5 h-5 text-neon-green" />
                                 </div>
-                                <span>hello@greenhacker.tech</span>
+                                <Link href="mailto:harsh@greenhacker.in"><span>harsh@greenhacker.in</span></Link>
                             </div>
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-neutral-900 rounded-lg border border-neutral-800">
                                     <Smartphone className="w-5 h-5 text-neon-green" />
                                 </div>
-                                <span>+1 (555) 123-4567</span>
+                                <Link href="tel:+919479733955"><span>+91 9479733955</span></Link>
                             </div>
                         </div>
 
                         <div className="flex gap-4">
                             {[
                                 { icon: Github, href: "https://github.com/GreenHacker420" },
-                                { icon: Twitter, href: "https://twitter.com" },
-                                { icon: Linkedin, href: "https://linkedin.com" }
+                                { icon: Instagram, href: "https://www.instagram.com/harsh_hirawat" },
+                                { icon: Linkedin, href: "https://www.linkedin.com/in/harsh-hirawat-b657061b7/" }
                             ].map((social, idx) => (
                                 <a
                                     key={idx}
