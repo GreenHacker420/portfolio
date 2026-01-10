@@ -2,13 +2,12 @@
 import { SafeSection } from '@/components/layout/SafeSection';
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import About from '@/sections/About';
-import SplineSkills from '@/sections/SplineSkills';
 import Projects from '@/sections/Projects';
 import Experience from '@/sections/Experience';
 import Contact from '@/sections/Contact';
 import GitHubAnalysis from '@/sections/GitHubAnalysis';
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import ParallaxStars from '@/components/canvas/ParallaxStars';
+import { ParallaxStars, SplineSkills } from '@/components/DynamicWrapper';
 import prisma from '@/lib/db';
 import AllData from './AllData';
 import { getMockData } from '@/lib/mockData';

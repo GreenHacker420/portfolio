@@ -5,3 +5,5 @@ node_modules
 /src/generated/prisma
 .next
 _legacy_backup
+# Local Netlify folder
+.netlify
