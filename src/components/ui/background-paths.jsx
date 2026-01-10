@@ -15,7 +15,7 @@ function FloatingPaths({ position }) {
     }));
 
     return (
-        <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 pointer-events-none [mask-image:linear-gradient(to_bottom,white_40%,transparent_100%)]">
             <svg
                 className="w-full h-full text-slate-950 dark:text-white"
                 viewBox="0 0 696 316"
@@ -28,7 +28,9 @@ function FloatingPaths({ position }) {
                         d={path.d}
                         stroke="currentColor"
                         strokeWidth={path.width}
-                        strokeOpacity={0.1 + path.id * 0.03}
+                        strokeOpacity={0.2 + path.id * 0.03}
+                        strokeLinecap="round" // Smooth ends
+                        strokeLinejoin="round" // Smooth corners
                         initial={{ pathLength: 0.3, opacity: 0.6 }}
                         animate={{
                             pathLength: 1,

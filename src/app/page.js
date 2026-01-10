@@ -7,6 +7,7 @@ import Experience from '@/sections/Experience';
 import Contact from '@/sections/Contact';
 import GitHubAnalysis from '@/sections/GitHubAnalysis';
 import { FloatingNav } from "@/components/ui/floating-navbar";
+import CanvasCursor from "@/components/ui/canvas-cursor";
 import { ParallaxStars, SplineSkills } from '@/components/DynamicWrapper';
 import prisma from '@/lib/db';
 import AllData from './AllData';
@@ -39,6 +40,7 @@ export default async function Home() {
 
     return (
         <main className="min-h-screen bg-black text-white w-full relative">
+            <CanvasCursor />
             <ParallaxStars />
             <FloatingNav navItems={navItems} />
 
