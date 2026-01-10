@@ -17,6 +17,7 @@
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "framer-motion": "^12.24.12",
     "lucide-react": "^0.562.0",
     "mini-svg-data-uri": "^1.4.4",

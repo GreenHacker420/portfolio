@@ -23,7 +23,7 @@ export async function POST(req) {
 
     try {
         const body = await req.json();
-        const { title, description, techStack, projectUrl, repoUrl, imageUrl, featured } = body;
+        const { title, description, techStack, projectUrl, repoUrl, imageUrl, featured, category } = body;
 
         const project = await prisma.project.create({
             data: {
@@ -34,6 +34,7 @@ export async function POST(req) {
                 repoUrl,
                 imageUrl,
                 featured: featured || false,
+                category: category || "Other",
             },
         });
 

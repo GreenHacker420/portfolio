@@ -15,6 +15,7 @@ export default function ProjectForm({ initialData = {}, isEdit = false }) {
         projectUrl: initialData.projectUrl || '',
         repoUrl: initialData.repoUrl || '',
         imageUrl: initialData.imageUrl || '',
+        category: initialData.category || '',
     });
     const [loading, setLoading] = useState(false);
 
@@ -73,6 +74,11 @@ export default function ProjectForm({ initialData = {}, isEdit = false }) {
                 <div>
                     <Label htmlFor="techStack">Tech Stack (comma separated)</Label>
                     <Input id="techStack" name="techStack" value={formData.techStack} onChange={handleChange} placeholder="React, Node.js, Prisma" className="bg-neutral-900 border-white/10" />
+                </div>
+
+                <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Input id="category" name="category" value={formData.category || ''} onChange={handleChange} placeholder="Full Stack / Frontend / AI" className="bg-neutral-900 border-white/10" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">

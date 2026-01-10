@@ -114,12 +114,12 @@ model Project {
   title           String
   description     String   @db.Text
   longDescription String?  @db.Text
-  category        String   // web-app, mobile-app, api, library, etc.
-  technologies    String?  @db.Text // JSON array
+  category        String   @default("Other") // web-app, mobile-app, api, library, etc.
+  techStack       String[] // Native PostgreSQL array
   status          ProjectStatus @default(draft)
   featured        Boolean  @default(false)
-  githubUrl       String?
-  liveUrl         String?
+  repoUrl         String?  // Renamed from githubUrl
+  projectUrl      String?  // Renamed from liveUrl
   imageUrl        String?
   gallery         String?  @db.Text // JSON array of image URLs
   highlights      String?  @db.Text // JSON array of key features

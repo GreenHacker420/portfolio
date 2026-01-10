@@ -1,73 +1,70 @@
-import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import { DotBackground } from "@/components/ui/DotBackground";
+
+import { SafeSection } from '@/components/layout/SafeSection';
+import Hero from '@/components/sections/Hero';
+import About from '@/components/sections/About';
+import SplineSkills from '@/components/sections/SplineSkills';
+import Projects from '@/components/sections/Projects';
+import Experience from '@/components/sections/Experience';
+import Contact from '@/components/sections/Contact';
+import GitHubAnalysis from '@/components/sections/GitHubAnalysis';
+import { DotBackground } from '@/components/ui/DotBackground';
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import Skills from "@/components/sections/Skills";
-import Projects from "@/components/sections/Projects";
-import Experience from "@/components/sections/Experience";
-import GitHubAnalysis from "@/components/sections/GitHubAnalysis";
-import Contact from "@/components/sections/Contact";
-import Resume from "@/components/sections/Resume";
-import ErrorBoundary from "@/components/common/ErrorBoundary";
-import SectionErrorFallback from "@/components/sections/SectionErrorFallback";
-import prisma from "../lib/db";
+import prisma from '@/lib/db';
+import AllData from './AllData';
+import { getMockData } from '@/lib/mockData';
 
-function SafeSection({ children, name }) {
-    const sectionId = name.toLowerCase().replace(/\s+/g, '-');
 
-    return (
-        <ErrorBoundary fallback={<SectionErrorFallback section={name} />}>
-            <section
-                id={sectionId}
-                aria-label={`${name} section`}
-                className="scroll-mt-20 snap-start min-h-screen border-b border-neutral-900 last:border-0"
-            >
-                {children}
-            </section>
-        </ErrorBoundary>
-    );
-}
+// Ensure dynamic rendering for fresh data
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-    const { MOCK_PROJECTS, MOCK_SKILLS, MOCK_EXPERIENCE, MOCK_GITHUB_STATS } = await import('@/lib/mockData');
+
+
+    // Nav Items
+    const navItems = [
+        { name: "Home", link: "/" },
+        { name: "About", link: "#about" },
+        { name: "Projects", link: "#projects" },
+        { name: "Experience", link: "#experience" },
+        { name: "Contact", link: "#contact" }
+    ];
+
+    const data = await AllData();
+    const { MOCK_GITHUB_STATS } = getMockData();
 
     return (
-        <main className="flex min-h-screen flex-col bg-black text-white">
-            <DotBackground>
-                <FloatingNav />
+        <main className="min-h-screen bg-black text-white relative w-full overflow-hidden">
+            <DotBackground />
+            <FloatingNav navItems={navItems} />
 
-                <SafeSection name="Hero">
-                    <Hero />
-                </SafeSection>
+            <SafeSection section="hero">
+                <Hero />
+            </SafeSection>
 
-                <SafeSection name="About">
-                    <About />
-                </SafeSection>
+            <SafeSection section="about">
+                <About />
+            </SafeSection>
 
-                <SafeSection name="Skills">
-                    <Skills />
-                </SafeSection>
+            <SafeSection section="skills">
+                <SplineSkills />
+            </SafeSection>
 
-                <SafeSection name="Projects">
-                    <Projects data={MOCK_PROJECTS} />
-                </SafeSection>
+            <SafeSection section="projects">
+                {/* Pass DB data to Projects component */}
+                <Projects data={data.projects || data.MOCK_PROJECTS} />
+            </SafeSection>
 
-                <SafeSection name="Experience">
-                    <Experience data={MOCK_EXPERIENCE} />
-                </SafeSection>
+            <SafeSection section="experience">
+                <Experience data={data.experience || data.MOCK_EXPERIENCE} />
+            </SafeSection>
 
-                <SafeSection name="Resume">
-                    <Resume />
-                </SafeSection>
+            <SafeSection section="github">
+                <GitHubAnalysis data={MOCK_GITHUB_STATS} />
+            </SafeSection>
 
-                <SafeSection name="GitHub Activity">
-                    <GitHubAnalysis data={MOCK_GITHUB_STATS} />
-                </SafeSection>
-
-                <SafeSection name="Contact">
-                    <Contact />
-                </SafeSection>
-            </DotBackground>
+            <SafeSection section="contact">
+                <Contact />
+            </SafeSection>
         </main>
     );
 }
