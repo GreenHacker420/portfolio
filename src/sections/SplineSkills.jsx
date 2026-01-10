@@ -83,7 +83,7 @@ const SplineSkills = () => {
             </div>
 
             {/* 3D Scene - Bottom Section */}
-            <div className="relative w-full h-[600px] flex items-center justify-center">
+            {/* <div className="relative w-full h-[600px] flex items-center justify-center">
                 <Spline
                     scene="/scene.splinecode"
                     onLoad={onSplineLoad}
@@ -92,14 +92,13 @@ const SplineSkills = () => {
                     className="w-full h-full"
                 />
 
-                {/* Click Hint */}
                 <div className="absolute bottom-4 left-4 text-xs text-white/30 pointer-events-none">
                     Click on keys to explore skills
                 </div>
-            </div>
+            </div> */}
 
             {/* Skill Overlay */}
-            <AnimatePresence>
+            {/* <AnimatePresence>
                 {selectedSkill && (
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
@@ -131,7 +130,7 @@ const SplineSkills = () => {
                         </div>
                     </motion.div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence> */}
         </div>
     );
 };
