@@ -1,192 +1,138 @@
-'use client';
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BorderBeam } from './border-beam';
-import { cn } from '@/lib/utils';
-import { Check, Terminal, Wifi } from 'lucide-react';
-
-const TypewriterLine = ({ text, delay = 0, onComplete }) => {
-    const [displayedText, setDisplayedText] = useState('');
-
-    useEffect(() => {
-        let timeout;
-        const startTimeout = setTimeout(() => {
-            let currentIndex = 0;
-            const interval = setInterval(() => {
-                if (currentIndex <= text.length) {
-                    setDisplayedText(text.slice(0, currentIndex));
-                    currentIndex++;
-                } else {
-                    clearInterval(interval);
-                    if (onComplete) onComplete();
-                }
-            }, 30); // Typing speed
-            return () => clearInterval(interval);
-        }, delay);
-
-        return () => clearTimeout(startTimeout);
-    }, [text, delay, onComplete]);
-
-    return <span>{displayedText}</span>;
-};
+import { createContact } from "@/actions/contact";
+import { toast } from "sonner";
 
 export const TerminalContact = () => {
-    const [step, setStep] = useState(0); // 0: Start, 1: Name, 2: Email, 3: Message, 4: Sending, 5: Success
-    const [history, setHistory] = useState([]);
-    const [inputValue, setInputValue] = useState('');
+    const [history, setHistory] = useState([
+        { type: 'system', content: '> INITIALIZING SECURE CONNECTION...' },
+        { type: 'system', content: '> ESTABLISHED.' },
+        { type: 'system', content: '> Enter Identity (Name):' }
+    ]);
+    const [input, setInput] = useState('');
+    const [step, setStep] = useState(1); // 0: Init, 1: Name, 2: Email, 3: Message, 4: Sending, 5: Done
     const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-    const inputRef = useRef(null);
     const bottomRef = useRef(null);
+    const inputRef = useRef(null);
+    const [isPending, startTransition] = useTransition();
 
     // Auto-scroll to bottom
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [history, step]);
+    }, [history]);
 
     // Focus input on click
-    const handleContainerClick = () => {
-        if (step > 0 && step < 4) {
-            inputRef.current?.focus();
-        }
-    };
+    useEffect(() => {
+        inputRef.current?.focus();
+    }, [step]);
 
-    const handleKeyDown = async (e) => {
+
+    const handleCommand = async (e) => {
         if (e.key === 'Enter') {
-            const value = inputValue.trim();
-            if (!value) return;
+            const val = input.trim();
+            if (!val) return;
 
             // Add user input to history
-            const newHistory = [...history, { type: 'user', content: value }];
+            const newHistory = [...history, { type: 'user', content: val }];
             setHistory(newHistory);
-            setInputValue('');
+            setInput('');
 
-            // Process based on current step
+            // Process based on step
             if (step === 1) {
-                setFormData(prev => ({ ...prev, name: value }));
-                setHistory(prev => [...prev, { type: 'system', content: `> Identity confirmed: ${value}` }]);
-                setTimeout(() => {
-                    setHistory(prev => [...prev, { type: 'system', content: '> Enter target coordinates (Email):' }]);
-                    setStep(2);
-                }, 500);
+                setFormData(prev => ({ ...prev, name: val }));
+                setHistory(prev => [...prev, { type: 'system', content: `> Identity Confirmed: ${val}` }, { type: 'system', content: '> Enter Secure Protocol (Email):' }]);
+                setStep(2);
             } else if (step === 2) {
-                // Basic email validation
-                if (!value.includes('@')) {
-                    setHistory(prev => [...prev, { type: 'error', content: '> ERROR: Invalid coordinates. Protocol requires @ symbol.' }]);
-                    setTimeout(() => {
-                        setHistory(prev => [...prev, { type: 'system', content: '> Re-enter target coordinates (Email):' }]);
-                    }, 500);
-                    return;
-                }
-                setFormData(prev => ({ ...prev, email: value }));
-                setHistory(prev => [...prev, { type: 'system', content: `> Target locked: ${value}` }]);
-                setTimeout(() => {
-                    setHistory(prev => [...prev, { type: 'system', content: '> Enter payload (Message):' }]);
+                if (!val.includes('@')) {
+                    setHistory(prev => [...prev, { type: 'error', content: '> ERROR: Invalid Protocol Syntax.' }, { type: 'system', content: '> Enter Secure Protocol (Email):' }]);
+                    // Stay on step 2
+                } else {
+                    setFormData(prev => ({ ...prev, email: val }));
+                    setHistory(prev => [...prev, { type: 'system', content: '> Protocol Validated.' }, { type: 'system', content: '> Transmit Payload (Message):' }]);
                     setStep(3);
-                }, 500);
+                }
             } else if (step === 3) {
-                setFormData(prev => ({ ...prev, message: value }));
+                setFormData(prev => ({ ...prev, message: val }));
+                setHistory(prev => [...prev, { type: 'system', content: '> ENCRYPTING PACKET...' }]);
                 setStep(4);
 
-                // Simulate sending
-                setHistory(prev => [...prev, { type: 'system', content: '> Encrypting payload...' }]);
+                // Simulate processing then submit
+                startTransition(async () => {
+                    setHistory(prev => [...prev, { type: 'system', content: '> UPLOADING TO MAINFRAME...' }]);
 
-                try {
-                    const res = await fetch('/api/contact', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...formData, message: value }),
-                    });
+                    // Submit to Server Action
+                    const finalData = { ...formData, message: val, subject: "Portfolio Contact Form", name: formData.name, email: formData.email };
 
-                    if (res.ok) {
-                        setTimeout(() => {
-                            setHistory(prev => [...prev, { type: 'success', content: '> Payload delivered successfully.' }]);
+                    try {
+                        const result = await createContact(finalData);
+                        if (result.success) {
+                            setHistory(prev => [...prev, { type: 'success', content: '> TRANSMISSION COMPLETE. ACKNOWLEDGEMENT RECEIVED.' }]);
                             setStep(5);
-                        }, 1500);
-                    } else {
-                        throw new Error('Transmission failed');
+                        } else {
+                            setHistory(prev => [...prev, { type: 'error', content: `> UPLOAD FAILED: ${result.error}` }]);
+                            setStep(3); // Retry message?
+                        }
+
+                    } catch (err) {
+                        setHistory(prev => [...prev, { type: 'error', content: '> CRITICAL ERROR: CONNECTION LOST.' }]);
+                        setStep(3);
                     }
-                } catch (err) {
-                    setHistory(prev => [...prev, { type: 'error', content: '> ERROR: Transmission failed. Creating local dump.' }]);
-                    setStep(5); // End anyway for demo
-                }
+                });
             }
         }
     };
 
-    // Initial boot sequence
-    useEffect(() => {
-        const bootSequence = async () => {
-            await new Promise(r => setTimeout(r, 800));
-            setHistory(prev => [...prev, { type: 'system', content: '> INITIALIZING SECURE CONNECTION...' }]);
-            await new Promise(r => setTimeout(r, 800));
-            setHistory(prev => [...prev, { type: 'system', content: '> ESTABLISHING UPLINK TO GREEN_HACKER_NODE...' }]);
-            await new Promise(r => setTimeout(r, 800));
-            setHistory(prev => [...prev, { type: 'success', content: '> CONNECTION ESTABLISHED.' }]);
-            await new Promise(r => setTimeout(r, 500));
-            setHistory(prev => [...prev, { type: 'system', content: '> Enter Identity (Name):' }]);
-            setStep(1);
-        };
-        bootSequence();
-    }, []);
-
     return (
-        <div
-            className="relative w-full max-w-2xl mx-auto h-[500px] bg-black/90 rounded-xl overflow-hidden border border-white/10 shadow-2xl font-mono text-sm md:text-base"
-            onClick={handleContainerClick}
-        >
-            <BorderBeam size={300} duration={12} delay={9} borderWidth={1.5} colorFrom="#4ade80" colorTo="#22c55e" />
+        <div className="w-full max-w-2xl bg-black/80 border border-green-500/30 rounded-lg p-6 font-mono text-sm md:text-base shadow-[0_0_20px_rgba(0,255,0,0.1)] relative overflow-hidden backdrop-blur-sm h-[400px] flex flex-col" onClick={() => inputRef.current?.focus()}>
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-2 bg-white/5 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
-                    <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
-                    <span className="ml-2 text-xs text-neutral-400">secure_uplink.sh</span>
+            {/* Terminal Header */}
+            <div className="flex items-center justify-between border-b border-green-500/20 pb-4 mb-4 select-none">
+                <div className="flex gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                    <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                    <div className="w-3 h-3 rounded-full bg-green-500/50" />
                 </div>
-                <div className="flex items-center gap-2 text-xs text-green-500/50">
-                    <Wifi className="w-3 h-3 animate-pulse" />
-                    <span>ENCRYPTED</span>
-                </div>
+                <div className="text-green-500/50 text-xs">SECURE_CHANNEL_V2.0</div>
             </div>
 
-            {/* Terminal Content */}
-            <div className="p-6 h-[calc(100%-40px)] overflow-y-auto custom-scrollbar flex flex-col gap-2">
-                {history.map((line, idx) => (
-                    <div key={idx} className={cn(
-                        "break-words",
-                        line.type === 'user' ? "text-white" :
-                            line.type === 'error' ? "text-red-400" :
-                                line.type === 'success' ? "text-green-400" : "text-green-500/80"
-                    )}>
-                        <span className="opacity-50 mr-2">
-                            {line.type === 'user' ? '>' : '#'}
-                        </span>
-                        {line.type === 'system' ? (
-                            <TypewriterLine text={line.content} />
-                        ) : (
-                            <span>{line.content}</span>
-                        )}
-                    </div>
-                ))}
+            {/* Terminal Output */}
+            <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-2">
+                <AnimatePresence mode="popLayout">
+                    {history.map((line, idx) => (
+                        <motion.div
+                            key={idx}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className={`${line.type === 'user' ? 'text-white' :
+                                    line.type === 'error' ? 'text-red-500' :
+                                        line.type === 'success' ? 'text-green-400' :
+                                            'text-green-500'
+                                }`}
+                        >
+                            <span className="opacity-50 mr-2">
+                                {line.type === 'user' ? '$' : '>'}
+                            </span>
+                            {line.content}
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
 
-                {/* Input Line */}
-                {step > 0 && step < 4 && (
-                    <div className="flex items-center text-white">
-                        <span className="opacity-50 mr-2 text-neon-green">{'>'}</span>
+                {/* Input Area */}
+                {step < 4 && (
+                    <div className="flex items-center text-white relative">
+                        <span className="text-green-500 opacity-50 mr-2">$</span>
                         <input
                             ref={inputRef}
                             type="text"
-                            value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                            className="bg-transparent border-none outline-none flex-1 text-white font-mono p-0 focus:ring-0"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleCommand}
+                            className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500"
                             autoFocus
                             spellCheck="false"
                             autoComplete="off"
                         />
-                        <span className="w-2 h-4 bg-neon-green animate-pulse ml-1" />
+                        <span className="w-2 h-4 bg-green-500 animate-pulse ml-1 inline-block" />
                     </div>
                 )}
 
@@ -200,16 +146,20 @@ export const TerminalContact = () => {
                     >
                         <button
                             onClick={() => {
-                                setHistory([]);
+                                setHistory([
+                                    { type: 'system', content: '> REBOOTING SYSTEM...' }
+                                ]);
                                 setStep(0);
                                 setFormData({ name: '', email: '', message: '' });
                                 setTimeout(() => {
-                                    setHistory([{ type: 'system', content: '> REBOOTING SYSTEM...' }]);
-                                    setTimeout(() => {
-                                        setHistory([{ type: 'system', content: '> Enter Identity (Name):' }]);
-                                        setStep(1);
-                                    }, 1000);
-                                }, 500);
+                                    setHistory([
+                                        { type: 'system', content: '> REBOOTING SYSTEM...' },
+                                        { type: 'system', content: '> INITIALIZING SECURE CONNECTION...' },
+                                        { type: 'system', content: '> ESTABLISHED.' },
+                                        { type: 'system', content: '> Enter Identity (Name):' }
+                                    ]);
+                                    setStep(1);
+                                }, 1000);
                             }}
                             className="text-xs text-neutral-500 hover:text-white hover:underline cursor-pointer"
                         >

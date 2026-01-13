@@ -1,23 +1,21 @@
-import { SafeSection } from '@/components/layout/SafeSection';
-import { BackgroundPaths } from "@/components/ui/background-paths";
+
+import { FloatingNav } from "@/components/ui/floating-navbar";
+import Footer from '@/sections/Footer';
+import Education from '@/sections/Education';
+import Certifications from '@/sections/Certifications';
 import About from '@/sections/About';
+import SplineSkills from '@/sections/SplineSkills';
 import Projects from '@/sections/Projects';
 import Experience from '@/sections/Experience';
-import Contact from '@/sections/Contact';
 import GitHubAnalysis from '@/sections/GitHubAnalysis';
-import { FloatingNav } from "@/components/ui/floating-navbar";
+import Contact from '@/sections/Contact';
+import { BackgroundPaths } from "@/components/ui/background-paths";
+import { getMockData } from "@/lib/mockData";
+import { getGithubStats } from "@/lib/github";
+import ClientHydrator from "@/components/ClientHydrator";
+import { ParallaxStars } from "@/components/DynamicWrapper";
 import CanvasCursor from "@/components/ui/canvas-cursor";
-import { ParallaxStars, SplineSkills } from '@/components/DynamicWrapper';
-import prisma from '@/lib/db';
-import AllData from './AllData';
-import { getMockData } from '@/lib/mockData';
-import { getGithubStats } from '@/lib/github';
-import ClientHydrator from '@/components/ClientHydrator';
-
-
-// Ensure dynamic rendering for fresh data
-// Updated: Force clearing stale cache
-export const dynamic = 'force-dynamic';
+import getData from "./dbfetch";
 
 export default async function Home() {
 
@@ -31,11 +29,13 @@ export default async function Home() {
         { name: "Contact", link: "#contact" }
     ];
 
-    const data = await AllData();
+    const data = await getData();
+    console.log(data);
+
     const { MOCK_GITHUB_STATS } = getMockData();
 
     // Fetch real Github stats (fallback to mock)
-    const githubStats = await getGithubStats("GreenHacker420") || MOCK_GITHUB_STATS;
+    const githubStats = await getGithubStats(data.personalInfo?.githubUsername || "GreenHacker420") || MOCK_GITHUB_STATS;
 
 
     return (
@@ -56,30 +56,47 @@ export default async function Home() {
                 <BackgroundPaths title={data.personalInfo?.fullName || "Harsh Hirawat aka Green Hacker"} />
             </section>
 
-            <SafeSection section="about">
+            {/* About Section */}
+            <section id="about">
                 <About data={data.personalInfo} />
-            </SafeSection>
+            </section>
 
-            <SafeSection section="skills">
+            {/* Skills Section */}
+            <section id="skills">
                 <SplineSkills data={data.skills} />
-            </SafeSection>
+            </section>
 
-            <SafeSection section="projects">
-                {/* Pass DB data to Projects component */}
-                <Projects data={data.projects || data.MOCK_PROJECTS} />
-            </SafeSection>
+            {/* Projects Section */}
+            <section id="projects">
+                <Projects data={data.projects} />
+            </section>
 
-            <SafeSection section="experience">
-                <Experience data={data.experience || data.MOCK_EXPERIENCE} />
-            </SafeSection>
+            {/* Experience Section */}
+            <section id="experience">
+                <Experience data={data.experience} />
+            </section>
 
-            <SafeSection section="github">
+            {/* Education Section */}
+            <section id="education">
+                <Education data={data.education} />
+            </section>
+
+            {/* Certifications Section */}
+            <section id="certifications">
+                <Certifications data={data.certifications} />
+            </section>
+
+            {/* GitHub Analysis Section */}
+            <section id="github">
                 <GitHubAnalysis data={githubStats} />
-            </SafeSection>
+            </section>
 
-            <SafeSection section="contact">
+            {/* Contact Section */}
+            <section id="contact">
                 <Contact />
-            </SafeSection>
+            </section>
+
+            <Footer />
         </main>
     );
 }

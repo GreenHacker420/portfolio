@@ -70,6 +70,7 @@ model PersonalInfo {
   phone       String?
   location    String?
   website     String?
+  githubUsername String?
   avatar      String?
   resume      String?
   isVisible   Boolean  @default(true)

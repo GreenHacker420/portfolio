@@ -41,6 +41,7 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
         )}
         ref={ref}
         {...props}
+        value={props.value === null ? "" : props.value}
       />
     </motion.div>
   );

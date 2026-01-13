@@ -9,18 +9,6 @@ export async function getPersonalInfo() {
             where: { id: "default" }
         });
 
-        // Initialize if not exists
-        if (!info) {
-            info = await prisma.personalInfo.create({
-                data: {
-                    id: "default",
-                    fullName: "John Doe",
-                    title: "Full Stack Developer",
-                    email: "contact@example.com"
-                }
-            });
-        }
-
         return { success: true, data: info };
     } catch (error) {
         return { success: false, error: error.message };

@@ -8,7 +8,6 @@ export default async function getData() {
         const cachedFn = unstable_cache(
             async () => {
                 try {
-                    // Explicitly select columns to avoid "column not found" errors if DB is desync
                     const projects = await prisma.project.findMany({
                         orderBy: { displayOrder: 'asc' },
                         where: { isVisible: true }
@@ -33,10 +32,24 @@ export default async function getData() {
                         where: { isVisible: true }
                     });
 
-                    // Parse JSON fields safely if needed (Prisma adapter usually handles arrays, but text/json needs parsing if raw)
-                    // Projects techStack is string[] so it comes as array.
+                    const education = await prisma.education.findMany({
+                        orderBy: { startDate: 'desc' },
+                        where: { isVisible: true }
+                    });
 
-                    return { projects, experience, skills, personalInfo, socialLinks };
+                    const certifications = await prisma.certification.findMany({
+                        orderBy: { issueDate: 'desc' },
+                        where: { isVisible: true }
+                    });
+
+                    const faqs = await prisma.fAQ.findMany({
+                        orderBy: { displayOrder: 'asc' },
+                        where: { isVisible: true }
+                    });
+
+
+
+                    return { projects, experience, skills, personalInfo, socialLinks, education, certifications, faqs };
                 } catch (innerError) {
                     console.error("DB Fetch Inner Error:", innerError);
                     return null;
@@ -52,3 +65,4 @@ export default async function getData() {
         return null;
     }
 }
+

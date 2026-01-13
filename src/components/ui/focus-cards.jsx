@@ -21,6 +21,7 @@ export const Card = React.memo(({
             src={card.src}
             alt={card.title}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover absolute inset-0"
         />
         <div

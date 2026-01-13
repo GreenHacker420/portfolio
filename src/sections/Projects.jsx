@@ -24,6 +24,7 @@ export default function Projects({ data = [] }) {
                     Discover a collection of digital experiences crafted with precision.
                 </p>
             </div>
+            {/* FocusCards component */}
             <FocusCards cards={projectCards} />
         </section>
     );

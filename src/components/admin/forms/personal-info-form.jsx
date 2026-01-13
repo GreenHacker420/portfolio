@@ -30,6 +30,7 @@ const formSchema = z.object({
     phone: z.string().optional(),
     location: z.string().optional(),
     website: z.string().optional(),
+    githubUsername: z.string().optional(),
     avatar: z.string().optional(),
     resume: z.string().optional(),
     isVisible: z.boolean().default(true),
@@ -176,6 +177,22 @@ export function PersonalInfoForm({ initialData }) {
                                     <FormControl>
                                         <Input placeholder="https://..." {...field} className="bg-zinc-950 border-zinc-800" />
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="githubUsername"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>GitHub Username</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="GreenHacker420" {...field} className="bg-zinc-950 border-zinc-800" />
+                                    </FormControl>
+                                    <FormDescription className="text-xs">
+                                        Used to fetch contribution heatmap and stats.
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
