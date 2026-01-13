@@ -1,23 +1,19 @@
-import { authServer } from '@/lib/auth';
-import prisma from '@/lib/db';
-import { redirect } from 'next/navigation';
-import { headers } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import prisma from "@/lib/db";
+import { redirect } from "next/navigation";
 
 export default async function AdminPage() {
-    // Check auth
-    const sessionData = await authServer.getSession();
+    const session = await getServerSession(authOptions);
 
-    // Simple admin check (replace with role based later if needed)
-    if (!sessionData?.user) {
-        redirect('/auth/sign-in');
+    if (!session) {
+        redirect("/auth/sign-in");
     }
-
-    // Ideally check email: if (sessionData.user.email !== 'harsh@greenhacker.in') ...
 
     // Fetch contacts
     const contacts = await prisma.contact.findMany({
-        orderBy: { createdAt: 'desc' },
-        take: 50
+        orderBy: { createdAt: "desc" },
+        take: 50,
     });
 
     return (
@@ -25,7 +21,7 @@ export default async function AdminPage() {
             <header className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
                 <h1 className="text-2xl font-bold text-green-500">Admin_Dashboard.exe</h1>
                 <div className="text-sm text-neutral-400">
-                    User: {sessionData.user.email}
+                    User: {session.user.email}
                 </div>
             </header>
 
@@ -42,7 +38,10 @@ export default async function AdminPage() {
                         </thead>
                         <tbody className="divide-y divide-white/10">
                             {contacts.map((contact) => (
-                                <tr key={contact.id} className="hover:bg-white/5 transition-colors">
+                                <tr
+                                    key={contact.id}
+                                    className="hover:bg-white/5 transition-colors"
+                                >
                                     <td className="px-6 py-4 text-neutral-400">
                                         {new Date(contact.createdAt).toLocaleDateString()}
                                     </td>
@@ -59,7 +58,10 @@ export default async function AdminPage() {
                             ))}
                             {contacts.length === 0 && (
                                 <tr>
-                                    <td colSpan={4} className="px-6 py-12 text-center text-neutral-500">
+                                    <td
+                                        colSpan={4}
+                                        className="px-6 py-12 text-center text-neutral-500"
+                                    >
                                         &gt; No incoming transmissions found.
                                     </td>
                                 </tr>
