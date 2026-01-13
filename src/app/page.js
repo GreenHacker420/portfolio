@@ -1,4 +1,3 @@
-
 import { SafeSection } from '@/components/layout/SafeSection';
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import About from '@/sections/About';
@@ -13,6 +12,7 @@ import prisma from '@/lib/db';
 import AllData from './AllData';
 import { getMockData } from '@/lib/mockData';
 import { getGithubStats } from '@/lib/github';
+import ClientHydrator from '@/components/ClientHydrator';
 
 
 // Ensure dynamic rendering for fresh data
@@ -40,20 +40,28 @@ export default async function Home() {
 
     return (
         <main className="min-h-screen bg-black text-white w-full relative">
+            <ClientHydrator
+                projects={data.projects}
+                experience={data.experience}
+                skills={data.skills}
+                personalInfo={data.personalInfo}
+                socialLinks={data.socialLinks}
+                githubStats={githubStats}
+            />
             <CanvasCursor />
             <ParallaxStars />
             <FloatingNav navItems={navItems} />
 
             <section id="home">
-                <BackgroundPaths title="Harsh Hirawat aka Green Hacker" />
+                <BackgroundPaths title={data.personalInfo?.fullName || "Harsh Hirawat aka Green Hacker"} />
             </section>
 
             <SafeSection section="about">
-                <About />
+                <About data={data.personalInfo} />
             </SafeSection>
 
             <SafeSection section="skills">
-                <SplineSkills />
+                <SplineSkills data={data.skills} />
             </SafeSection>
 
             <SafeSection section="projects">

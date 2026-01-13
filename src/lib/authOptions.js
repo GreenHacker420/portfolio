@@ -1,4 +1,6 @@
 import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 export const authOptions = {
     providers: [
@@ -9,29 +11,38 @@ export const authOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                // Hardcoded admin check
-                const adminEmail = "hhirawat5@gmail.com";
-                const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
-
-                if (
-                    credentials?.email === adminEmail &&
-                    credentials?.password === adminPassword
-                ) {
-                    return {
-                        id: "1",
-                        name: "Harsh Hirawat",
-                        email: adminEmail,
-                        role: "admin",
-                    };
+                if (!credentials?.email || !credentials?.password) {
+                    return null;
                 }
 
-                return null;
+                const user = await prisma.adminUser.findUnique({
+                    where: {
+                        email: credentials.email
+                    }
+                });
+
+                if (!user || !user.isActive) {
+                    return null;
+                }
+
+                const isValid = await bcrypt.compare(credentials.password, user.password);
+
+                if (!isValid) {
+                    return null;
+                }
+
+                return {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                };
             }
         })
     ],
     pages: {
         signIn: "/auth/sign-in",
-        error: "/auth/sign-in", // Error code passed in query string as ?error=
+        error: "/auth/sign-in",
     },
     callbacks: {
         async jwt({ token, user }) {

@@ -8,12 +8,28 @@ import { IconCloud } from '@/components/ui/interactive-icon-cloud';
 import { getKeyById } from '@/lib/keyboardLayout';
 import { getMockData } from '@/lib/mockData';
 
-const SplineSkills = () => {
+const SplineSkills = ({ data = [] }) => {
 
     const { MOCK_SKILLS } = getMockData();
     const [loading, setLoading] = useState(true);
     const [selectedSkill, setSelectedSkill] = useState(null);
     const splineRef = useRef(null);
+
+    // If data provided, extract simple slugs for Cloud if possible, or just default to common tech
+    // Since skills list might not map 1:1 to simple icon slugs, we might keep hardcoded or map carefully.
+    // For now, let's keep the hardcoded list as updated by the user's skills is a bit complex for SimpleIcons slugs.
+    // But we can update the Cloud if we have a mapping.
+    // However, the USER asked to add data source.
+    // Let's assume 'data' contains skills with 'name' or 'icon' property.
+
+    // We can try to map data names to slugs.
+    const skillSlugs = data.length > 0
+        ? data.map(s => s.name.toLowerCase().replace(/\./g, 'dot').replace(/\s+/g, ''))
+        : [
+            "typescript", "javascript", "react", "html5", "css3", "nodedotjs",
+            "express", "nextdotjs", "prisma", "amazonaws", "postgresql",
+            "firebase", "docker", "git", "github", "visualstudiocode", "figma"
+        ];
 
     const onSplineLoad = (spline) => {
         console.log('Spline scene loaded');
@@ -26,111 +42,14 @@ const SplineSkills = () => {
         setLoading(false);
     };
 
-    const onSplineMouseDown = (e) => {
-        if (!e.target || !e.target.name) return;
-
-        const objectName = e.target.name.toLowerCase();
-        console.log('Clicked object:', objectName);
-
-        // Find key in layout
-        const key = getKeyById(objectName);
-
-        if (key && key.skillId) {
-            // Find skill data
-            const skill = MOCK_SKILLS.find(s => s.id === `skill_00${key.skillId === 'js' ? '1' : key.skillId === 'react' ? '2' : key.skillId === 'node' ? '3' : '4'}`); // Basic mapping for mock data
-            // Better mapping:
-            const mappedSkill = MOCK_SKILLS.find(s => s.category === key.skillId || s.name.toLowerCase().includes(key.skillId));
-
-            // For now, let's just use the skillId to find in mock or fallback
-            const foundSkill = MOCK_SKILLS.find(s =>
-                s.name.toLowerCase() === (key.label || '').toLowerCase() ||
-                s.id === key.skillId
-            );
-
-            if (foundSkill) {
-                setSelectedSkill(foundSkill);
-            } else {
-                // Fallback if mock data doesn't match exactly yet
-                setSelectedSkill({
-                    name: key.label || objectName,
-                    description: `Experience with ${key.label}`,
-                    level: 80,
-                    category: 'dev'
-                });
-            }
-        }
-    };
-
     return (
         <div className="relative w-full min-h-screen bg-transparent flex flex-col items-center gap-8 py-20">
             <h1 className="text-6xl font-bold text-white mb-8">Skills</h1>
-            {/* Loading State */}
-            {loading && (
-                <div className="absolute inset-0 flex items-center justify-center text-white z-10">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon-green"></div>
-                </div>
-            )}
-
-            {/* Icon Cloud & Info - Top Section */}
             <div className="relative w-full h-[400px] flex items-center justify-center p-4">
                 <div className="w-full max-w-lg opacity-80 hover:opacity-100 transition-opacity duration-500">
-                    <IconCloud iconSlugs={[
-                        "typescript", "javascript", "react", "html5", "css3", "nodedotjs",
-                        "express", "nextdotjs", "prisma", "amazonaws", "postgresql",
-                        "firebase", "docker", "git", "github", "visualstudiocode", "figma"
-                    ]} />
+                    <IconCloud iconSlugs={skillSlugs} />
                 </div>
             </div>
-
-            {/* 3D Scene - Bottom Section */}
-            {/* <div className="relative w-full h-[600px] flex items-center justify-center">
-                <Spline
-                    scene="/scene.splinecode"
-                    onLoad={onSplineLoad}
-                    onError={onSplineError}
-                    onMouseDown={onSplineMouseDown}
-                    className="w-full h-full"
-                />
-
-                <div className="absolute bottom-4 left-4 text-xs text-white/30 pointer-events-none">
-                    Click on keys to explore skills
-                </div>
-            </div> */}
-
-            {/* Skill Overlay */}
-            {/* <AnimatePresence>
-                {selectedSkill && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 50 }}
-                        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md border border-white/10 p-6 rounded-xl max-w-sm w-full mx-4 shadow-2xl z-20"
-                    >
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-2xl font-bold text-white">{selectedSkill.name}</h3>
-                            <button
-                                onClick={() => setSelectedSkill(null)}
-                                className="text-white/50 hover:text-white"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <p className="text-gray-300 mb-4">{selectedSkill.description}</p>
-
-                        <div className="w-full bg-gray-700 rounded-full h-2.5 mb-1">
-                            <div
-                                className="bg-neon-green h-2.5 rounded-full"
-                                style={{ width: `${selectedSkill.level || 50}%` }}
-                            ></div>
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-400">
-                            <span>Proficiency</span>
-                            <span>{selectedSkill.level}%</span>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence> */}
         </div>
     );
 };
