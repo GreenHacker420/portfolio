@@ -97,6 +97,7 @@ const GithubHeatmapFast = ({ data, total }) => {
                         height: height,
                         display: 'grid',
                         gridTemplateColumns: `repeat(${weeks}, ${cellSize}px)`,
+                        gridTemplateRows: `repeat(${daysPerWeek}, ${cellSize}px)`,
                         gap: cellGap,
                         gridAutoFlow: 'column'
                     }}
@@ -113,7 +114,7 @@ const GithubHeatmapFast = ({ data, total }) => {
 
             <div className="mt-6 flex justify-between items-center text-xs text-neutral-500 border-t border-white/5 pt-4">
                 <span>Total Contributions:  {total}</span>
-                <a href="https://github.com" target="_blank" className="hover:text-neon-green transition-colors flex items-center gap-1">
+                <a href="https://github.com/GreenHacker420" target="_blank" className="hover:text-neon-green transition-colors flex items-center gap-1">
                     Learn more on Github →
                 </a>
             </div>
