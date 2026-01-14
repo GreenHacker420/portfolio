@@ -11,7 +11,7 @@ import GitHubAnalysis from '@/sections/GitHubAnalysis';
 import Contact from '@/sections/Contact';
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import { getMockData } from "@/lib/mockData";
-import { getGithubStats } from "@/lib/github";
+import { getGithubStats } from "@/services/github/github.service";
 import ClientHydrator from "@/components/ClientHydrator";
 import { ParallaxStars } from "@/components/DynamicWrapper";
 import CanvasCursor from "@/components/ui/canvas-cursor";
@@ -30,7 +30,6 @@ export default async function Home() {
     ];
 
     const data = await getData();
-    console.log(data);
 
     const { MOCK_GITHUB_STATS } = getMockData();
 
@@ -88,7 +87,7 @@ export default async function Home() {
 
             {/* GitHub Analysis Section */}
             <section id="github">
-                <GitHubAnalysis data={githubStats} />
+                <GitHubAnalysis initialData={githubStats} />
             </section>
 
             {/* Contact Section */}

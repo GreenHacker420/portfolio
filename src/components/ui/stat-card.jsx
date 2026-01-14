@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import { motion, useSpring, useTransform } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-export const StatCard = ({ title, value, icon: Icon, delay = 0, className }) => {
+export const StatCard = ({ title, value, icon: Icon, delay = 0, className, description }) => {
     const ref = useRef(null);
     const [isHovered, setIsHovered] = useState(false);
 
@@ -60,15 +60,19 @@ export const StatCard = ({ title, value, icon: Icon, delay = 0, className }) => 
                 )}>
                     <Icon className={cn("w-6 h-6 text-neutral-400 group-hover:text-neon-green transition-colors duration-300")} />
                 </div>
-                {/* Optional delta mockup */}
-                <span className="text-xs font-mono text-neon-green/80 bg-neon-green/5 px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* Optional description or delta */}
+                {/* <span className="text-xs font-mono text-neon-green/80 bg-neon-green/5 px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                     +12%
-                </span>
+                </span> */}
+                {/* Use value or description if provided */}
             </div>
 
             <div className="relative z-10">
                 <h4 className="text-3xl font-bold text-white mb-1 tracking-tight">{value}</h4>
                 <p className="text-sm text-neutral-500 font-medium uppercase tracking-wider">{title}</p>
+                {description && (
+                    <p className="text-xs text-neutral-600 mt-2 font-mono">{description}</p>
+                )}
             </div>
         </motion.div>
     );

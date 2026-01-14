@@ -54,6 +54,9 @@ export const FloatingNav = ({ className }) => {
                     className
                 )}
             >
+                <Link href="/" className="relative flex items-center gap-2 mr-2">
+                    <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full object-cover border border-white/10" />
+                </Link>
                 {navItems.map((navItem, idx) => (
                     <Link
                         key={`link=${idx}`}

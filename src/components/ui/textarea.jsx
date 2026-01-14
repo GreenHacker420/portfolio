@@ -39,6 +39,7 @@ const TextArea = React.forwardRef(({ className, ...props }, ref) => {
                 )}
                 ref={ref}
                 {...props}
+                value={props.value === null ? "" : props.value}
             />
         </motion.div>
     );

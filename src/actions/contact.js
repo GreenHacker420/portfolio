@@ -28,7 +28,7 @@ export async function getContact(id) {
 export async function deleteContact(id) {
     try {
         await prisma.contact.delete({ where: { id } });
-        revalidatePath("/admin/messages");
+        revalidatePath("/admin/contacts");
         return { success: true };
     } catch (error) {
         console.error("Failed to delete message:", error);

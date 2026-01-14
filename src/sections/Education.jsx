@@ -1,37 +1,47 @@
+"use client";
 import { Timeline } from "@/components/ui/timeline";
 
 export default function Education({ data = [] }) {
-    // Transform Education data to match Timeline format if needed
-    // Timeline expects: { title, content } or similar?
-    // Let's check Timeline component usually.
-    // Experience.jsx passed `displayData` which has `company, position, etc.`
-    // So Timeline component must handle generic data or be adapted.
-    // If Timeline was custom built for Experience, I might need to adapt it.
-    // Assuming Timeline takes `{ title, content }` or custom objects.
-    // I'll map education data to resemble experience data for consistency if Timeline supports it.
+    // Helper for safe date parsing
+    const getYear = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? '' : date.getFullYear();
+    };
 
-    const displayData = data.map(edu => ({
-        company: edu.institution, // mapping to "company" slot
-        position: edu.degree + (edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ''),
-        startDate: edu.startDate,
-        endDate: edu.endDate,
-        description: edu.description,
-        technologies: edu.activities ? [edu.activities] : [] // or badges
-    }));
+    const educationData = (data.length > 0 ? data : [
+        {
+            institution: "Newton School of Technology",
+            degree: "B.Tech in CS & AI",
+            startDate: "2024-01-01",
+            endDate: "2028-05-01",
+            description: "Targeting AI & ML specialization."
+        }
+    ]).map(item => {
+        const startYear = getYear(item.startDate);
+        const endYear = item.endDate ? getYear(item.endDate) : 'Present';
 
-    if (displayData.length === 0) return null;
+        return {
+            title: item.institution,
+            content: (
+                <div>
+                    <h4 className="text-2xl font-bold text-white mb-2">{item.degree} {item.fieldOfStudy ? `- ${item.fieldOfStudy}` : ''}</h4>
+                    <p className="text-neutral-400 text-sm mb-4">{startYear} - {endYear}</p>
+                    {item.gpa && <p className="text-neutral-500 text-xs mb-2 font-mono">GPA: {item.gpa}</p>}
+                    <p className="text-neutral-300">
+                        {item.description}
+                    </p>
+                </div>
+            )
+        };
+    });
 
     return (
-        <section className="w-full bg-transparent py-20 relative z-10" id="education">
+        <section className="w-full bg-black py-20 relative z-10" id="education">
             <div className="max-w-7xl mx-auto px-4 md:px-8 mb-10">
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                    Education
-                </h2>
-                <p className="text-neutral-400 text-sm md:text-base max-w-sm">
-                    My academic journey and qualifications.
-                </p>
+                <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">Education</h2>
             </div>
-            <Timeline data={displayData} />
+            <Timeline data={educationData} />
         </section>
     );
 }

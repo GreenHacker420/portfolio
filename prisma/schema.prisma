@@ -389,3 +389,17 @@ model FAQ {
   @@index([displayOrder])
   @@map("faqs")
 }
+
+// ================================
+// GITHUB STATS CACHE
+// ================================
+
+model GithubStats {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  data      Json     // Store the full stats object
+  fetchedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("github_stats")
+}

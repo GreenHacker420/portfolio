@@ -1,11 +1,19 @@
 "use client";
 import React, { useRef, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
-import { GitCommit, GitPullRequest, GitMerge, Star, Activity } from "lucide-react";
+import { GitCommit, GitPullRequest, GitMerge, Star, Activity, RefreshCcw } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { StatCard } from "@/components/ui/stat-card";
 import { LanguageStats, ActivityFeed } from "@/components/ui/activity-feed";
 
-const GithubHeatmapFast = ({ data }) => {
+// Portal Component for Tooltip
+const BodyPortal = ({ children }) => {
+    if (typeof window === "undefined") return null;
+    return createPortal(children, document.body);
+};
+
+const GithubHeatmapFast = ({ data, total }) => {
     if (!data) return null;
 
     const [hoveredData, setHoveredData] = useState(null);
@@ -19,7 +27,7 @@ const GithubHeatmapFast = ({ data }) => {
     const width = weeks * cellPitch;
     const height = daysPerWeek * cellPitch;
 
-    // Precompute colors to avoid calc on render
+    // Precompute colors 
     const colors = useMemo(() => {
         return data.map((value) => {
             if (value >= 4) return "#39ff14";
@@ -30,13 +38,11 @@ const GithubHeatmapFast = ({ data }) => {
         });
     }, [data]);
 
-    // Event Delegation: Single listener for 365 cells
     const handleMouseMove = (e) => {
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Calculate index from coordinates (faster than finding DOM nodes)
         const col = Math.floor(x / cellPitch);
         const row = Math.floor(y / cellPitch);
 
@@ -45,7 +51,7 @@ const GithubHeatmapFast = ({ data }) => {
             if (index < data.length) {
                 setHoveredData({
                     value: data[index],
-                    x: e.clientX, // Global for fixed tooltip
+                    x: e.clientX,
                     y: e.clientY,
                     date: new Date(Date.now() - (data.length - index - 1) * 86400000)
                 });
@@ -56,96 +62,112 @@ const GithubHeatmapFast = ({ data }) => {
     };
 
     return (
-        <div className="md:col-span-2 bg-neutral-900/20 border border-white/5 rounded-3xl p-8 backdrop-blur-sm relative overflow-hidden w-full group">
-            {/* Subtle Glow */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-neon-green/5 blur-[80px] rounded-full pointer-events-none transition-opacity duration-500 group-hover:bg-neon-green/10" />
-
+        <div className="col-span-2 bg-neutral-900/40 border border-white/5 rounded-3xl p-8 backdrop-blur-sm relative group overflow-hidden">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 relative z-10">
+            <div className="flex justify-between items-end mb-8 relative z-10">
                 <div>
-                    <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold text-white flex items-center gap-2">
                         <Activity className="w-5 h-5 text-neon-green" />
                         Contribution Graph
                     </h3>
-                    <p className="text-sm text-neutral-400">Consistency over the last 12 months</p>
+                    <p className="text-sm text-neutral-500 mt-1">Consistency over the last 12 months</p>
                 </div>
-
-                {/* Legend */}
-                <div className="flex items-center gap-2 text-xs text-neutral-500 bg-black/20 p-2 rounded-lg border border-white/5">
+                <div className="flex items-center gap-2 text-xs text-neutral-500">
                     <span>Less</span>
                     <div className="flex gap-1">
-                        <div className="w-2.5 h-2.5 bg-[#1a1a1a] rounded-[2px]"></div>
-                        <div className="w-2.5 h-2.5 bg-[rgba(20,83,45,0.4)] rounded-[2px]"></div>
-                        <div className="w-2.5 h-2.5 bg-[rgba(21,128,61,0.6)] rounded-[2px]"></div>
-                        <div className="w-2.5 h-2.5 bg-[rgba(34,197,94,0.8)] rounded-[2px]"></div>
-                        <div className="w-2.5 h-2.5 bg-[#39ff14] rounded-[2px]"></div>
+                        <div className="w-3 h-3 rounded-sm bg-[#1a1a1a]" />
+                        <div className="w-3 h-3 rounded-sm bg-green-900/40" />
+                        <div className="w-3 h-3 rounded-sm bg-green-700/60" />
+                        <div className="w-3 h-3 rounded-sm bg-green-500/80" />
+                        <div className="w-3 h-3 rounded-sm bg-[#39ff14]" />
                     </div>
                     <span>More</span>
                 </div>
             </div>
 
-            <div className="w-full overflow-x-auto overflow-y-hidden pb-4">
-                <svg
-                    width="100%"
-                    height={height}
-                    viewBox={`0 0 ${width} ${height}`}
-                    preserveAspectRatio="xMinYMin meet"
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={() => setHoveredData(null)}
-                    className="cursor-crosshair"
-                >
-                    {/* Render all rects statically - NO individual events */}
-                    {data.map((_, i) => {
-                        const col = Math.floor(i / daysPerWeek);
-                        const row = i % daysPerWeek;
-                        return (
-                            <rect
-                                key={i}
-                                x={col * cellPitch}
-                                y={row * cellPitch}
-                                width={cellSize}
-                                height={cellSize}
-                                fill={colors[i]}
-                                rx="2"
-                            />
-                        );
-                    })}
-                </svg>
-            </div>
-
-            {hoveredData && (
+            {/* Canvas-like Grid */}
+            <div
+                className="relative cursor-crosshair overflow-x-auto pb-4 no-scrollbar"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={() => setHoveredData(null)}
+            >
                 <div
-                    className="fixed z-50 pointer-events-none bg-neutral-800 text-white text-xs px-3 py-1.5 rounded-md border border-white/10 shadow-xl whitespace-nowrap"
                     style={{
-                        left: hoveredData.x,
-                        top: hoveredData.y - 10,
-                        transform: 'translate(-50%, -100%)'
+                        width: width,
+                        height: height,
+                        display: 'grid',
+                        gridTemplateColumns: `repeat(${weeks}, ${cellSize}px)`,
+                        gap: cellGap,
+                        gridAutoFlow: 'column'
                     }}
                 >
-                    <div className="font-semibold text-neon-green mb-0.5">
-                        {hoveredData.value === 0 ? "No" : hoveredData.value} contributions
-                    </div>
-                    <div className="text-neutral-400 text-[10px]">
-                        {hoveredData.date.toDateString()}
-                    </div>
+                    {colors.map((color, i) => (
+                        <div
+                            key={i}
+                            style={{ backgroundColor: color, width: cellSize, height: cellSize }}
+                            className="rounded-[2px] transition-colors duration-200 hover:opacity-100"
+                        />
+                    ))}
                 </div>
-            )}
-
-            <div className="mt-4 pt-4 border-t border-white/5 flex justify-between text-xs text-neutral-500 font-mono">
-                <span>Total Contributions: {data.reduce((a, b) => a + b, 0)}</span>
-                <span>Learn more on Github →</span>
             </div>
+
+            <div className="mt-6 flex justify-between items-center text-xs text-neutral-500 border-t border-white/5 pt-4">
+                <span>Total Contributions:  {total}</span>
+                <a href="https://github.com" target="_blank" className="hover:text-neon-green transition-colors flex items-center gap-1">
+                    Learn more on Github →
+                </a>
+            </div>
+
+            {/* Fixed Tooltip via Portal */}
+            {hoveredData && (
+                <BodyPortal>
+                    <div
+                        className="fixed z-[9999] pointer-events-none bg-zinc-900 text-white text-xs py-2 px-3 rounded-lg shadow-xl border border-white/10 whitespace-nowrap"
+                        style={{
+                            left: hoveredData.x,
+                            top: hoveredData.y,
+                            transform: 'translate(-50%, -140%)'
+                        }}
+                    >
+                        <strong className="block text-neon-green mb-0.5">
+                            {hoveredData.value} contributions
+                        </strong>
+                        <span className="text-zinc-400">
+                            {hoveredData.date.toDateString()}
+                        </span>
+                        {/* Triangle */}
+                        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-zinc-900" />
+                    </div>
+                </BodyPortal>
+            )}
         </div>
     );
 };
 
-export default function GitHubAnalysis({ data }) {
-    if (!data) return null;
+
+export default function GitHubAnalysis({ initialData }) {
+    const data = initialData || {};
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const router = useRouter();
+
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        try {
+            await fetch("/api/github/refresh?username=" + (data.username || "GreenHacker420"), {
+                method: "POST"
+            });
+            router.refresh(); // Reload server components
+        } catch (error) {
+            console.error("Failed to refresh stats:", error);
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
 
     return (
-        <section className="w-full py-20 bg-transparent relative overflow-hidden" id="github-analysis">
-            <div className="max-w-7xl mx-auto px-4 z-10 relative">
-                <div className="mb-16 md:mb-24">
+        <section className="py-20 bg-black relative z-10" id="github">
+            <div className="container mx-auto px-4">
+                <div className="mb-16">
                     <motion.span
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -169,17 +191,62 @@ export default function GitHubAnalysis({ data }) {
                     >
                         A live window into my open source contributions, coding consistency, and technical milestones.
                     </motion.p>
+
+                    <motion.button
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ delay: 0.3 }}
+                        onClick={handleRefresh}
+                        disabled={isRefreshing}
+                        className="mt-6 flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-white/10 rounded-lg text-sm text-neutral-400 hover:text-white hover:border-white/20 transition-all disabled:opacity-50"
+                    >
+                        <RefreshCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        {isRefreshing ? 'Syncing...' : 'Sync with GitHub'}
+                    </motion.button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                    <StatCard title="Total Commits" value={data.totalCommits || 0} icon={GitCommit} delay={0.1} />
-                    <StatCard title="Pull Requests" value={data.totalPRs || 0} icon={GitPullRequest} delay={0.2} />
-                    <StatCard title="Issues Solved" value={data.totalIssues || 0} icon={GitMerge} delay={0.3} />
-                    <StatCard title="Stars Earned" value={data.totalStars || 0} icon={Star} delay={0.4} />
+                    <StatCard
+                        title="Total Contributions"
+                        value={data.activityMetrics?.totalContributions || "0"}
+                        icon={GitCommit}
+                        delay={0.1}
+                        description="Last 365 days"
+                    />
+                    <StatCard
+                        title="Pull Requests"
+                        value={data.activityMetrics?.recentPRs ?? 0}
+                        icon={GitPullRequest}
+                        delay={0.2}
+                        description="Public events"
+                    />
+                    <StatCard
+                        title="Issues Active"
+                        value={data.activityMetrics?.recentIssues ?? 0}
+                        icon={GitMerge}
+                        delay={0.3}
+                        description="Public events"
+                    />
+                    <StatCard
+                        title="Total Stars"
+                        value={data.totalStars || 0}
+                        icon={Star}
+                        delay={0.4}
+                    />
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8">
-                    <GithubHeatmapFast data={data.contributions} />
+                    {/* Heatmap */}
+                    {data.contributions && data.contributions.length > 0 ? (
+                        <GithubHeatmapFast
+                            data={data.contributions}
+                            total={data.activityMetrics?.totalContributions || 0}
+                        />
+                    ) : (
+                        <div className="col-span-2 bg-neutral-900/50 rounded-xl border border-neutral-800 p-8 flex items-center justify-center text-neutral-500">
+                            <p>Contribution graph loading or unavailable.</p>
+                        </div>
+                    )}
 
                     <div className="space-y-8">
                         <LanguageStats languages={data.languages} />

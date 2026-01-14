@@ -66,12 +66,12 @@ export const ActivityFeed = ({ activities }) => (
         className="bg-neutral-900/20 border border-white/5 rounded-3xl p-8 backdrop-blur-sm"
     >
         <h3 className="text-lg font-bold text-white mb-6">Recent Activity</h3>
-        <div className="space-y-0 relative border-l border-white/10 ml-3">
+        <div className="space-y-0 relative border-l border-white/10 ml-4 pb-2">
             {activities?.map((activity, idx) => (
-                <div key={idx} className="mb-6 last:mb-0 ml-6 relative group">
+                <div key={idx} className="mb-8 last:mb-0 ml-8 relative group">
                     {/* Timeline Dot */}
                     <div className={cn(
-                        "absolute -left-[31px] top-1 w-6 h-6 rounded-full border flex items-center justify-center bg-black z-10",
+                        "absolute -left-[41px] top-1 w-5 h-5 rounded-full border flex items-center justify-center bg-zinc-950 z-10",
                         ActivityColor(activity.type).split(' ')[2], // border color
                     )}>
                         <div className={cn("w-1.5 h-1.5 rounded-full", activity.type === 'Push' ? 'bg-neon-green' : 'bg-white')} />
