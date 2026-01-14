@@ -1,118 +1,191 @@
-
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Spline from '@splinetool/react-spline';
-import { motion, AnimatePresence } from 'framer-motion';
-import { getKeyById, getSkillKeys } from '@/lib/keyboardLayout';
+import { getKeyById, getKeyByHotkey } from '@/lib/keyboardLayout';
 import { getMockData } from '@/lib/mockData';
+import Link from "next/link";
+import { BoxReveal } from "@/components/reveal-animations";
+import { cn } from "@/lib/utils";
+import gsap from 'gsap';
 
 const SplineSkills = ({ data = [] }) => {
     const { MOCK_SKILLS } = getMockData();
     const [loading, setLoading] = useState(true);
-    const [selectedSkill, setSelectedSkill] = useState(null);
-    const splineRef = useRef(null);
+    const splineApp = useRef(null);
+    const timeoutRef = useRef(null);
 
-    const onSplineLoad = (spline) => {
-        console.log('Spline scene loaded');
-        setLoading(false);
-        splineRef.current = spline;
-    };
+    // Helper to resolve skill from key data
+    const resolveSkill = useCallback((keyData) => {
+        if (!keyData) return null;
 
-    const onSplineError = (error) => {
-        console.error('Spline load error:', error);
-        setLoading(false);
-    };
-
-    const onSplineMouseDown = (e) => {
-        // e.target.name or e.target.id might be available from Spline event
-        const objectId = e.target.name || e.target.id;
-        console.log('Spline Object Clicked:', objectId);
-
-        // Find key in layout that matches this object ID (assuming Spline objects are named like 'key-react', 'react', etc.)
-        // Step 618 showed ids like 'js', 'react', 'key-v', etc.
-        // We will try to match objectId to our keys.
-
-        // We can search our flat keyboard layout
-        const keyData = getKeyById(objectId);
-
-        if (keyData && keyData.skillId) {
-            // Found a skill key!
-            // Find the skill details from data or MOCK_SKILLS
+        if (keyData.skillId) {
             const skillDetails = data.find(s => s.id === keyData.skillId || s.name.toLowerCase() === keyData.skillId)
-                || MOCK_SKILLS.find(s => s.id === keyData.skillId || s.name.toLowerCase() === keyData.skillId); // Fallback
+                || MOCK_SKILLS.find(s => s.id === keyData.skillId || s.name.toLowerCase() === keyData.skillId);
 
             if (skillDetails) {
-                setSelectedSkill({ ...skillDetails, ...keyData });
-            } else {
-                // Fallback if data not found but key is defined
-                setSelectedSkill({
-                    name: keyData.label,
-                    description: `Experience with ${keyData.label}`,
-                    level: 80, // Mock level
-                    ...keyData
-                });
+                return { ...skillDetails, ...keyData };
             }
-        } else {
-            // Clicked something else, maybe close overlay?
-            // setSelectedSkill(null);
         }
-    };
+        return null; // Don't return default text for non-skill keys to allow "clearing" feel
+    }, [data, MOCK_SKILLS]);
+
+    const updateSplineText = useCallback((app, heading, desc) => {
+        if (!app || !app.setVariable) return;
+
+        try {
+            // Check if variables exist to prevent console warnings
+            // Note: getVariable might technically warn too in some versions, 
+            // but it's the only way to guard without tracking state manually.
+            // If this fails to suppress, the only fix is adding vars in Spline.
+            if (app.getVariable('heading') === undefined || app.getVariable('desc') === undefined) {
+                // Variables don't exist yet, simply return to avoid spamming the console
+                return;
+            }
+
+            app.setVariable('heading', String(heading || ""));
+            app.setVariable('desc', String(desc || ""));
+        } catch (error) {
+            // This catches runtime crashes
+            if (process.env.NODE_ENV === 'development') {
+                // console.warn("Spline variables missing in scene.", error); 
+                // Suppressed for cleaner console
+            }
+        }
+    }, []);
+
+    const initFloatingAnimation = useCallback((app) => {
+        const keyboardGroup = app.findObjectByName('keyboard') || app.findObjectByName('Group');
+
+        if (keyboardGroup) {
+            // Kill existing tweens to prevent conflicts
+            gsap.killTweensOf(keyboardGroup.position);
+            gsap.killTweensOf(keyboardGroup.rotation);
+
+            // Initial Tilt setup for isometric look
+            gsap.set(keyboardGroup.rotation, { x: 0.2, z: 0 });
+
+            // Floating movement
+            gsap.to(keyboardGroup.position, {
+                y: 15,
+                duration: 2.5,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            gsap.to(keyboardGroup.rotation, {
+                x: 0.25, // Gentle tilt range
+                z: 0.05,
+                duration: 4,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut",
+                delay: 0.5
+            });
+        }
+    }, []);
+
+    const onSplineLoad = useCallback((app) => {
+        console.log('Spline scene loaded');
+        setLoading(false);
+        splineApp.current = app;
+
+        app.addEventListener('mouseHover', (e) => {
+            const objectId = e.target.name || e.target.id;
+            const keyData = getKeyById(objectId);
+
+            if (keyData) {
+                const skill = resolveSkill(keyData);
+                if (skill) {
+                    updateSplineText(app, skill.name, skill.description);
+
+                    // Clear text after 3 seconds of no new interactions
+                    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                    timeoutRef.current = setTimeout(() => {
+                        updateSplineText(app, "", "");
+                    }, 3000);
+                }
+            }
+        });
+
+        initFloatingAnimation(app);
+    }, [resolveSkill, updateSplineText, initFloatingAnimation]);
+
+    const onSplineError = useCallback((error) => {
+        console.error('Spline load error:', error);
+        setLoading(false);
+    }, []);
+
+    const onSplineMouseDown = useCallback((e) => {
+        const objectId = e.target.name || e.target.id;
+        console.log("Clicked:", objectId);
+    }, []);
+
+
+    // Handle global keyboard events
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            const key = e.key.toLowerCase();
+            const keyData = getKeyByHotkey(key);
+
+            if (keyData && splineApp.current) {
+                const skill = resolveSkill(keyData);
+                if (skill) {
+                    updateSplineText(splineApp.current, skill.name, skill.description);
+
+                    // Reset clear timer on key press too
+                    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                    timeoutRef.current = setTimeout(() => {
+                        if (splineApp.current) updateSplineText(splineApp.current, "", "");
+                    }, 3000);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [resolveSkill, updateSplineText]);
 
     return (
-        <div className="relative w-full min-h-screen bg-transparent flex flex-col items-center justify-center py-20 pointer-events-none">
-            {/* Title - positioned absolutely to be non-intrusive or relative at top */}
-            <div className="absolute top-20 z-10 text-center pointer-events-auto">
-                <h1 className="text-6xl font-bold text-white mb-4">Skills</h1>
-                <p className="text-white/50 text-sm">(Click on the keys)</p>
+        <section id="skills" className="w-full min-h-screen relative bg-black overflow-hidden">
+
+            {/* Loading State */}
+            {loading && (
+                <div className="absolute inset-0 flex items-center justify-center z-50 bg-black text-white">
+                    <p className="animate-pulse">Loading 3D Experience...</p>
+                </div>
+            )}
+
+            {/* Static Header only */}
+            <div className="w-full flex flex-col items-center justify-start pt-20 relative z-10 pointer-events-none">
+                <Link href={"#skills"} className="pointer-events-auto">
+                    <BoxReveal width="100%">
+                        <h2
+                            className={cn(
+                                "bg-clip-text text-4xl text-center text-transparent md:text-7xl font-bold",
+                                "bg-gradient-to-b from-white/80 to-white/50"
+                            )}
+                        >
+                            SKILLS
+                        </h2>
+                    </BoxReveal>
+                </Link>
+                <p className="mx-auto mt-4 line-clamp-4 max-w-3xl font-normal text-base text-center text-neutral-300 pointer-events-auto">
+                    (hint: press a key)
+                </p>
             </div>
 
-            {/* 3D Scene Container */}
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 h-screen w-full">
                 <Spline
-                    className="w-full h-full pointer-events-auto"
-                    scene="/scene.splinecode"
+                    className="w-full h-full"
+                    scene="/scene_new.splinecode"
                     onLoad={onSplineLoad}
                     onError={onSplineError}
                     onMouseDown={onSplineMouseDown}
                 />
             </div>
-
-            {/* Skill Overlay */}
-            <AnimatePresence>
-                {selectedSkill && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 50 }}
-                        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 bg-black/80 backdrop-blur-md border border-white/10 p-6 rounded-xl max-w-sm w-full mx-4 shadow-2xl z-20 pointer-events-auto"
-                    >
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-2xl font-bold text-white">{selectedSkill.name}</h3>
-                            <button
-                                onClick={() => setSelectedSkill(null)}
-                                className="text-white/50 hover:text-white"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <p className="text-gray-300 mb-4">{selectedSkill.description || "Detailed proficiency in this technology."}</p>
-
-                        <div className="w-full bg-gray-700 rounded-full h-2.5 mb-1">
-                            <div
-                                className="bg-neon-green h-2.5 rounded-full bg-green-500"
-                                style={{ width: `${selectedSkill.level || 50}%` }}
-                            ></div>
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-400">
-                            <span>Proficiency</span>
-                            <span>{selectedSkill.level || 50}%</span>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+        </section>
     );
 };
 

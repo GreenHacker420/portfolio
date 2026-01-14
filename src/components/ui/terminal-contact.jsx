@@ -21,9 +21,11 @@ export const TerminalContact = () => {
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [history]);
 
-    // Focus input on click
+
     useEffect(() => {
-        inputRef.current?.focus();
+        if (step > 1) {
+            inputRef.current?.focus();
+        }
     }, [step]);
 
 
@@ -104,9 +106,9 @@ export const TerminalContact = () => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             className={`${line.type === 'user' ? 'text-white' :
-                                    line.type === 'error' ? 'text-red-500' :
-                                        line.type === 'success' ? 'text-green-400' :
-                                            'text-green-500'
+                                line.type === 'error' ? 'text-red-500' :
+                                    line.type === 'success' ? 'text-green-400' :
+                                        'text-green-500'
                                 }`}
                         >
                             <span className="opacity-50 mr-2">
@@ -128,7 +130,6 @@ export const TerminalContact = () => {
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={handleCommand}
                             className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500"
-                            autoFocus
                             spellCheck="false"
                             autoComplete="off"
                         />
