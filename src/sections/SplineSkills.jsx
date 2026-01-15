@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 import gsap from 'gsap';
 
 const SplineSkills = ({ data = [] }) => {
-    const { MOCK_SKILLS } = getMockData();
+    const mockData = getMockData() || {};
+    const MOCK_SKILLS = mockData.skills || mockData.MOCK_SKILLS || [];
     const [loading, setLoading] = useState(true);
     const splineApp = useRef(null);
     const timeoutRef = useRef(null);
@@ -34,10 +35,7 @@ const SplineSkills = ({ data = [] }) => {
         if (!app || !app.setVariable) return;
 
         try {
-            // Check if variables exist to prevent console warnings
-            // Note: getVariable might technically warn too in some versions, 
-            // but it's the only way to guard without tracking state manually.
-            // If this fails to suppress, the only fix is adding vars in Spline.
+
             if (app.getVariable('heading') === undefined || app.getVariable('desc') === undefined) {
                 // Variables don't exist yet, simply return to avoid spamming the console
                 return;
@@ -62,8 +60,8 @@ const SplineSkills = ({ data = [] }) => {
             gsap.killTweensOf(keyboardGroup.position);
             gsap.killTweensOf(keyboardGroup.rotation);
 
-            // Initial Tilt setup for isometric look
-            gsap.set(keyboardGroup.rotation, { x: 0.2, z: 0 });
+            // Initial Tilt setup for isometric look (0.44 rad ≈ 25 degrees)
+            gsap.set(keyboardGroup.rotation, { x: 0.44, z: 0 });
 
             // Floating movement
             gsap.to(keyboardGroup.position, {
@@ -75,7 +73,7 @@ const SplineSkills = ({ data = [] }) => {
             });
 
             gsap.to(keyboardGroup.rotation, {
-                x: 0.25, // Gentle tilt range
+                x: 0.48, // Gentle tilt range around 25 degrees
                 z: 0.05,
                 duration: 4,
                 repeat: -1,
@@ -110,7 +108,50 @@ const SplineSkills = ({ data = [] }) => {
         });
 
         initFloatingAnimation(app);
+
+        // Handle Responsive Text Visibility
+        const handleResize = () => {
+            const mobileText = app.findObjectByName('text-mobile');
+            const desktopText = app.findObjectByName('text-desktop');
+            const isMobile = window.innerWidth < 768;
+
+            if (mobileText) mobileText.visible = isMobile;
+            if (desktopText) desktopText.visible = !isMobile;
+        };
+
+        // Initial check
+        handleResize();
+
+        // Listen for resize
+        window.addEventListener('resize', handleResize);
+
+        // Return cleanup function for this specific listener if needed, 
+        // but since onSplineLoad is called once, we might want to store the cleanup or just rely on component unmount (though Spline component might not expose unmount hook for the app instance easily).
+        // Since we don't have a direct "cleanup" for onSplineLoad, let's just leave the listener for now or use a ref to track it if we were stricter. 
+        // A cleaner way in React is to put this in a useEffect that depends on `splineApp.current`.
+
     }, [resolveSkill, updateSplineText, initFloatingAnimation]);
+
+    // Separate useEffect for Resize Listener to ensure proper cleanup
+    useEffect(() => {
+        const handleResize = () => {
+            if (splineApp.current) {
+                const app = splineApp.current;
+                const mobileText = app.findObjectByName('text-mobile');
+                const desktopText = app.findObjectByName('text-desktop');
+                const isMobile = window.innerWidth < 768;
+
+                if (mobileText) mobileText.visible = isMobile;
+                if (desktopText) desktopText.visible = !isMobile;
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        // Run once on mount/update to ensure state is correct
+        handleResize();
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, [loading]); // Re-run when loading finishes so splineApp.current is likely ready
 
     const onSplineError = useCallback((error) => {
         console.error('Spline load error:', error);
@@ -148,7 +189,7 @@ const SplineSkills = ({ data = [] }) => {
     }, [resolveSkill, updateSplineText]);
 
     return (
-        <section id="skills" className="w-full min-h-screen relative bg-black overflow-hidden">
+        <section id="skills" className="w-full min-h-screen relative bg-transparent overflow-hidden">
 
             {/* Loading State */}
             {loading && (

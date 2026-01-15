@@ -29,9 +29,11 @@ export default async function Home() {
         { name: "Contact", link: "#contact" }
     ];
 
-    const data = await getData();
+    const fetchedData = await getData();
+    const mockData = getMockData();
+    const data = fetchedData || mockData;
 
-    const { MOCK_GITHUB_STATS } = getMockData();
+    const { MOCK_GITHUB_STATS } = mockData;
 
     // Fetch real Github stats (fallback to mock)
     const githubStats = await getGithubStats(data.personalInfo?.githubUsername || "GreenHacker420") || MOCK_GITHUB_STATS;

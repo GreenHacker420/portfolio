@@ -37,7 +37,7 @@ export default function Education({ data = [] }) {
     });
 
     return (
-        <section className="w-full bg-black py-20 relative z-10" id="education">
+        <section className="w-full bg-transparent py-20 relative z-10" id="education">
             <div className="max-w-7xl mx-auto px-4 md:px-8 mb-10">
                 <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">Education</h2>
             </div>

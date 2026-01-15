@@ -166,7 +166,7 @@ export default function GitHubAnalysis({ initialData }) {
     };
 
     return (
-        <section className="py-20 bg-black relative z-10" id="github">
+        <section className="py-20 bg-transparent relative z-10" id="github">
             <div className="container mx-auto px-4">
                 <div className="mb-16">
                     <motion.span
