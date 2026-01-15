@@ -16,8 +16,14 @@ export const TerminalContact = () => {
     const inputRef = useRef(null);
     const [isPending, startTransition] = useTransition();
 
+    const isFirstRender = useRef(true);
+
     // Auto-scroll to bottom
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [history]);
 
