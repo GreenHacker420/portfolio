@@ -1,158 +1,158 @@
-
 "use client";
 
-import { useState, useEffect } from "react";
-import { Loader2, RefreshCw, Send, Mail as MailIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useMail } from "@/components/admin/mail/use-mail";
+import { MailLayout, MailListContainer, MailDisplayContainer, MailSidebarContainer } from "@/components/admin/mail/mail-layout";
+import { MailList } from "@/components/admin/mail/mail-list";
+import { MailDisplay } from "@/components/admin/mail/mail-display";
+import { ComposeDialog } from "@/components/admin/mail/compose-dialog";
+import { cn } from "@/lib/utils";
+import { Inbox, Send, Archive, Trash2, File, ChevronLeft, ChevronRight, PenSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function MailDashboard() {
-    const [emails, setEmails] = useState([]);
-    const [selectedEmail, setSelectedEmail] = useState(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [replyText, setReplyText] = useState("");
-    const [isSending, setIsSending] = useState(false);
-
-    const fetchEmails = async () => {
-        setIsLoading(true);
-        try {
-            const res = await fetch("/api/mail");
-            const contentType = res.headers.get("content-type");
-            if (!contentType || !contentType.includes("application/json")) {
-                throw new Error("Received non-JSON response from server");
-            }
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
-            setEmails(data.messages || []);
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to load emails: " + error.message);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+export default function MailPage() {
+    const { mails, setMails, selected, setSelected, isLoading, setIsLoading, mailFolder, setMailFolder } = useMail();
+    const [navCollapsed, setNavCollapsed] = useState(false);
+    const [isComposeOpen, setIsComposeOpen] = useState(false);
 
     useEffect(() => {
+        const fetchEmails = async () => {
+            setIsLoading(true);
+            try {
+                const res = await fetch(`/api/mail?folder=${mailFolder}`);
+                // Check if response is JSON (safeguard against HTML errors)
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Received non-JSON response from server");
+                }
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                // Add some fake labels for the UI demo since standard Graph API doesn't always give categories
+                const enhancedMails = (data.messages || []).map(m => ({
+                    ...m,
+                    labels: Math.random() > 0.7 ? ["work"] : ["personal"]
+                }));
+
+                setMails(enhancedMails);
+                // Clear selection when changing folders
+                setSelected(null);
+            } catch (error) {
+                console.error(error);
+                toast.error("Failed to load emails: " + error.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         fetchEmails();
-    }, []);
+    }, [setMails, setSelected, setIsLoading, mailFolder]);
 
-    const handleReply = async () => {
-        if (!selectedEmail || !replyText.trim()) return;
-
-        setIsSending(true);
-        try {
-            const res = await fetch("/api/mail", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    messageId: selectedEmail.id,
-                    comment: replyText,
-                }),
-            });
-
-            const data = await res.json();
-            if (data.error) throw new Error(data.error);
-
-            toast.success("Reply sent successfully");
-            setReplyText("");
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to send reply");
-        } finally {
-            setIsSending(false);
-        }
-    };
+    const selectedMail = mails.find((item) => item.id === selected) || null;
 
     return (
-        <div className="flex h-screen bg-black text-white overflow-hidden font-mono">
-            {/* Sidebar List */}
-            <div className="w-1/3 border-r border-green-500/20 flex flex-col">
-                <div className="p-4 border-b border-green-500/20 flex justify-between items-center bg-green-500/5">
-                    <h2 className="text-lg font-bold text-green-500 flex items-center gap-2">
-                        <MailIcon className="w-5 h-5" /> INBOX
-                    </h2>
-                    <Button variant="ghost" size="icon" onClick={fetchEmails} disabled={isLoading}>
-                        <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-                    </Button>
-                </div>
-
-                <ScrollArea className="flex-1">
-                    <div className="divide-y divide-green-500/10">
-                        {emails.map((email) => (
-                            <div
-                                key={email.id}
-                                onClick={() => setSelectedEmail(email)}
+        <div className="h-full w-full overflow-hidden bg-black/50 backdrop-blur-xl">
+            <MailLayout>
+                {/* Left Sidebar (Folders) */}
+                <MailSidebarContainer className={cn(navCollapsed ? "w-[50px]" : "w-[240px]")}>
+                    <div className={cn("flex h-[52px] items-center justify-center border-b border-zinc-800 px-2", navCollapsed ? "h-[52px]" : "px-4")}>
+                        <div className="font-bold text-emerald-500 flex items-center gap-2 w-full">
+                            {!navCollapsed && <span className="text-xl">⌘</span>}
+                            {!navCollapsed && <span className="flex-1">Mail</span>}
+                            <Button variant="ghost" size="icon" className="ml-auto h-6 w-6" onClick={() => setNavCollapsed(!navCollapsed)}>
+                                {navCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="p-2 space-y-1">
+                        <div className="mb-4">
+                            <Button
+                                onClick={() => setIsComposeOpen(true)}
                                 className={cn(
-                                    "p-4 cursor-pointer hover:bg-green-500/5 transition-colors",
-                                    selectedEmail?.id === email.id && "bg-green-500/10 border-l-2 border-green-500"
+                                    "w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2 transition-all",
+                                    navCollapsed ? "justify-center px-0 h-10 w-10 rounded-full" : "justify-start"
                                 )}
                             >
-                                <div className="flex justify-between items-start mb-1">
-                                    <span className={cn("font-medium truncate", !email.isRead && "text-green-400 font-bold")}>
-                                        {email.from?.emailAddress?.name || email.from?.emailAddress?.address}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
-                                        {new Date(email.receivedDateTime).toLocaleDateString()}
-                                    </span>
-                                </div>
-                                <div className="font-semibold text-sm truncate mb-1">{email.subject}</div>
-                                <div className="text-xs text-muted-foreground line-clamp-2">
-                                    {email.bodyPreview}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </ScrollArea>
-            </div>
-
-            {/* Detail View */}
-            <div className="flex-1 flex flex-col">
-                {selectedEmail ? (
-                    <>
-                        <div className="p-6 border-b border-green-500/20 bg-green-500/5">
-                            <h1 className="text-xl font-bold mb-2">{selectedEmail.subject}</h1>
-                            <div className="flex justify-between items-center text-sm text-muted-foreground">
-                                <div>
-                                    <span className="text-green-500">From:</span> {selectedEmail.from?.emailAddress?.name} &lt;{selectedEmail.from?.emailAddress?.address}&gt;
-                                </div>
-                                <div>
-                                    {new Date(selectedEmail.receivedDateTime).toLocaleString()}
-                                </div>
-                            </div>
+                                <PenSquare className="h-4 w-4" />
+                                {!navCollapsed && "New Message"}
+                            </Button>
                         </div>
 
-                        <ScrollArea className="flex-1 p-6">
-                            <div
-                                className="prose prose-invert prose-sm max-w-none text-gray-300"
-                                dangerouslySetInnerHTML={{ __html: selectedEmail.body?.content || selectedEmail.bodyPreview }}
-                            />
-                        </ScrollArea>
-
-                        {/* Reply Section */}
-                        <div className="p-4 border-t border-green-500/20 bg-background">
-                            <Textarea
-                                value={replyText}
-                                onChange={(e) => setReplyText(e.target.value)}
-                                placeholder="Type your reply here..."
-                                className="min-h-[100px] mb-4 bg-green-500/5 border-green-500/20 focus:border-green-500"
-                            />
-                            <div className="flex justify-end">
-                                <Button onClick={handleReply} disabled={isSending || !replyText.trim()} className="gap-2">
-                                    {isSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                                    Send Reply
-                                </Button>
-                            </div>
-                        </div>
-                    </>
-                ) : (
-                    <div className="flex-1 flex items-center justify-center text-muted-foreground">
-                        Select an email to view details
+                        <NavButton
+                            icon={<Inbox className="w-4 h-4" />}
+                            label="Inbox"
+                            count={mails.filter(m => !m.isRead).length}
+                            active={mailFolder === 'inbox'}
+                            onClick={() => setMailFolder('inbox')}
+                            collapsed={navCollapsed}
+                        />
+                        <NavButton
+                            icon={<Send className="w-4 h-4" />}
+                            label="Sent"
+                            active={mailFolder === 'sent'}
+                            onClick={() => setMailFolder('sent')}
+                            collapsed={navCollapsed}
+                        />
+                        <NavButton
+                            icon={<File className="w-4 h-4" />}
+                            label="Drafts"
+                            active={mailFolder === 'drafts'}
+                            onClick={() => setMailFolder('drafts')}
+                            collapsed={navCollapsed}
+                        />
+                        <NavButton
+                            icon={<Archive className="w-4 h-4" />}
+                            label="Archive"
+                            active={mailFolder === 'archive'}
+                            onClick={() => setMailFolder('archive')}
+                            collapsed={navCollapsed}
+                        />
+                        <NavButton
+                            icon={<Trash2 className="w-4 h-4" />}
+                            label="Trash"
+                            active={mailFolder === 'trash'}
+                            onClick={() => setMailFolder('trash')}
+                            collapsed={navCollapsed}
+                        />
                     </div>
-                )}
-            </div>
+                </MailSidebarContainer>
+
+                {/* Middle (List) */}
+                <MailListContainer>
+                    <MailList items={mails} />
+                </MailListContainer>
+
+                {/* Right (Display) */}
+                <MailDisplayContainer>
+                    <MailDisplay mail={selectedMail} />
+                </MailDisplayContainer>
+            </MailLayout>
+
+            <ComposeDialog open={isComposeOpen} onOpenChange={setIsComposeOpen} />
         </div>
+    );
+}
+
+function NavButton({ icon, label, count, active, collapsed, onClick }) {
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                "flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-zinc-800",
+                active ? "bg-zinc-800 text-white" : "text-zinc-400 hover:text-white",
+                collapsed && "justify-center px-2"
+            )}
+        >
+            {icon}
+            {!collapsed && (
+                <>
+                    <span className="flex-1 text-left">{label}</span>
+                    {count > 0 && (
+                        <span className="ml-auto text-xs text-emerald-500">{count}</span>
+                    )}
+                </>
+            )}
+        </button>
     );
 }
