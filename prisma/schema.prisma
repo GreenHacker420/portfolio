@@ -403,3 +403,31 @@ model GithubStats {
 
   @@map("github_stats")
 }
+
+model ChatCheckpoint {
+  thread_id         String
+  checkpoint_ns     String
+  checkpoint_id     String
+  parent_checkpoint_id String?
+  type              String?
+  checkpoint        Json
+  metadata          Json
+  
+  @@id([thread_id, checkpoint_ns, checkpoint_id])
+  @@map("chat_checkpoints")
+}
+
+model ChatWrite {
+  thread_id         String
+  checkpoint_ns     String
+  checkpoint_id     String
+  task_id           String
+  idx               Int
+  channel           String
+  type              String?
+  blob              String?
+  value             Json?
+
+  @@id([thread_id, checkpoint_ns, checkpoint_id, task_id, idx])
+  @@map("chat_writes")
+}

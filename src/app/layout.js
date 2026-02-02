@@ -1,6 +1,7 @@
 import SmoothScroll from "@/components/layout/SmoothScroll";
 import "./globals.css";
 import { Inter } from "next/font/google";
+import ChatWidget from "@/components/ui/ChatWidget";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +20,7 @@ export default function RootLayout({ children }) {
                     <SmoothScroll>
                         {children}
                     </SmoothScroll>
+                    <ChatWidget />
                 </AuthProvider>
             </body>
         </html>

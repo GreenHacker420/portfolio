@@ -68,21 +68,29 @@ export const TerminalContact = () => {
                 startTransition(async () => {
                     setHistory(prev => [...prev, { type: 'system', content: '> UPLOADING TO MAINFRAME...' }]);
 
-                    // Submit to Server Action
+                    // Submit to API Endpoint
                     const finalData = { ...formData, message: val, subject: "Portfolio Contact Form", name: formData.name, email: formData.email };
 
                     try {
-                        const result = await createContact(finalData);
-                        if (result.success) {
+                        const response = await fetch('/api/contact', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(finalData),
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
                             setHistory(prev => [...prev, { type: 'success', content: '> TRANSMISSION COMPLETE. ACKNOWLEDGEMENT RECEIVED.' }]);
                             setStep(5);
                         } else {
-                            setHistory(prev => [...prev, { type: 'error', content: `> UPLOAD FAILED: ${result.error}` }]);
-                            setStep(3); // Retry message?
+                            throw new Error(result.error || 'Unknown error');
                         }
 
                     } catch (err) {
-                        setHistory(prev => [...prev, { type: 'error', content: '> CRITICAL ERROR: CONNECTION LOST.' }]);
+                        setHistory(prev => [...prev, { type: 'error', content: `> CRITICAL ERROR: ${err.message}` }]);
                         setStep(3);
                     }
                 });
