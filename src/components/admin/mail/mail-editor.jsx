@@ -45,15 +45,17 @@ const TEMPLATES = [
 ];
 
 export function MailEditor({ value, onChange, placeholder, onTemplateSelect, className, minHeight = "200px" }) {
+    const textareaRef = useRef(null);
+
     const insertTag = (tag) => {
-        const textarea = document.getElementById("mail-editor-textarea");
+        const textarea = textareaRef.current;
         if (!textarea) return;
 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
         const text = textarea.value;
 
-        // Basic tag insertion for demo purposes until full WYSIWYG
+        // Basic tag insertion
         let newText;
         if (tag === 'ul') {
             newText = text.substring(0, start) + "\n<ul>\n  <li></li>\n</ul>\n" + text.substring(end);
@@ -65,6 +67,9 @@ export function MailEditor({ value, onChange, placeholder, onTemplateSelect, cla
 
         const event = { target: { value: newText } };
         onChange(event);
+
+        // Restore focus
+        setTimeout(() => textarea.focus(), 0);
     };
 
     return (
@@ -113,17 +118,4 @@ export function MailEditor({ value, onChange, placeholder, onTemplateSelect, cla
             />
         </div>
     );
-    function ToolbarBtn({ icon, onClick, tooltip }) {
-        return (
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-zinc-400 hover:text-white hover:bg-zinc-700/50 rounded-sm"
-                onClick={onClick}
-                title={tooltip}
-            >
-                {icon}
-            </Button>
-        )
-    }
 }

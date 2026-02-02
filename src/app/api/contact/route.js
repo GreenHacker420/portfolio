@@ -1,7 +1,9 @@
-
 import { sendMail } from "@/lib/mail";
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { renderToStaticMarkup } from "react-dom/server";
+import ContactReplyEmail from "@/emails/ContactTemplate";
+import AdminTemplate from "@/emails/AdminTemplate";
 
 const prisma = new PrismaClient();
 
@@ -25,21 +27,39 @@ export async function POST(req) {
             },
         });
 
-        // Send Email
-        const mailOptions = {
-            to: process.env.EMAIL_USER, // Send to yourself
-            subject: `New Contact Form: ${subject || "No Subject"}`,
-            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
-            html: `
-        <h3>New Contact Form Submission</h3>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Message:</strong></p>
-        <p>${message}</p>
-      `,
-        };
+        const adminEmail = process.env.EMAIL_USER;
 
-        await sendMail(mailOptions);
+        // 1. Send Notification to Admin
+        const adminHtml = renderToStaticMarkup(
+            <AdminTemplate
+                name={name}
+                email={email}
+                subject={subject || "No Subject"}
+                message={message}
+                date={new Date().toLocaleString()}
+            />
+        );
+
+        await sendMail({
+            to: adminEmail,
+            subject: `[New Contact] ${subject || "No Subject"}`,
+            html: adminHtml,
+            text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`
+        });
+
+        // 2. Send Acknowledgment to User
+        const userHtml = renderToStaticMarkup(
+            <ContactReplyEmail
+                customerName={name}
+            />
+        );
+
+        await sendMail({
+            to: email,
+            subject: "Transmission Received // GreenHacker",
+            html: userHtml,
+            text: "We have received your message. Stand by."
+        });
 
         return NextResponse.json({ success: true, contactId: contact.id });
     } catch (error) {

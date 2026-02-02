@@ -31,7 +31,8 @@ export async function GET(req) {
             "sent": "sentitems",
             "drafts": "drafts",
             "trash": "deleteditems",
-            "archive": "archive"
+            "archive": "archive",
+            "junk": "junkemail"
         };
 
         const folderId = folderMap[folder] || "inbox";
@@ -107,6 +108,42 @@ export async function POST(req) {
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Graph API Error in POST /api/mail:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+export async function PATCH(req) {
+    try {
+        const payload = await req.json();
+        const { messageId, action, destination } = payload;
+        const emailUser = process.env.EMAIL_USER;
+
+        if (!emailUser) throw new Error("EMAIL_USER not configured");
+        if (!messageId) throw new Error("messageId required");
+
+        const client = await getGraphClient();
+
+        if (action === "move" && destination) {
+            const folderMap = {
+                "trash": "deleteditems",
+                "junk": "junkemail",
+                "archive": "archive",
+                "inbox": "inbox"
+            };
+            const destinationId = folderMap[destination] || destination;
+
+            await client.api(`/users/${emailUser}/messages/${messageId}/move`)
+                .post({ destinationId });
+
+            return NextResponse.json({ success: true });
+        }
+
+        // Add more actions like markRead here if needed
+
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+
+    } catch (error) {
+        console.error("Graph API Error in PATCH /api/mail:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

@@ -41,6 +41,7 @@ import {
 export function MailDisplay({ mail }) {
     const [replyText, setReplyText] = useState("");
     const [isSending, setIsSending] = useState(false);
+    const setMails = useMail((state) => state.setMails);
 
     const handleReply = async () => {
         if (!mail || !replyText.trim()) return;
@@ -49,6 +50,7 @@ export function MailDisplay({ mail }) {
             // Simulate or Real API call
             const res = await fetch("/api/mail", {
                 method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ messageId: mail.id, comment: replyText })
             });
             if (!res.ok) throw new Error("Failed");
@@ -72,13 +74,41 @@ export function MailDisplay({ mail }) {
         );
     }
 
+
+    const handleMove = async (destination) => {
+        if (!mail) return;
+        toast.promise(
+            fetch("/api/mail", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    messageId: mail.id,
+                    action: "move",
+                    destination
+                })
+            }).then(async (res) => {
+                if (!res.ok) throw new Error("Failed");
+                // Remove from local list immediately
+                useMail.setState((state) => ({
+                    mails: state.mails.filter(m => m.id !== mail.id),
+                    selected: null
+                }));
+            }),
+            {
+                loading: `Moving to ${destination}...`,
+                success: `Moved to ${destination}`,
+                error: "Failed to move"
+            }
+        );
+    };
+
     const toolBarItems = [
-        { icon: Archive, label: "Archive", onClick: () => toast.info("Archived (Demo)") },
-        { icon: ArchiveX, label: "Move to junk", onClick: () => toast.info("Marked as Junk (Demo)") },
-        { icon: Trash2, label: "Move to trash", onClick: () => toast.info("Deleted (Demo)") },
+        { icon: Archive, label: "Archive", onClick: () => handleMove("archive") },
+        { icon: ArchiveX, label: "Move to junk", onClick: () => handleMove("junk") },
+        { icon: Trash2, label: "Move to trash", onClick: () => handleMove("trash") },
         { separator: true },
-        { icon: Clock, label: "Snooze", onClick: () => toast.info("Snoozed (Demo)") },
-        { icon: Star, label: "Star", onClick: () => toast.info("Starred (Demo)") },
+        { icon: Clock, label: "Snooze", onClick: () => toast.info("Snooze not implemented yet") },
+        { icon: Star, label: "Star", onClick: () => toast.info("Star not implemented yet") },
         { separator: true },
         { icon: Printer, label: "Print", onClick: () => window.print() },
     ];

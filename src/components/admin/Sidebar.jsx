@@ -118,6 +118,13 @@ export default function AdminSidebar() {
             icon: (
                 <HelpCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
+        }, 
+        {
+            label: "Templates",
+            href: "/admin/templates",
+            icon: (
+                <Terminal className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
         }
     ];
 
