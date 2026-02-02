@@ -417,6 +417,19 @@ model ChatCheckpoint {
   @@map("chat_checkpoints")
 }
 
+model KnowledgeSnippet {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  source    String?  // e.g. "manual", "resume", "project-1"
+  tags      String?  @db.Text // JSON array
+  isVisible Boolean  @default(true)
+  metadata  Json?    // Flexible metadata for vector store
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("knowledge_snippets")
+}
+
 model ChatWrite {
   thread_id         String
   checkpoint_ns     String

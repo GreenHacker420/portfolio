@@ -12,7 +12,6 @@ export const transporter = nodemailer.createTransport({
         pass: pass,
     },
     tls: {
-        ciphers: 'SSLv3',
         rejectUnauthorized: false,
     },
 });

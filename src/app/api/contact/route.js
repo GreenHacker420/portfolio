@@ -43,7 +43,7 @@ export async function POST(req) {
 
         return NextResponse.json({ success: true, contactId: contact.id });
     } catch (error) {
-        console.error("Contact Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        console.error("Contact Form Error Details:", error);
+        return NextResponse.json({ error: "Failed to send message", details: error.message }, { status: 500 });
     }
 }
