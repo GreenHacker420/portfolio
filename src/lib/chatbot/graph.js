@@ -1,13 +1,21 @@
 
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { StateGraph, START, END, Annotation } from "@langchain/langgraph";
-import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { PrismaCheckpointer } from "./checkpointer.js";
+import { createToolNode } from "./tool-node.js";
+
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { createRetrieverTool } from "langchain/tools/retriever";
+import { DynamicTool } from "@langchain/core/tools";
+import { AIMessage } from "@langchain/core/messages";
 
 // Initialize Pinecone Client
+if (!process.env.PINECONE_API_KEY) {
+    throw new Error("PINECONE_API_KEY is missing from environment variables");
+}
+if (!process.env.GOOGLE_API_KEY) {
+    throw new Error("GOOGLE_API_KEY is missing from environment variables");
+}
+
 const pinecone = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY,
 });
@@ -16,7 +24,7 @@ const pineconeIndex = pinecone.index(process.env.PINECONE_INDEX_NAME);
 
 // Initialize Embeddings
 const embeddings = new GoogleGenerativeAIEmbeddings({
-    modelName: "embedding-001", // or "text-embedding-004"
+    modelName: "text-embedding-004",
     apiKey: process.env.GOOGLE_API_KEY,
 });
 
@@ -26,11 +34,13 @@ const vectorStore = await PineconeStore.fromExistingIndex(
     { pineconeIndex }
 );
 
-// Create Retriever Tool
-const retriever = vectorStore.asRetriever();
-const retrieverTool = createRetrieverTool(retriever, {
+const retrieverTool = new DynamicTool({
     name: "portfolio_search",
     description: "Search for information about the portfolio owner's projects, skills, and experience.",
+    func: async (input) => {
+        const docs = await vectorStore.asRetriever().invoke(input);
+        return docs.map(doc => doc.pageContent).join("\n\n");
+    },
 });
 
 const tools = [retrieverTool];
@@ -44,21 +54,47 @@ const GraphState = Annotation.Root({
 });
 
 // Initialize the model
+console.log("🤖 Initializing ChatGoogleGenerativeAI...", {
+    modelName: "gemini-3-flash-preview",
+    apiKeyLength: process.env.GOOGLE_API_KEY?.length
+});
+
 const model = new ChatGoogleGenerativeAI({
-    modelName: "gemini-1.5-flash",
-    maxOutputTokens: 2048,
-    apiKey: process.env.GOOGLE_API_KEY,
-}).bindTools(tools);
+    model: "gemini-2.5-flash",
+    apiKey: process.env.GOOGLE_API_KEY ? process.env.GOOGLE_API_KEY.trim() : undefined,
+});
+
+const modelWithTools = model.bindTools(tools);
 
 // Define the nodes
 async function agent(state) {
     const { messages } = state;
-    const response = await model.invoke(messages);
-    return { messages: [response] };
+    console.log("🕵️‍♂️ Agent invoking model with messages:", messages.length);
+
+    try {
+        const rawResponse = await modelWithTools.invoke(messages);
+
+        const response = new AIMessage({
+            content: rawResponse.content || "",
+            tool_calls: rawResponse.tool_calls,
+            id: rawResponse.id,
+            response_metadata: rawResponse.response_metadata
+        });
+
+        console.log("🕵️‍♂️ Agent received response:");
+        console.log("   Type:", typeof response);
+        console.log("   Constructor:", response?.constructor?.name);
+        console.log("   Content:", response?.content);
+        console.log("   Tool Calls:", JSON.stringify(response?.tool_calls));
+
+        return { messages: [response] };
+    } catch (err) {
+        console.error("🔥 Agent Error:", err);
+        throw err;
+    }
 }
 
-// Define the tool node
-const toolNode = new ToolNode(tools);
+const toolNode = createToolNode(tools);
 
 // Define conditional edges
 function shouldContinue(state) {
@@ -80,7 +116,8 @@ const workflow = new StateGraph(GraphState)
     .addEdge("tools", "agent"); // Loop back to agent after tool execution
 
 // Initialize checkpointer
-const checkpointer = new PrismaCheckpointer();
+import { MemorySaver } from "@langchain/langgraph";
+const checkpointer = new MemorySaver();
 
 // Compile the graph
 export const graph = workflow.compile({ checkpointer });

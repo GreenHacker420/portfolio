@@ -1,8 +1,8 @@
 
 import { BaseCheckpointSaver } from "@langchain/langgraph-checkpoint";
-import { PrismaClient } from "@prisma/client";
+import db from "../db.js";
 
-const prisma = new PrismaClient();
+const prisma = db;
 
 export class PrismaCheckpointer extends BaseCheckpointSaver {
     constructor() {

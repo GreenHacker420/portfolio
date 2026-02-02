@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function PUT(request, { params }) {
     try {
-        const { id } = params;
+        const { id } = await params;
         const json = await request.json();
         const { content, source, tags, isVisible } = json;
 
@@ -27,7 +27,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
     try {
-        const { id } = params;
+        const { id } = await params;
         await prisma.knowledgeSnippet.delete({
             where: { id },
         });

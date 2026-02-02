@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AnimatePresence, motion } from "framer-motion";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
@@ -16,19 +18,36 @@ export default function ChatWidget() {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [threadId, setThreadId] = useState(null);
-    const scrollRef = useRef(null);
+    const messagesEndRef = useRef(null);
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     useEffect(() => {
         const storedThreadId = localStorage.getItem('chat_thread_id');
         if (storedThreadId) {
             setThreadId(storedThreadId);
+            setIsLoading(true);
+            fetch(`/api/chat?threadId=${storedThreadId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.messages && data.messages.length > 0) {
+                        setMessages(prev => {
+                            return [
+                                { role: 'assistant', content: 'System Internal // Online. Welcome back.' },
+                                ...data.messages
+                            ];
+                        });
+                    }
+                })
+                .catch(err => console.error("Failed to load history:", err))
+                .finally(() => setIsLoading(false));
         }
     }, []);
 
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
+        scrollToBottom();
     }, [messages, isOpen]);
 
     const handleSubmit = async (e) => {
@@ -41,6 +60,7 @@ export default function ChatWidget() {
         setIsLoading(true);
 
         try {
+            // Initiate the request
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -50,16 +70,40 @@ export default function ChatWidget() {
                 }),
             });
 
-            const data = await res.json();
-
-            if (data.error) throw new Error(data.error);
-
-            if (data.threadId && data.threadId !== threadId) {
-                setThreadId(data.threadId);
-                localStorage.setItem('chat_thread_id', data.threadId);
+            // Handle Thread ID from Header
+            const newThreadId = res.headers.get("X-Thread-Id");
+            if (newThreadId && newThreadId !== threadId) {
+                setThreadId(newThreadId);
+                localStorage.setItem('chat_thread_id', newThreadId);
             }
 
-            setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+            if (!res.ok || !res.body) {
+                throw new Error(res.statusText);
+            }
+
+            // Prepare for streaming response
+            setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedResponse = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                accumulatedResponse += chunk;
+
+                // Update the last message (assistant's placeholder) with new accumulated text
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    const lastMsg = newMessages[newMessages.length - 1];
+                    lastMsg.content = accumulatedResponse;
+                    return newMessages;
+                });
+            }
+
         } catch (error) {
             console.error(error);
             setMessages(prev => [...prev, { role: 'assistant', content: "Error: Protocol Failure. Please retry." }]);
@@ -113,7 +157,9 @@ export default function ChatWidget() {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 overflow-y-auto p-4 space-y-6 relative z-10 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent" ref={scrollRef}>
+                        <div className="flex-1 mt-auto min-h-0 overflow-y-auto p-4 space-y-6 relative z-10 scrollbar text-sm scroll-smooth">
+
+
                             {messages.map((m, i) => (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
@@ -133,15 +179,26 @@ export default function ChatWidget() {
                                         {m.role === 'user' ? <Terminal className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                                     </div>
                                     <div className={cn(
-                                        "rounded-2xl px-4 py-2.5 text-sm shadow-sm",
+                                        "rounded-2xl px-4 py-2.5 text-sm shadow-sm overflow-hidden",
                                         m.role === 'user'
                                             ? "bg-zinc-100 text-zinc-900 rounded-tr-sm"
                                             : "bg-zinc-900/80 border border-zinc-800 text-zinc-300 rounded-tl-sm backdrop-blur-sm"
                                     )}>
-                                        {m.content}
+                                        {m.role === 'user' ? (
+                                            m.content
+                                        ) : (
+                                            <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-emerald-500/20">
+                                                <ReactMarkdown
+                                                    remarkPlugins={[remarkGfm]}
+                                                >
+                                                    {m.content}
+                                                </ReactMarkdown>
+                                            </div>
+                                        )}
                                     </div>
                                 </motion.div>
                             ))}
+                            <div ref={messagesEndRef} />
                             {isLoading && (
                                 <div className="flex gap-3 max-w-[85%]">
                                     <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
@@ -174,7 +231,7 @@ export default function ChatWidget() {
                                 </Button>
                             </form>
                             <div className="text-[10px] text-center text-zinc-600 mt-2 font-mono">
-                                Powered by Gemini 2.0 & Pinecone RAG
+                                Powered by Gemini 3 Flash
                             </div>
                         </div>
                     </motion.div>
