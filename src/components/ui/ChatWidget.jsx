@@ -43,6 +43,7 @@ export default function ChatWidget() {
     }, []);
 
     const [isAtBottom, setIsAtBottom] = useState(true);
+    const [isHovering, setIsHovering] = useState(false);
 
     const scrollToBottom = (behavior = "smooth") => {
         messagesEndRef.current?.scrollIntoView({ behavior });
@@ -51,17 +52,17 @@ export default function ChatWidget() {
     const handleScroll = (e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.target;
         const distanceToBottom = scrollHeight - scrollTop - clientHeight;
-        setIsAtBottom(distanceToBottom < 50);
+        setIsAtBottom(distanceToBottom < 100);
     };
 
     useEffect(() => {
         scrollToBottom();
     }, [messages.length, isOpen]);
     useEffect(() => {
-        if (isAtBottom) {
+        if (!isHovering) {
             messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
         }
-    }, [messages[messages.length - 1]?.content]);
+    }, [messages[messages.length - 1]?.content, isHovering]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -71,6 +72,7 @@ export default function ChatWidget() {
         setInput('');
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setIsLoading(true);
+        setTimeout(() => scrollToBottom(), 10);
 
         try {
             // Initiate the request
@@ -125,6 +127,38 @@ export default function ChatWidget() {
         }
     };
 
+    const [dimensions, setDimensions] = useState({ width: 400, height: 550 });
+    const isResizingRef = useRef(false);
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isResizingRef.current) return;
+
+            const newWidth = window.innerWidth - e.clientX - 16;
+            const newHeight = window.innerHeight - e.clientY - 16;
+
+            setDimensions({
+                width: Math.max(300, Math.min(newWidth, 800)), // clamp width
+                height: Math.max(400, Math.min(newHeight, window.innerHeight - 40)) // clamp height
+            });
+        };
+
+        const handleMouseUp = () => {
+            isResizingRef.current = false;
+            document.body.style.cursor = 'default';
+        };
+
+        if (isOpen) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isOpen]);
+
     return (
         <div className="fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-4 font-sans">
             <AnimatePresence>
@@ -134,13 +168,26 @@ export default function ChatWidget() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         transition={{ duration: 0.2 }}
-                        className="w-[350px] sm:w-[400px] h-[550px] bg-zinc-950/80 backdrop-blur-xl border border-emerald-500/20 rounded-2xl shadow-[0_0_50px_-12px_rgba(16,185,129,0.25)] flex flex-col overflow-hidden relative ring-1 ring-white/10"
+                        style={{ width: dimensions.width, height: dimensions.height }}
+                        className="bg-zinc-950/80 backdrop-blur-xl border border-emerald-500/20 rounded-2xl shadow-[0_0_50px_-12px_rgba(16,185,129,0.25)] flex flex-col overflow-hidden relative ring-1 ring-white/10"
                     >
+                        {/* Resize Handle (Top-Left) */}
+                        <div
+                            className="absolute top-0 left-0 w-6 h-6 cursor-nw-resize z-50 group flex items-start justify-start p-1"
+                            onMouseDown={(e) => {
+                                isResizingRef.current = true;
+                                document.body.style.cursor = 'nw-resize';
+                                e.preventDefault();
+                            }}
+                        >
+                            <div className="w-2 h-2 rounded-full bg-emerald-500/30 group-hover:bg-emerald-500 transition-colors" />
+                        </div>
+
                         {/* Cyber Grid Background */}
                         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
                         {/* Header */}
-                        <div className="p-4 border-b border-emerald-500/10 bg-zinc-900/50 flex items-center justify-between relative z-10">
+                        <div className="p-4 border-b border-emerald-500/10 bg-zinc-900/50 flex items-center justify-between relative z-10 shrink-0">
                             <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center relative group">
                                     <Bot className="h-5 w-5 text-emerald-500" />
@@ -172,7 +219,11 @@ export default function ChatWidget() {
                         {/* Messages */}
                         <div
                             className="flex-1 mt-auto min-h-0 overflow-y-auto p-4 space-y-6 relative z-10 scrollbar text-sm scroll-smooth"
+                            style={{ overscrollBehavior: 'contain' }}
                             onScroll={handleScroll}
+                            onWheel={(e) => e.stopPropagation()}
+                            onMouseEnter={() => setIsHovering(true)}
+                            onMouseLeave={() => setIsHovering(false)}
                         >
 
 
@@ -228,7 +279,7 @@ export default function ChatWidget() {
                         </div>
 
                         {/* Input */}
-                        <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-md relative z-10">
+                        <div className="p-4 border-t border-zinc-800 bg-zinc-900/50 backdrop-blur-md relative z-10 shrink-0">
                             <form onSubmit={handleSubmit} className="flex gap-2 relative">
                                 <Input
                                     value={input}
