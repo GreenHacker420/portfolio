@@ -191,7 +191,7 @@ export default function ChatWidget() {
                                                 <ReactMarkdown
                                                     remarkPlugins={[remarkGfm]}
                                                 >
-                                                    {m.content}
+                                                    {typeof m.content === 'string' ? m.content : ''}
                                                 </ReactMarkdown>
                                             </div>
                                         )}

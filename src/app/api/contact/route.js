@@ -1,7 +1,7 @@
 import { sendMail } from "@/lib/mail";
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { renderToStaticMarkup } from "react-dom/server";
+import { render } from "@react-email/render";
 import ContactReplyEmail from "@/emails/ContactTemplate";
 import AdminTemplate from "@/emails/AdminTemplate";
 
@@ -30,7 +30,7 @@ export async function POST(req) {
         const adminEmail = process.env.EMAIL_USER;
 
         // 1. Send Notification to Admin
-        const adminHtml = renderToStaticMarkup(
+        const adminHtml = await render(
             <AdminTemplate
                 name={name}
                 email={email}
@@ -48,7 +48,7 @@ export async function POST(req) {
         });
 
         // 2. Send Acknowledgment to User
-        const userHtml = renderToStaticMarkup(
+        const userHtml = await render(
             <ContactReplyEmail
                 customerName={name}
             />
