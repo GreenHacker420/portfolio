@@ -1,11 +1,9 @@
 import { sendMail } from "@/lib/mail";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
 import { render } from "@react-email/render";
 import ContactReplyEmail from "@/emails/ContactTemplate";
 import AdminTemplate from "@/emails/AdminTemplate";
-
-const prisma = new PrismaClient();
 
 export async function POST(req) {
     try {
