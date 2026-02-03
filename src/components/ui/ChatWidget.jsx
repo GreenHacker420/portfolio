@@ -20,10 +20,6 @@ export default function ChatWidget() {
     const [threadId, setThreadId] = useState(null);
     const messagesEndRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
     useEffect(() => {
         const storedThreadId = localStorage.getItem('chat_thread_id');
         if (storedThreadId) {
@@ -46,9 +42,26 @@ export default function ChatWidget() {
         }
     }, []);
 
+    const [isAtBottom, setIsAtBottom] = useState(true);
+
+    const scrollToBottom = (behavior = "smooth") => {
+        messagesEndRef.current?.scrollIntoView({ behavior });
+    };
+
+    const handleScroll = (e) => {
+        const { scrollTop, scrollHeight, clientHeight } = e.target;
+        const distanceToBottom = scrollHeight - scrollTop - clientHeight;
+        setIsAtBottom(distanceToBottom < 50);
+    };
+
     useEffect(() => {
         scrollToBottom();
     }, [messages.length, isOpen]);
+    useEffect(() => {
+        if (isAtBottom) {
+            messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        }
+    }, [messages[messages.length - 1]?.content]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -157,7 +170,10 @@ export default function ChatWidget() {
                         </div>
 
                         {/* Messages */}
-                        <div className="flex-1 mt-auto min-h-0 overflow-y-auto p-4 space-y-6 relative z-10 scrollbar text-sm scroll-smooth">
+                        <div
+                            className="flex-1 mt-auto min-h-0 overflow-y-auto p-4 space-y-6 relative z-10 scrollbar text-sm scroll-smooth"
+                            onScroll={handleScroll}
+                        >
 
 
                             {messages.map((m, i) => (

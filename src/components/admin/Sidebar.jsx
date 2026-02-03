@@ -17,7 +17,8 @@ import {
     Share2,
     HelpCircle,
     LogOut,
-    Terminal
+    Terminal,
+    FileText
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -61,6 +62,13 @@ export default function AdminSidebar() {
             href: "/admin/kb",
             icon: (
                 <BrainCircuit className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
+            label: "Resumes",
+            href: "/admin/resumes",
+            icon: (
+                <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {
