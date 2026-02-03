@@ -13,8 +13,29 @@ const SplineSkills = ({ data = [] }) => {
     const mockData = getMockData() || {};
     const MOCK_SKILLS = mockData.skills || mockData.MOCK_SKILLS || [];
     const [loading, setLoading] = useState(true);
+    const [isInView, setIsInView] = useState(false);
     const splineApp = useRef(null);
     const timeoutRef = useRef(null);
+    const sectionRef = useRef(null);
+
+    // Lazy Load Implementation
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsInView(true);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 } // Trigger when 10% visible
+        );
+
+        if (sectionRef.current) {
+            observer.observe(sectionRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
 
     // Helper to resolve skill from key data
     const resolveSkill = useCallback((keyData) => {
@@ -125,10 +146,6 @@ const SplineSkills = ({ data = [] }) => {
         // Listen for resize
         window.addEventListener('resize', handleResize);
 
-        // Return cleanup function for this specific listener if needed, 
-        // but since onSplineLoad is called once, we might want to store the cleanup or just rely on component unmount (though Spline component might not expose unmount hook for the app instance easily).
-        // Since we don't have a direct "cleanup" for onSplineLoad, let's just leave the listener for now or use a ref to track it if we were stricter. 
-        // A cleaner way in React is to put this in a useEffect that depends on `splineApp.current`.
 
     }, [resolveSkill, updateSplineText, initFloatingAnimation]);
 
@@ -189,7 +206,7 @@ const SplineSkills = ({ data = [] }) => {
     }, [resolveSkill, updateSplineText]);
 
     return (
-        <section id="skills" className="w-full min-h-screen relative bg-transparent overflow-hidden">
+        <section ref={sectionRef} id="skills" className="w-full min-h-screen relative bg-transparent overflow-hidden">
 
             {/* Loading State */}
             {loading && (
@@ -218,13 +235,15 @@ const SplineSkills = ({ data = [] }) => {
             </div>
 
             <div className="absolute inset-0 z-0 h-screen w-full">
-                <Spline
-                    className="w-full h-full"
-                    scene="/scene_new.splinecode"
-                    onLoad={onSplineLoad}
-                    onError={onSplineError}
-                    onMouseDown={onSplineMouseDown}
-                />
+                {isInView && (
+                    <Spline
+                        className="w-full h-full"
+                        scene="/scene_new.splinecode"
+                        onLoad={onSplineLoad}
+                        onError={onSplineError}
+                        onMouseDown={onSplineMouseDown}
+                    />
+                )}
             </div>
         </section>
     );

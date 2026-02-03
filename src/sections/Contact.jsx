@@ -55,16 +55,17 @@ export default function Contact() {
                     className="flex gap-6 mt-8"
                 >
                     {[
-                        { icon: Github, href: "https://github.com/GreenHacker420" },
-                        { icon: Instagram, href: "https://www.instagram.com/harsh_hirawat" },
-                        { icon: Linkedin, href: "https://www.linkedin.com/in/harsh-hirawat-b657061b7/" },
-                        { icon: Mail, href: "mailto:harsh@greenhacker.in" }
+                        { icon: Github, href: "https://github.com/GreenHacker420", label: "GitHub Profile" },
+                        { icon: Instagram, href: "https://www.instagram.com/harsh_hirawat", label: "Instagram Profile" },
+                        { icon: Linkedin, href: "https://www.linkedin.com/in/harsh-hirawat-b657061b7/", label: "LinkedIn Profile" },
+                        { icon: Mail, href: "mailto:harsh@greenhacker.in", label: "Email Contact" }
                     ].map((social, idx) => (
                         <a
                             key={idx}
                             href={social.href}
                             target="_blank"
                             rel="noopener noreferrer"
+                            aria-label={social.label}
                             className="text-neutral-500 hover:text-green-500 transition-colors"
                         >
                             <social.icon className="w-6 h-6" />

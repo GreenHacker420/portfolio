@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Home, User, Code, Briefcase, Mail } from "lucide-react";
 
@@ -54,13 +55,20 @@ export const FloatingNav = ({ className }) => {
                     className
                 )}
             >
-                <Link href="/" className="relative flex items-center gap-2 mr-2">
-                    <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full object-cover border border-white/10" />
+                <Link href="/" className="relative flex items-center gap-2 mr-2" aria-label="Go to Homepage">
+                    <Image
+                        src="/logo.jpg"
+                        alt="Harsh Logo"
+                        width={32}
+                        height={32}
+                        className="w-8 h-8 rounded-full object-cover border border-white/10"
+                    />
                 </Link>
                 {navItems.map((navItem, idx) => (
                     <Link
                         key={`link=${idx}`}
                         href={navItem.link}
+                        aria-label={`Go to ${navItem.name} section`}
                         className={cn(
                             "relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500"
                         )}

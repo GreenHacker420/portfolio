@@ -38,9 +38,31 @@ export default async function Home() {
     // Fetch real Github stats (fallback to mock)
     const githubStats = await getGithubStats(data.personalInfo?.githubUsername || "GreenHacker420") || MOCK_GITHUB_STATS;
 
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": data.personalInfo?.fullName || "Harsh Hirawat",
+        "url": "https://greenhacker.in",
+        "sameAs": [
+            data.socialLinks?.github || "https://github.com/GreenHacker420",
+            data.socialLinks?.linkedin || "https://www.linkedin.com/in/harsh-hirawat-b657061b7/",
+            // data.socialLinks?.twitter || "https://twitter.com/GreenHacker420"
+        ],
+        "jobTitle": "Creative Developer",
+        "worksFor": {
+            "@type": "Organization",
+            "name": "Freelance"
+        },
+        "description": data.personalInfo?.role || "Creative Developer building immersive digital experiences."
+    };
+
 
     return (
         <main className="min-h-screen bg-black text-white w-full relative">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <ClientHydrator
                 projects={data.projects}
                 experience={data.experience}

@@ -210,6 +210,7 @@ export default function ChatWidget() {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => setIsOpen(false)}
+                                aria-label="Close chat"
                                 className="text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-full"
                             >
                                 <X className="h-5 w-5" />
@@ -285,12 +286,14 @@ export default function ChatWidget() {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     placeholder="Type your command..."
+                                    aria-label="Chat input"
                                     className="flex-1 bg-zinc-950/50 border-zinc-800 focus-visible:ring-emerald-500/50 text-zinc-100 placeholder:text-zinc-600 rounded-xl pr-10"
                                     disabled={isLoading}
                                 />
                                 <Button
                                     type="submit"
                                     size="icon"
+                                    aria-label="Send message"
                                     disabled={isLoading || !input.trim()}
                                     className="absolute right-1 top-1 h-8 w-8 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black transition-all shadow-[0_0_10px_-3px_theme(colors.emerald.500)]"
                                 >
@@ -310,6 +313,7 @@ export default function ChatWidget() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label="Toggle chat"
                 className={cn(
                     "h-14 w-14 rounded-full shadow-[0_0_30px_-5px_theme(colors.emerald.500)] transition-all flex items-center justify-center border border-white/10 backdrop-blur-md",
                     isOpen
