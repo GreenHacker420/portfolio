@@ -8,6 +8,7 @@ import { DynamicStructuredTool } from "@langchain/core/tools";
 import { AIMessage, SystemMessage } from "@langchain/core/messages";
 import { MemorySaver } from "@langchain/langgraph";
 import { SYSTEM_PROMPT } from "./prompt.js";
+import { contactTool } from "./tools/contact-tool.js";
 
 // Initialize Pinecone Client
 if (!process.env.PINECONE_API_KEY) {
@@ -47,7 +48,8 @@ const retrieverTool = new DynamicStructuredTool({
     },
 });
 
-const tools = [retrieverTool];
+
+const tools = [retrieverTool, contactTool];
 
 // Define the state
 const GraphState = Annotation.Root({
