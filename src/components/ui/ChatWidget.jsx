@@ -48,7 +48,7 @@ export default function ChatWidget() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages, isOpen]);
+    }, [messages.length, isOpen]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

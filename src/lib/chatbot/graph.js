@@ -1,4 +1,3 @@
-
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { StateGraph, START, END, Annotation } from "@langchain/langgraph";
 import { createToolNode } from "./tool-node.js";
@@ -6,7 +5,9 @@ import { z } from "zod";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { DynamicStructuredTool } from "@langchain/core/tools";
-import { AIMessage } from "@langchain/core/messages";
+import { AIMessage, SystemMessage } from "@langchain/core/messages";
+import { MemorySaver } from "@langchain/langgraph";
+import { SYSTEM_PROMPT } from "./prompt.js";
 
 // Initialize Pinecone Client
 if (!process.env.PINECONE_API_KEY) {
@@ -75,7 +76,8 @@ async function agent(state) {
     console.log("🕵️‍♂️ Agent invoking model with messages:", messages.length);
 
     try {
-        const rawResponse = await modelWithTools.invoke(messages);
+        const messagesWithSystem = [new SystemMessage(SYSTEM_PROMPT), ...messages];
+        const rawResponse = await modelWithTools.invoke(messagesWithSystem);
 
         const response = new AIMessage({
             content: rawResponse.content || "",
@@ -119,7 +121,6 @@ const workflow = new StateGraph(GraphState)
     .addEdge("tools", "agent"); // Loop back to agent after tool execution
 
 // Initialize checkpointer
-import { MemorySaver } from "@langchain/langgraph";
 const checkpointer = new MemorySaver();
 
 // Compile the graph
