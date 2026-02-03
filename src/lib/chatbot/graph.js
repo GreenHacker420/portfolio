@@ -2,10 +2,10 @@
 import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { StateGraph, START, END, Annotation } from "@langchain/langgraph";
 import { createToolNode } from "./tool-node.js";
-
+import { z } from "zod";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { DynamicTool } from "@langchain/core/tools";
+import { DynamicStructuredTool } from "@langchain/core/tools";
 import { AIMessage } from "@langchain/core/messages";
 
 // Initialize Pinecone Client
@@ -34,11 +34,14 @@ const vectorStore = await PineconeStore.fromExistingIndex(
     { pineconeIndex }
 );
 
-const retrieverTool = new DynamicTool({
+const retrieverTool = new DynamicStructuredTool({
     name: "portfolio_search",
-    description: "Search for information about the portfolio owner's projects, skills, and experience.",
-    func: async (input) => {
-        const docs = await vectorStore.asRetriever().invoke(input);
+    description: "Search for information about the portfolio owner's projects, skills, and experience. Use this tool finding answers to user questions.",
+    schema: z.object({
+        query: z.string().describe("The search query to find relevant information."),
+    }),
+    func: async ({ query }) => {
+        const docs = await vectorStore.asRetriever().invoke(query);
         return docs.map(doc => doc.pageContent).join("\n\n");
     },
 });
