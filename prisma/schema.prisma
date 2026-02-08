@@ -57,6 +57,59 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+/// Analytics sessions and events for privacy-first tracking
+model AnalyticsSession {
+  id         String   @id @default(cuid())
+  startedAt  DateTime @default(now())
+  lastSeenAt DateTime @updatedAt
+  country    String?
+  city       String?
+  referrer   String?
+  utmSource  String?
+  utmMedium  String?
+  utmCampaign String?
+  device     String?
+  userAgent  String?
+  hashedIp   String?
+
+  events     AnalyticsEvent[]
+
+  @@index([startedAt])
+  @@index([utmSource, utmCampaign])
+  @@map("analytics_sessions")
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  sessionId  String
+  type       String
+  page       String?
+  ctaId      String?
+  scrollPct  Int?
+  durationMs Int?
+  meta       Json?
+  createdAt  DateTime @default(now())
+
+  session    AnalyticsSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([page])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
+
+model AnalyticsRollup {
+  id        String   @id @default(cuid())
+  date      DateTime
+  metric    String   // e.g., sessions, pageviews, bounce_rate, ctr
+  label     String?  // page path, UTM source, CTA id, etc.
+  value     Float
+  createdAt DateTime @default(now())
+
+  @@index([date, metric])
+  @@map("analytics_rollups")
+}
+
 // ================================
 // PERSONAL INFORMATION
 // ================================

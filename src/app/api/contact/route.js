@@ -4,9 +4,18 @@ import { NextResponse } from "next/server";
 import { render } from "@react-email/render";
 import ContactReplyEmail from "@/emails/ContactTemplate";
 import AdminTemplate from "@/emails/AdminTemplate";
+import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 export async function POST(req) {
     try {
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const rl = rateLimit(`contact:${ip}`, 10, 60_000);
+        if (!rl.ok) {
+            const res = NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+            rateLimitResponse(res, rl);
+            return res;
+        }
+
         const body = await req.json();
         const { name, email, subject, message } = body;
 
@@ -59,7 +68,9 @@ export async function POST(req) {
             text: "We have received your message. Stand by."
         });
 
-        return NextResponse.json({ success: true, contactId: contact.id });
+        const res = NextResponse.json({ success: true, contactId: contact.id });
+        rateLimitResponse(res, rl);
+        return res;
     } catch (error) {
         console.error("Contact Form Error Details:", error);
         return NextResponse.json({ error: "Failed to send message", details: error.message }, { status: 500 });

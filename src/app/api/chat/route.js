@@ -2,9 +2,18 @@
 import { graph } from "@/lib/chatbot/graph";
 import { HumanMessage } from "@langchain/core/messages";
 import { NextResponse } from "next/server";
+import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 export async function POST(req) {
     try {
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const rl = rateLimit(`chat:${ip}`, 30, 60_000);
+        if (!rl.ok) {
+            const res = NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+            rateLimitResponse(res, rl);
+            return res;
+        }
+
         const { message, threadId } = await req.json();
 
         if (!message) {
@@ -47,12 +56,14 @@ export async function POST(req) {
             },
         });
 
-        return new NextResponse(stream, {
+        const res = new NextResponse(stream, {
             headers: {
                 "Content-Type": "text/plain; charset=utf-8",
                 "X-Thread-Id": config.configurable.thread_id,
             },
         });
+        rateLimitResponse(res, rl);
+        return res;
 
     } catch (error) {
         console.error("Chat Error:", error);
