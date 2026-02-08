@@ -595,9 +595,10 @@ model Application {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  lead      JobLead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  recruiter RecruiterContact @relation(fields: [recruiterId], references: [id])
+  lead      JobLead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  recruiter RecruiterContact? @relation(fields: [recruiterId], references: [id])
   events    ApplicationEvent[]
+  emailEvents EmailEvent[]
 
   @@index([leadId])
   @@index([status])
@@ -643,7 +644,7 @@ model EmailEvent {
   createdAt   DateTime @default(now())
 
   campaign    EmailCampaign? @relation(fields: [campaignId], references: [id])
-  application Application?   @relation(fields: [applicationId], references: [id])
+  application Application?   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 
   @@index([campaignId])
   @@index([applicationId])
