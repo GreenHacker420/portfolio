@@ -1,10 +1,6 @@
-import { ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { StateGraph, START, END, Annotation } from "@langchain/langgraph";
 import { createToolNode } from "./tool-node.js";
-import { z } from "zod";
-import { PineconeStore } from "@langchain/pinecone";
-import { Pinecone } from "@pinecone-database/pinecone";
-import { DynamicStructuredTool } from "@langchain/core/tools";
 import { AIMessage, SystemMessage } from "@langchain/core/messages";
 // Prefer persistent checkpoints for multi-agent flows
 import { PrismaCheckpointer } from "./checkpointer.js";
@@ -12,47 +8,16 @@ import { SYSTEM_PROMPT } from "./prompt.js";
 import { contactTool } from "./tools/contact-tool.js";
 import { githubTool } from "./tools/github-tool.js";
 import { matchTool } from "./tools/match-tool.js";
+import { recruiterTool } from "./tools/recruiter-tool.js";
+import { emailSendTool } from "./tools/email-send-tool.js";
+import { retrieverTool } from "./tools/retriever.js";
+import { googleSearchTool } from "./tools/google-search-tool.js";
 
-// Initialize Pinecone Client
-if (!process.env.PINECONE_API_KEY) {
-    throw new Error("PINECONE_API_KEY is missing from environment variables");
-}
 if (!process.env.GOOGLE_API_KEY) {
     throw new Error("GOOGLE_API_KEY is missing from environment variables");
 }
 
-const pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-});
-
-const pineconeIndex = pinecone.index(process.env.PINECONE_INDEX_NAME);
-
-// Initialize Embeddings
-const embeddings = new GoogleGenerativeAIEmbeddings({
-    modelName: "text-embedding-004",
-    apiKey: process.env.GOOGLE_API_KEY,
-});
-
-// Initialize Vector Store
-const vectorStore = await PineconeStore.fromExistingIndex(
-    embeddings,
-    { pineconeIndex }
-);
-
-const retrieverTool = new DynamicStructuredTool({
-    name: "portfolio_search",
-    description: "Search for information about the portfolio owner's projects, skills, and experience. Use this tool finding answers to user questions.",
-    schema: z.object({
-        query: z.string().describe("The search query to find relevant information."),
-    }),
-    func: async ({ query }) => {
-        const docs = await vectorStore.asRetriever().invoke(query);
-        return docs.map(doc => doc.pageContent).join("\n\n");
-    },
-});
-
-
-const tools = [retrieverTool, contactTool, githubTool, matchTool];
+const tools = [retrieverTool, contactTool, githubTool, matchTool, recruiterTool, emailSendTool, googleSearchTool];
 
 // Define the state
 const GraphState = Annotation.Root({

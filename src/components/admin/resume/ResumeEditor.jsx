@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Save, Eye, FileText, ChevronLeft, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function ResumeEditor({ resumeId }) {
     const router = useRouter();
@@ -14,6 +15,8 @@ export default function ResumeEditor({ resumeId }) {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [previewUrl, setPreviewUrl] = useState(null);
+    const [jdText, setJdText] = useState('');
+    const [isRewriting, setIsRewriting] = useState(false);
 
     useEffect(() => {
         if (resumeId === 'new') {
@@ -74,6 +77,27 @@ export default function ResumeEditor({ resumeId }) {
                         <Save className="h-4 w-4 mr-2" />
                         {isSaving ? "Saving..." : "Save"}
                     </Button>
+                    <Button
+                        variant="outline"
+                        onClick={async () => {
+                            if (!jdText) return;
+                            setIsRewriting(true);
+                            try {
+                                const res = await fetch('/api/admin/resumes/rewrite', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ resumeId, jdText })
+                                });
+                                const data = await res.json();
+                                if (data.latex) setCode(data.latex);
+                            } finally {
+                                setIsRewriting(false);
+                            }
+                        }}
+                        disabled={isRewriting}
+                    >
+                        {isRewriting ? "Rewriting..." : "Rewrite for JD"}
+                    </Button>
                 </div>
             </div>
 
@@ -97,6 +121,15 @@ export default function ResumeEditor({ resumeId }) {
 
                 {/* Preview (Placeholder for now) */}
                 <div className="w-1/2 bg-white flex flex-col">
+                    <div className="p-4 border-b border-zinc-200">
+                        <label className="block text-xs font-semibold text-zinc-600 mb-1">Job Description (paste)</label>
+                        <Textarea
+                            rows={6}
+                            value={jdText}
+                            onChange={(e) => setJdText(e.target.value)}
+                            placeholder="Paste JD to tailor this resume"
+                        />
+                    </div>
                     <iframe
                         srcDoc={`
                             <html>
