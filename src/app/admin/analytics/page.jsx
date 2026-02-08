@@ -1,6 +1,7 @@
 import { getAnalyticsSummary } from "@/actions/analytics";
 import { Card } from "@/components/ui/card";
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,8 +28,11 @@ export default async function AnalyticsPage() {
                     <h1 className="text-3xl font-bold text-white">Analytics</h1>
                     <p className="text-zinc-500">Last 7 days — privacy-first tracking.</p>
                 </div>
-                <div className="flex items-center gap-2 text-emerald-400 text-sm">
-                    Auto rollup <ArrowUpRight className="w-4 h-4" />
+                <div className="flex items-center gap-3 text-sm">
+                    <Link href="/api/admin/analytics/export?days=7" className="px-3 py-1 rounded-lg bg-zinc-800 text-zinc-200 border border-zinc-700">Export CSV</Link>
+                    <div className="flex items-center gap-2 text-emerald-400">
+                        Auto rollup <ArrowUpRight className="w-4 h-4" />
+                    </div>
                 </div>
             </header>
 
@@ -66,6 +70,28 @@ export default async function AnalyticsPage() {
                             <span className="text-zinc-500">CTA clicks</span>
                             <span>{events["cta_click"] || 0}</span>
                         </div>
+                    </div>
+                </Card>
+
+                <Card className="bg-zinc-900/60 border-zinc-800 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Funnel (Sessions → Pageviews → CTA)</h2>
+                    <div className="space-y-2 text-sm text-white">
+                        {["Sessions", "Pageviews", "CTA Clicks"].map((label, idx) => {
+                            const value = idx === 0 ? summary.sessions : idx === 1 ? summary.pageviews : (events["cta_click"] || 0);
+                            const max = Math.max(summary.sessions, summary.pageviews, (events["cta_click"] || 1));
+                            const pct = max ? Math.round((value / max) * 100) : 0;
+                            return (
+                                <div key={label}>
+                                    <div className="flex justify-between">
+                                        <span className="text-zinc-400">{label}</span>
+                                        <span>{value}</span>
+                                    </div>
+                                    <div className="h-2 bg-zinc-800 rounded">
+                                        <div className="h-2 bg-emerald-500 rounded" style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </Card>
             </div>
