@@ -37,6 +37,13 @@ export default function AdminSidebar() {
             ),
         },
         {
+            label: "Analytics",
+            href: "/admin/analytics",
+            icon: (
+                <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
             label: "Profile",
             href: "/admin/personal-info",
             icon: (
@@ -55,6 +62,20 @@ export default function AdminSidebar() {
             href: "/admin/mail",
             icon: (
                 <Mail className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
+            label: "Job Leads",
+            href: "/admin/job-leads",
+            icon: (
+                <Briefcase className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+            ),
+        },
+        {
+            label: "Applications",
+            href: "/admin/applications",
+            icon: (
+                <Briefcase className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
             ),
         },
         {

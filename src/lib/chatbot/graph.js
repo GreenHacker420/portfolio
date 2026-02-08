@@ -6,7 +6,8 @@ import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { AIMessage, SystemMessage } from "@langchain/core/messages";
-import { MemorySaver } from "@langchain/langgraph";
+// Prefer persistent checkpoints for multi-agent flows
+import { PrismaCheckpointer } from "./checkpointer.js";
 import { SYSTEM_PROMPT } from "./prompt.js";
 import { contactTool } from "./tools/contact-tool.js";
 import { githubTool } from "./tools/github-tool.js";
@@ -124,7 +125,7 @@ const workflow = new StateGraph(GraphState)
     .addEdge("tools", "agent"); // Loop back to agent after tool execution
 
 // Initialize checkpointer
-const checkpointer = new MemorySaver();
+const checkpointer = new PrismaCheckpointer();
 
 // Compile the graph
 export const graph = workflow.compile({ checkpointer });

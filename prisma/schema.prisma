@@ -507,3 +507,146 @@ model Resume {
 
   @@map("resumes")
 }
+
+// ================================
+// JOB DISCOVERY & APPLICATIONS
+// ================================
+
+model JobSource {
+  id        String   @id @default(cuid())
+  name      String
+  url       String?
+  kind      String   // linkedin, wellfound, yc, careers, github, twitter, custom
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  leads JobLead[]
+
+  @@map("job_sources")
+}
+
+model JobLead {
+  id           String    @id @default(cuid())
+  sourceId     String
+  title        String
+  company      String
+  location     String?
+  url          String?
+  description  String?   @db.Text
+  tags         String?   @db.Text
+  seniority    String?
+  remote       Boolean   @default(false)
+  salary       String?
+  postedAt     DateTime?
+  status       String    @default("new") // new, shortlisted, rejected, applied
+  matchScore   Float?
+  missingSkills String?  @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  source JobSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  enrichments LeadEnrichment[]
+  applications Application[]
+
+  @@index([sourceId])
+  @@index([status])
+  @@map("job_leads")
+}
+
+model LeadEnrichment {
+  id        String   @id @default(cuid())
+  leadId    String
+  kind      String   // jd_parse, osint, recruiter_lookup
+  data      Json
+  createdAt DateTime @default(now())
+
+  lead JobLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_enrichments")
+}
+
+model RecruiterContact {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String?
+  company   String?
+  role      String?
+  source    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications Application[]
+
+  @@index([company])
+  @@map("recruiter_contacts")
+}
+
+model Application {
+  id          String    @id @default(cuid())
+  leadId      String
+  recruiterId String?
+  status      String    @default("queued") // queued, sent, replied, interview, rejected, accepted
+  cvVersionId String?
+  sentAt      DateTime?
+  followupAt  DateTime?
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  lead      JobLead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  recruiter RecruiterContact @relation(fields: [recruiterId], references: [id])
+  events    ApplicationEvent[]
+
+  @@index([leadId])
+  @@index([status])
+  @@map("applications")
+}
+
+model ApplicationEvent {
+  id            String   @id @default(cuid())
+  applicationId String
+  type          String   // submitted, followup_sent, reply_positive, reply_negative, bounced
+  payload       Json?
+  createdAt     DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([type])
+  @@map("application_events")
+}
+
+model EmailCampaign {
+  id          String   @id @default(cuid())
+  name        String
+  templateId  String?
+  fromAddress String?
+  warmupScore Float?
+  status      String   @default("draft") // draft, running, paused
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  events EmailEvent[]
+
+  @@map("email_campaigns")
+}
+
+model EmailEvent {
+  id          String   @id @default(cuid())
+  campaignId  String?
+  applicationId String?
+  toAddress   String?
+  type        String   // sent, open, reply, bounce, spam, delivered
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  campaign    EmailCampaign? @relation(fields: [campaignId], references: [id])
+  application Application?   @relation(fields: [applicationId], references: [id])
+
+  @@index([campaignId])
+  @@index([applicationId])
+  @@index([type])
+  @@map("email_events")
+}
