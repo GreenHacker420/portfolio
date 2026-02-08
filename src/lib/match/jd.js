@@ -6,6 +6,15 @@ const embeddings = new GoogleGenerativeAIEmbeddings({
     apiKey: process.env.GOOGLE_API_KEY
 });
 
+function extractSkills(text) {
+    if (!text) return [];
+    return Array.from(new Set(
+        text.toLowerCase()
+            .match(/[a-z0-9\+\#\.]{2,}/g)
+            ?.filter(w => w.length > 2)
+    ));
+}
+
 export async function scoreLeadAgainstCv(lead, cvText) {
     const jdText = [
         lead.title,
@@ -21,5 +30,9 @@ export async function scoreLeadAgainstCv(lead, cvText) {
     ]);
 
     const score = cosineSimilarity(jdVec, cvVec);
-    return score;
+    const jdSkills = new Set(Array.isArray(lead.tags) ? lead.tags.map(t => t.toLowerCase()) : extractSkills(lead.description));
+    const cvSkills = new Set(extractSkills(cvText));
+    const missingSkills = Array.from(jdSkills).filter(s => !cvSkills.has(s)).slice(0, 15);
+
+    return { score, missingSkills };
 }

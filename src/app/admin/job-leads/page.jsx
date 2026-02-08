@@ -37,6 +37,9 @@ export default async function JobLeadsPage() {
                         )}
                         <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
                             <span>Match: {lead.matchScore ? (lead.matchScore * 100).toFixed(1) + "%" : "—"}</span>
+                            {lead.missingSkills && (
+                                <span className="text-red-400 truncate max-w-[200px]">Missing: {lead.missingSkills}</span>
+                            )}
                             <form
                                 action={async (formData) => {
                                     "use server";

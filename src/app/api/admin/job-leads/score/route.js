@@ -11,12 +11,12 @@ export async function POST(req) {
         const lead = await prisma.jobLead.findUnique({ where: { id: leadId } });
         if (!lead) return NextResponse.json({ error: "Lead not found" }, { status: 404 });
 
-        const score = await scoreLeadAgainstCv(lead, cvText);
+        const { score, missingSkills } = await scoreLeadAgainstCv(lead, cvText);
         await prisma.jobLead.update({
             where: { id: leadId },
-            data: { matchScore: score }
+            data: { matchScore: score, missingSkills: missingSkills.length ? missingSkills.join(",") : null }
         });
-        return NextResponse.json({ score });
+        return NextResponse.json({ score, missingSkills });
     } catch (e) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

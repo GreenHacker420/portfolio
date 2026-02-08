@@ -4,6 +4,9 @@ import prisma from "@/lib/db";
 import { fetchYCJobs, fetchWellfoundJobs, fetchGithubIssues, normalizeLead } from "@/lib/osint/sources";
 import { ingestLinkedIn } from "@/lib/osint/linkedin";
 import { fetchRemoteOk } from "@/lib/osint/remoteok";
+import { fetchJSearch } from "@/lib/osint/jsearch";
+import { fetchAdzuna } from "@/lib/osint/adzuna";
+import { fetchYC } from "@/lib/osint/yc";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { cosineSimilarity } from "@/lib/utils/cosine";
 
@@ -23,8 +26,10 @@ export async function ingestOsintLeads() {
     });
 
     const sources = [
-        { name: "remoteok", kind: "remoteok", fetcher: fetchRemoteOk },
-        { name: "yc", kind: "yc", fetcher: fetchYCJobs },
+        { name: "remoteok", kind: "remoteok", fetcher: () => fetchRemoteOk("software engineer") },
+        { name: "yc", kind: "yc", fetcher: () => fetchYC("software engineer") },
+        { name: "adzuna", kind: "adzuna", fetcher: () => fetchAdzuna("software engineer") },
+        { name: "jsearch", kind: "jsearch", fetcher: () => fetchJSearch("software engineer remote") },
         { name: "wellfound", kind: "wellfound", fetcher: fetchWellfoundJobs },
         { name: "github_issues", kind: "github", fetcher: fetchGithubIssues }
     ];
@@ -32,7 +37,7 @@ export async function ingestOsintLeads() {
     let inserted = 0;
     for (const src of sources) {
         const sourceId = await upsertSource(src.name, src.kind);
-        const raws = await src.fetcher("software engineer");
+        const raws = await src.fetcher();
         for (const raw of raws) {
             const lead = await normalizeLead(raw, src.name);
             // Simple relevance scoring to "software engineer" query
