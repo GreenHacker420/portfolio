@@ -78,9 +78,20 @@ export default function TrackerScript() {
             }
         });
 
+        // CTA clicks: any element with data-cta-id
+        const onClick = (e) => {
+            const target = e.target.closest?.("[data-cta-id]");
+            if (!target) return;
+            const ctaId = target.getAttribute("data-cta-id");
+            if (!ctaId) return;
+            enqueue({ type: "cta_click", page: window.location.pathname, ctaId });
+        };
+        window.addEventListener("click", onClick);
+
         return () => {
             window.removeEventListener("scroll", onScroll);
             window.removeEventListener("beforeunload", onBeforeUnload);
+            window.removeEventListener("click", onClick);
         };
     }, []);
 

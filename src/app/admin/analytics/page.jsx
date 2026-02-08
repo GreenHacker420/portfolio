@@ -38,16 +38,72 @@ export default async function AnalyticsPage() {
                 <Stat label="Events" value={summary.events.reduce((s, e) => s + e.count, 0)} />
             </div>
 
-            <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-6">
-                <h2 className="text-lg font-semibold text-white mb-4">Event Breakdown</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    {summary.events.map(ev => (
-                        <div key={ev.type} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
-                            <div className="text-zinc-500 uppercase text-xs">{ev.type}</div>
-                            <div className="text-xl font-semibold text-white">{ev.count}</div>
+            <div className="grid gap-4 md:grid-cols-2">
+                <Card className="bg-zinc-900/60 border-zinc-800 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Event Breakdown</h2>
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                        {summary.events.map(ev => (
+                            <div key={ev.type} className="p-3 rounded-lg bg-zinc-950 border border-zinc-800">
+                                <div className="text-zinc-500 uppercase text-xs">{ev.type}</div>
+                                <div className="text-xl font-semibold text-white">{ev.count}</div>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+
+                <Card className="bg-zinc-900/60 border-zinc-800 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Engagement</h2>
+                    <div className="space-y-3 text-sm text-white">
+                        <div className="flex justify-between">
+                            <span className="text-zinc-500">Avg scroll depth</span>
+                            <span>{Math.round(summary.scrollAvg || 0)}%</span>
                         </div>
-                    ))}
-                </div>
+                        <div className="flex justify-between">
+                            <span className="text-zinc-500">Avg time on page</span>
+                            <span>{Math.round((summary.timeOnPageMs || 0) / 1000)}s</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span className="text-zinc-500">CTA clicks</span>
+                            <span>{events["cta_click"] || 0}</span>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+                <Card className="bg-zinc-900/60 border-zinc-800 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Top Referrers</h2>
+                    <div className="space-y-2 text-sm">
+                        {summary.referrers.map(r => (
+                            <div key={r.referrer} className="flex justify-between text-zinc-200">
+                                <span className="truncate">{r.referrer}</span>
+                                <span className="text-zinc-500">{r.count}</span>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+                <Card className="bg-zinc-900/60 border-zinc-800 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Top UTM</h2>
+                    <div className="space-y-2 text-sm">
+                        {summary.utm.map((u, idx) => (
+                            <div key={idx} className="flex justify-between text-zinc-200">
+                                <span className="truncate">{u.source || "(none)"} / {u.campaign || "(na)"}</span>
+                                <span className="text-zinc-500">{u.count}</span>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+                <Card className="bg-zinc-900/60 border-zinc-800 p-6">
+                    <h2 className="text-lg font-semibold text-white mb-4">Geo (coarse)</h2>
+                    <div className="space-y-2 text-sm">
+                        {summary.geo.map((g, idx) => (
+                            <div key={idx} className="flex justify-between text-zinc-200">
+                                <span className="truncate">{g.country || "??"} {g.city ? `• ${g.city}` : ""}</span>
+                                <span className="text-zinc-500">{g.count}</span>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
             </div>
         </div>
     );

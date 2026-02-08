@@ -1,7 +1,8 @@
 import { getGraphClient } from "@/lib/graph";
+import { logEmailEvent } from "@/lib/mail.events";
 
 // Use Graph API instead of SMTP for better reliability with O365
-export const sendMail = async ({ to, subject, html, text }) => {
+export const sendMail = async ({ to, subject, html, text, campaignId, applicationId, metadata }) => {
     try {
         const client = await getGraphClient();
         const emailUser = process.env.EMAIL_USER; // The sender address
@@ -40,6 +41,9 @@ export const sendMail = async ({ to, subject, html, text }) => {
             .post(sendMailPayload);
 
         console.log(`Email sent via Graph API to ${to}`);
+
+        // Log event (non-blocking)
+        logEmailEvent({ campaignId, applicationId, toAddress: to, type: "sent", metadata });
         return { success: true };
     } catch (error) {
         console.error('Error sending email via Graph API:', error);
