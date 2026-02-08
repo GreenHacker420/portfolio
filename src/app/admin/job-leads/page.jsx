@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 async function fetchLeads() {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/admin/job-leads`, { cache: "no-store" });
@@ -34,6 +35,26 @@ export default async function JobLeadsPage() {
                         {lead.url && (
                             <a className="text-emerald-400 text-sm" href={lead.url} target="_blank" rel="noreferrer">Open posting →</a>
                         )}
+                        <div className="mt-3 flex items-center gap-2 text-xs text-zinc-400">
+                            <span>Match: {lead.matchScore ? (lead.matchScore * 100).toFixed(1) + "%" : "—"}</span>
+                            <form
+                                action={async (formData) => {
+                                    "use server";
+                                    const cv = formData.get("cv");
+                                    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/admin/job-leads/score`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ leadId: lead.id, cvText: cv })
+                                    });
+                                }}
+                                className="flex gap-2 items-center"
+                            >
+                                <textarea name="cv" required className="hidden" defaultValue="Paste CV text here" />
+                                <Button type="submit" size="sm" variant="outline" className="border-emerald-500/40 text-emerald-400">
+                                    Score vs CV
+                                </Button>
+                            </form>
+                        </div>
                     </Card>
                 ))}
             </div>

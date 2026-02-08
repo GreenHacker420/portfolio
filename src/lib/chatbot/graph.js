@@ -11,6 +11,7 @@ import { PrismaCheckpointer } from "./checkpointer.js";
 import { SYSTEM_PROMPT } from "./prompt.js";
 import { contactTool } from "./tools/contact-tool.js";
 import { githubTool } from "./tools/github-tool.js";
+import { matchTool } from "./tools/match-tool.js";
 
 // Initialize Pinecone Client
 if (!process.env.PINECONE_API_KEY) {
@@ -51,7 +52,7 @@ const retrieverTool = new DynamicStructuredTool({
 });
 
 
-const tools = [retrieverTool, contactTool, githubTool];
+const tools = [retrieverTool, contactTool, githubTool, matchTool];
 
 // Define the state
 const GraphState = Annotation.Root({

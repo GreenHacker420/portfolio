@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/db";
 import { fetchYCJobs, fetchWellfoundJobs, fetchGithubIssues, normalizeLead } from "@/lib/osint/sources";
+import { ingestLinkedIn } from "@/lib/osint/linkedin";
 
 async function upsertSource(name, kind) {
     const src = await prisma.jobSource.upsert({
@@ -47,5 +48,7 @@ export async function ingestOsintLeads() {
             inserted += 1;
         }
     }
+    // LinkedIn query stub
+    inserted += await ingestLinkedIn(prisma, "software engineer remote");
     return { inserted };
 }
