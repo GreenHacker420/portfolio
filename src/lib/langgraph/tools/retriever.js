@@ -4,15 +4,21 @@ import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 
-const embeddings = new GoogleGenerativeAIEmbeddings({
-    modelName: "text-embedding-004",
-    apiKey: process.env.GOOGLE_API_KEY
-});
+let _embeddings;
+function getEmbeddings() {
+    if (!_embeddings) {
+        _embeddings = new GoogleGenerativeAIEmbeddings({
+            modelName: "text-embedding-004",
+            apiKey: process.env.GOOGLE_API_KEY
+        });
+    }
+    return _embeddings;
+}
 
 async function getStore() {
     const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
     const index = pinecone.index(process.env.PINECONE_INDEX_NAME);
-    return PineconeStore.fromExistingIndex(embeddings, { pineconeIndex: index });
+    return PineconeStore.fromExistingIndex(getEmbeddings(), { pineconeIndex: index });
 }
 
 export const retrieverTool = new DynamicStructuredTool({

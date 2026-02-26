@@ -113,8 +113,8 @@ export default function ChatWidget() {
                 // Update the last message (assistant's placeholder) with new accumulated text
                 setMessages(prev => {
                     const newMessages = [...prev];
-                    const lastMsg = newMessages[newMessages.length - 1];
-                    lastMsg.content = accumulatedResponse;
+                    const lastMsg = { ...newMessages[newMessages.length - 1], content: accumulatedResponse };
+                    newMessages[newMessages.length - 1] = lastMsg;
                     return newMessages;
                 });
             }

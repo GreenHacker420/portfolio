@@ -53,7 +53,7 @@ export default function Experience({ data = [] }) {
         return {
             title: item.company,
             content: (
-                <div>
+                <div key={item.company + '-' + startYear}>
                     <h4 className="text-2xl font-bold text-white mb-2">{item.position}</h4>
                     <p className="text-neutral-400 text-sm mb-4">
                         {startYear} - {endYear}

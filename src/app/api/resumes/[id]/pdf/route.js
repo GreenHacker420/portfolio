@@ -1,6 +1,6 @@
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
-import latexjs from "latex.js";
+import { parse, HtmlGenerator } from "latex.js";
 import PDFDocument from "pdfkit";
 
 async function tryRemoteLatexCompile(texSource) {
@@ -38,8 +38,8 @@ export async function GET(_, { params }) {
         }
 
         // Convert LaTeX to HTML via latex.js
-        const generator = new latexjs.HtmlGenerator({ hyphenate: false });
-        const doc = latexjs.parse(resume.latex, { generator });
+        const generator = new HtmlGenerator({ hyphenate: false });
+        const doc = parse(resume.latex, { generator });
         const html = doc.domFragment().textContent || resume.latex;
 
         // Render text content into PDF for portability

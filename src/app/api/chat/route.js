@@ -4,6 +4,8 @@ import { HumanMessage } from "@langchain/core/messages";
 import { NextResponse } from "next/server";
 import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req) {
     try {
         const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
@@ -56,9 +58,11 @@ export async function POST(req) {
             },
         });
 
-        const res = new NextResponse(stream, {
+        const res = new Response(stream, {
             headers: {
                 "Content-Type": "text/plain; charset=utf-8",
+                "Cache-Control": "no-cache, no-transform",
+                "Connection": "keep-alive",
                 "X-Thread-Id": config.configurable.thread_id,
             },
         });

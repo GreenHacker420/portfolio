@@ -1,7 +1,3 @@
-"use server";
-
-export const runtime = "edge";
-
 import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";

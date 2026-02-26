@@ -1,7 +1,7 @@
 import { StateGraph, START, END, Annotation } from "@langchain/langgraph";
 import { matchTool } from "./tools/match-tool";
-import { contactTool } from "./tools/contact-tool";
-import { githubTool } from "./tools/github-tool";
+import { contactTool } from "@/lib/chatbot/tools/contact-tool";
+import { githubTool } from "@/lib/chatbot/tools/github-tool";
 import { retrieverTool } from "./tools/retriever";
 import { googleSearchTool } from "./tools/google-search-tool";
 import { emailSendTool } from "./tools/email-send-tool";

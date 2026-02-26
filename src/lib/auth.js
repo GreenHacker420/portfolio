@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export const authOptions = {
     providers: [
-        CredentialsProvider({
+        (CredentialsProvider.default || CredentialsProvider)({
             name: "Admin Login",
             credentials: {
                 email: { label: "Email", type: "email", placeholder: "admin@example.com" },

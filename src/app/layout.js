@@ -4,14 +4,14 @@ import { Inter } from "next/font/google";
 import ChatWidget from "@/components/ui/ChatWidget";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import siteMetadata from "./metadata";
-import dynamic from "next/dynamic";
+import TrackerScript from "@/components/analytics/TrackerScript";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = siteMetadata;
 
 export default function RootLayout({ children }) {
-    const TrackerScript = dynamic(() => import("@/components/analytics/TrackerScript"), { ssr: false });
+    // TrackerScript is a Client Component that returns null and safely uses useEffect
 
     return (
         <html lang="en" className="dark" suppressHydrationWarning>

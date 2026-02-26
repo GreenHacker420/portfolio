@@ -1,10 +1,16 @@
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { cosineSimilarity } from "@/lib/utils/cosine";
 
-const embeddings = new GoogleGenerativeAIEmbeddings({
-    modelName: "text-embedding-004",
-    apiKey: process.env.GOOGLE_API_KEY
-});
+let _embeddings;
+function getEmbeddings() {
+    if (!_embeddings) {
+        _embeddings = new GoogleGenerativeAIEmbeddings({
+            modelName: "text-embedding-004",
+            apiKey: process.env.GOOGLE_API_KEY
+        });
+    }
+    return _embeddings;
+}
 
 function extractSkills(text) {
     if (!text) return [];
@@ -25,8 +31,8 @@ export async function scoreLeadAgainstCv(lead, cvText) {
     ].join("\n");
 
     const [jdVec, cvVec] = await Promise.all([
-        embeddings.embedQuery(jdText),
-        embeddings.embedQuery(cvText)
+        getEmbeddings().embedQuery(jdText),
+        getEmbeddings().embedQuery(cvText)
     ]);
 
     const score = cosineSimilarity(jdVec, cvVec);
