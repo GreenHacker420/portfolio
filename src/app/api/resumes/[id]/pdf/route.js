@@ -3,11 +3,39 @@ import { NextResponse } from "next/server";
 import latexjs from "latex.js";
 import PDFDocument from "pdfkit";
 
+async function tryRemoteLatexCompile(texSource) {
+    if (!process.env.LATEX_REMOTE_COMPILE) return null;
+    try {
+        const res = await fetch("https://latexonline.cc/compile", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ text: texSource })
+        });
+        if (!res.ok) return null;
+        const buf = Buffer.from(await res.arrayBuffer());
+        return buf.length > 100 ? buf : null;
+    } catch {
+        return null;
+    }
+}
+
 export async function GET(_, { params }) {
     try {
         const { id } = params;
         const resume = await prisma.resume.findUnique({ where: { id } });
         if (!resume) return NextResponse.json({ error: "not found" }, { status: 404 });
+
+        // Try true TeX layout via remote compiler when enabled
+        const remotePdf = await tryRemoteLatexCompile(resume.latex);
+        if (remotePdf) {
+            return new NextResponse(remotePdf, {
+                status: 200,
+                headers: {
+                    "Content-Type": "application/pdf",
+                    "Content-Disposition": `attachment; filename=\"resume-${id}.pdf\"`
+                }
+            });
+        }
 
         // Convert LaTeX to HTML via latex.js
         const generator = new latexjs.HtmlGenerator({ hyphenate: false });

@@ -3,7 +3,9 @@ import { matchTool } from "./tools/match-tool";
 import { contactTool } from "./tools/contact-tool";
 import { githubTool } from "./tools/github-tool";
 import { retrieverTool } from "./tools/retriever";
-import prisma from "@/lib/db";
+import { googleSearchTool } from "./tools/google-search-tool";
+import { emailSendTool } from "./tools/email-send-tool";
+import { recruiterTool } from "./tools/recruiter-tool";
 import { ingestOsintLeads } from "@/actions/leads";
 import { processFollowups } from "@/lib/scheduler/followups";
 
@@ -21,12 +23,14 @@ export const jobDiscoveryGraph = () => {
             const result = await ingestOsintLeads();
             return { ingested: result.inserted };
         }))
+        .addNode("research", wrapNode(async () => ({ research: "use google_custom_search tool externally" })))
         .addNode("deduplicator", wrapNode(async () => ({ deduped: true })))
         .addNode("relevance_scorer", wrapNode(async () => ({ scored: true })))
         .addNode("jd_parser", wrapNode(async () => ({ parsed: true })))
         .addNode("store", wrapNode(async () => ({ stored: true })))
         .addEdge(START, "source_fetcher")
-        .addEdge("source_fetcher", "deduplicator")
+        .addEdge("source_fetcher", "research")
+        .addEdge("research", "deduplicator")
         .addEdge("deduplicator", "relevance_scorer")
         .addEdge("relevance_scorer", "jd_parser")
         .addEdge("jd_parser", "store")
@@ -54,13 +58,15 @@ export const coldEmailGraph = () => {
     const graph = new StateGraph(GraphState)
         .addNode("recruiter_finder", wrapNode(async () => ({ recruiters: [] })))
         .addNode("email_verifier", wrapNode(async () => ({ verified: true })))
+        .addNode("research", wrapNode(async () => ({ research: "use google_custom_search tool externally" })))
         .addNode("personalization", wrapNode(async () => ({ personalized: true })))
         .addNode("email_generator", wrapNode(async () => ({ generated: true })))
         .addNode("compliance", wrapNode(async () => ({ compliant: true })))
         .addNode("scheduler", wrapNode(async () => ({ scheduled: true })))
         .addEdge(START, "recruiter_finder")
         .addEdge("recruiter_finder", "email_verifier")
-        .addEdge("email_verifier", "personalization")
+        .addEdge("email_verifier", "research")
+        .addEdge("research", "personalization")
         .addEdge("personalization", "email_generator")
         .addEdge("email_generator", "compliance")
         .addEdge("compliance", "scheduler")
