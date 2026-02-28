@@ -29,6 +29,9 @@ import { createProject, updateProject } from "@/actions/projects"
 import { ArrayInput } from "@/components/admin/array-input"
 import { Loader2 } from "lucide-react"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
 const formSchema = z.object({
     title: z.string().min(2, "Title must be at least 2 characters."),
     description: z.string().min(10, "Description must be at least 10 characters."),
@@ -41,7 +44,6 @@ const formSchema = z.object({
     featured: z.boolean().default(false),
     isVisible: z.boolean().default(true),
     displayOrder: z.coerce.number().default(0),
-    // JSON fields handling as arrays of strings for simplicity
     highlights: z.array(z.string()).optional().default([]),
     learnings: z.array(z.string()).optional().default([]),
     challenges: z.array(z.string()).optional().default([]),
@@ -51,7 +53,6 @@ export function ProjectForm({ initialData }) {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
 
-    // Parse JSON fields if they are strings (from DB)
     const safeParse = (data) => {
         if (typeof data === 'string') {
             try { return JSON.parse(data) } catch { return [] }
@@ -113,236 +114,275 @@ export function ProjectForm({ initialData }) {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-4xl">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-5xl">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                        {/* Basic Info */}
-                        <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800 space-y-4">
-                            <h3 className="text-lg font-medium text-emerald-500">Core Information</h3>
-                            <FormField
-                                control={form.control}
-                                name="title"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Project Title</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Portfolio v3" {...field} className="bg-zinc-950 border-zinc-800" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                <Tabs defaultValue="general" className="w-full">
+                    <TabsList className="mb-6 grid w-full grid-cols-2 md:grid-cols-4 bg-zinc-950 border border-zinc-800 p-1 rounded-xl h-auto gap-1">
+                        <TabsTrigger value="general" className="rounded-lg py-2.5 data-[state=active]:bg-zinc-800 data-[state=active]:text-emerald-400">General Info</TabsTrigger>
+                        <TabsTrigger value="media" className="rounded-lg py-2.5 data-[state=active]:bg-zinc-800 data-[state=active]:text-blue-400">Links & Media</TabsTrigger>
+                        <TabsTrigger value="tech" className="rounded-lg py-2.5 data-[state=active]:bg-zinc-800 data-[state=active]:text-violet-400">Technical details</TabsTrigger>
+                        <TabsTrigger value="settings" className="rounded-lg py-2.5 data-[state=active]:bg-zinc-800 data-[state=active]:text-orange-400">Settings</TabsTrigger>
+                    </TabsList>
 
-                            <FormField
-                                control={form.control}
-                                name="category"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Category</FormLabel>
-                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl>
-                                                <SelectTrigger className="bg-zinc-950 border-zinc-800">
-                                                    <SelectValue placeholder="Select category" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="Web App">Web App</SelectItem>
-                                                <SelectItem value="Mobile App">Mobile App</SelectItem>
-                                                <SelectItem value="API / Backend">API / Backend</SelectItem>
-                                                <SelectItem value="Library">Library</SelectItem>
-                                                <SelectItem value="Design">Design</SelectItem>
-                                                <SelectItem value="Other">Other</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="description"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Short Description</FormLabel>
-                                        <FormControl>
-                                            <Textarea
-                                                placeholder="A brief summary..."
-                                                className="bg-zinc-950 border-zinc-800 min-h-[100px]"
-                                                {...field}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800 space-y-4">
-                            <h3 className="text-lg font-medium text-blue-400">Links & Assets</h3>
-                            <FormField
-                                control={form.control}
-                                name="repoUrl"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>GitHub Repo</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="https://github.com/..." {...field} className="bg-zinc-950 border-zinc-800" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="projectUrl"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Live URL</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="https://..." {...field} className="bg-zinc-950 border-zinc-800" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="imageUrl"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Cover Image URL</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="/projects/cover.jpg" {...field} className="bg-zinc-950 border-zinc-800" />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="space-y-6">
-                        <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800 space-y-4">
-                            <h3 className="text-lg font-medium text-violet-400">Technical Details</h3>
-                            <FormField
-                                control={form.control}
-                                name="techStack"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Tech Stack</FormLabel>
-                                        <FormControl>
-                                            <ArrayInput value={field.value} onChange={field.onChange} placeholder="Add technology (e.g. React)..." />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="highlights"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Key Highlights</FormLabel>
-                                        <FormControl>
-                                            <ArrayInput value={field.value} onChange={field.onChange} placeholder="Add highlight..." />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-
-                        <div className="bg-zinc-900/30 p-6 rounded-xl border border-zinc-800 space-y-4">
-                            <h3 className="text-lg font-medium text-orange-400">Configuration</h3>
-                            <div className="grid grid-cols-2 gap-4">
+                    <TabsContent value="general" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <Card className="bg-zinc-900 border-zinc-800 shadow-xl overflow-hidden">
+                            <div className="h-1 w-full bg-emerald-500/20" />
+                            <CardHeader className="pb-4 border-b border-zinc-800/50">
+                                <CardTitle className="text-xl text-emerald-400">Core Information</CardTitle>
+                                <CardDescription>Basic details about the project that will be shown on cards.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-6 bg-zinc-950/20">
                                 <FormField
                                     control={form.control}
-                                    name="status"
+                                    name="title"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Status</FormLabel>
+                                            <FormLabel>Project Title</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Portfolio v3, Acme Dashboard..." {...field} className="bg-zinc-950 border-zinc-800 h-11 text-base transition-colors focus-visible:ring-emerald-500/30" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+
+                                <FormField
+                                    control={form.control}
+                                    name="category"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Category</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className="bg-zinc-950 border-zinc-800">
-                                                        <SelectValue placeholder="Select status" />
+                                                    <SelectTrigger className="bg-zinc-950 border-zinc-800 h-11 transition-colors focus:ring-emerald-500/30">
+                                                        <SelectValue placeholder="Select category" />
                                                     </SelectTrigger>
                                                 </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="draft">Draft</SelectItem>
-                                                    <SelectItem value="published">Published</SelectItem>
-                                                    <SelectItem value="archived">Archived</SelectItem>
+                                                <SelectContent className="bg-zinc-900 border-zinc-800">
+                                                    <SelectItem value="Web App">Web App</SelectItem>
+                                                    <SelectItem value="Mobile App">Mobile App</SelectItem>
+                                                    <SelectItem value="API / Backend">API / Backend</SelectItem>
+                                                    <SelectItem value="Library">Library</SelectItem>
+                                                    <SelectItem value="Design">Design</SelectItem>
+                                                    <SelectItem value="Other">Other</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
+
                                 <FormField
                                     control={form.control}
-                                    name="displayOrder"
+                                    name="description"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Order</FormLabel>
+                                            <FormLabel>Short Description</FormLabel>
                                             <FormControl>
-                                                <Input type="number" {...field} className="bg-zinc-950 border-zinc-800" />
+                                                <Textarea
+                                                    placeholder="A brief summary of what the project does..."
+                                                    className="bg-zinc-950 border-zinc-800 min-h-[120px] resize-y transition-colors focus-visible:ring-emerald-500/30"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
-                            </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
 
-                            <FormField
-                                control={form.control}
-                                name="featured"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-zinc-800 p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base">Featured Project</FormLabel>
-                                            <FormDescription>
-                                                Display on the homepage?
-                                            </FormDescription>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="isVisible"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-zinc-800 p-4">
-                                        <div className="space-y-0.5">
-                                            <FormLabel className="text-base">Visible</FormLabel>
-                                            <FormDescription>
-                                                Show publicly?
-                                            </FormDescription>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                    </div>
+                    <TabsContent value="media" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <Card className="bg-zinc-900 border-zinc-800 shadow-xl overflow-hidden">
+                            <div className="h-1 w-full bg-blue-500/20" />
+                            <CardHeader className="pb-4 border-b border-zinc-800/50">
+                                <CardTitle className="text-xl text-blue-400">Links & Media</CardTitle>
+                                <CardDescription>URLs to the live site, github repository, and cover image.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-6 bg-zinc-950/20">
+                                <FormField
+                                    control={form.control}
+                                    name="repoUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>GitHub Repo URL</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://github.com/..." {...field} className="bg-zinc-950 border-zinc-800 h-11 transition-colors focus-visible:ring-blue-500/30" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="projectUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Live Site URL</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="https://..." {...field} className="bg-zinc-950 border-zinc-800 h-11 transition-colors focus-visible:ring-blue-500/30" />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="imageUrl"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Cover Image Location</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="/projects/cover.jpg" {...field} className="bg-zinc-950 border-zinc-800 h-11 transition-colors focus-visible:ring-blue-500/30" />
+                                            </FormControl>
+                                            <FormDescription>Relative path or full URL for the project thumbnail.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="tech" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <Card className="bg-zinc-900 border-zinc-800 shadow-xl overflow-hidden">
+                            <div className="h-1 w-full bg-violet-500/20" />
+                            <CardHeader className="pb-4 border-b border-zinc-800/50">
+                                <CardTitle className="text-xl text-violet-400">Technical Details</CardTitle>
+                                <CardDescription>Define the tech stack and key technical highlights of the project.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-8 pt-6 bg-zinc-950/20">
+                                <FormField
+                                    control={form.control}
+                                    name="techStack"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Tech Stack</FormLabel>
+                                            <FormControl>
+                                                <ArrayInput value={field.value} onChange={field.onChange} placeholder="e.g. Next.js, React, Prisma..." />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="highlights"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Key Highlights</FormLabel>
+                                            <FormControl>
+                                                <ArrayInput value={field.value} onChange={field.onChange} placeholder="Add a major feature..." />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <Card className="bg-zinc-900 border-zinc-800 shadow-xl overflow-hidden">
+                            <div className="h-1 w-full bg-orange-500/20" />
+                            <CardHeader className="pb-4 border-b border-zinc-800/50">
+                                <CardTitle className="text-xl text-orange-400">Configuration</CardTitle>
+                                <CardDescription>Set the visibility, status, and ordering of the project.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6 pt-6 bg-zinc-950/20">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <FormField
+                                        control={form.control}
+                                        name="status"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Status</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="bg-zinc-950 border-zinc-800 h-11 transition-colors focus:ring-orange-500/30">
+                                                            <SelectValue placeholder="Select status" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent className="bg-zinc-900 border-zinc-800">
+                                                        <SelectItem value="draft">Draft</SelectItem>
+                                                        <SelectItem value="published">Published</SelectItem>
+                                                        <SelectItem value="archived">Archived</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="displayOrder"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Order</FormLabel>
+                                                <FormControl>
+                                                    <Input type="number" {...field} className="bg-zinc-950 border-zinc-800 h-11 transition-colors focus-visible:ring-orange-500/30" />
+                                                </FormControl>
+                                                <FormDescription>Lower numbers appear first.</FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-zinc-800/50">
+                                    <FormField
+                                        control={form.control}
+                                        name="featured"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:bg-zinc-800/50">
+                                                <div className="space-y-0.5">
+                                                    <FormLabel className="text-base text-zinc-200">Featured Project</FormLabel>
+                                                    <FormDescription>
+                                                        Display prominently on homepage
+                                                    </FormDescription>
+                                                </div>
+                                                <FormControl>
+                                                    <Switch
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="isVisible"
+                                        render={({ field }) => (
+                                            <FormItem className="flex flex-row items-center justify-between rounded-xl border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:bg-zinc-800/50">
+                                                <div className="space-y-0.5">
+                                                    <FormLabel className="text-base text-zinc-200">Visible to Public</FormLabel>
+                                                    <FormDescription>
+                                                        Allow visitors to view this
+                                                    </FormDescription>
+                                                </div>
+                                                <FormControl>
+                                                    <Switch
+                                                        checked={field.value}
+                                                        onCheckedChange={field.onChange}
+                                                    />
+                                                </FormControl>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
+
+                <div className="flex justify-end pt-8 mt-4 sticky bottom-6 z-10">
+                    <Button type="submit" disabled={isLoading} className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium w-full sm:w-auto min-w-[160px] h-12 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {initialData ? "Save Project Details" : "Publish New Project"}
+                    </Button>
                 </div>
-
-                <Button type="submit" disabled={isLoading} className="bg-emerald-600 hover:bg-emerald-700 w-full md:w-auto">
-                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {initialData ? "Update Project" : "Create Project"}
-                </Button>
             </form>
         </Form>
     )

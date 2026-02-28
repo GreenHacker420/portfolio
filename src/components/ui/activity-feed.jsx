@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { Code, Circle, GitCommit, GitPullRequest, GitMerge, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export const LanguageStats = ({ languages }) => (
+export const LanguageStats = ({ languages, className }) => (
     <motion.div
         initial={{ opacity: 0, x: 20 }}
         whileInView={{ opacity: 1, x: 0 }}
-        className="bg-neutral-900/20 border border-white/5 rounded-3xl p-8 backdrop-blur-sm"
+        className={cn("bg-neutral-900/20 border border-white/5 rounded-3xl p-8 backdrop-blur-sm", className)}
     >
         <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
             <Code className="w-5 h-5 text-neon-green" />
@@ -58,12 +58,12 @@ const ActivityColor = (type) => {
     }
 };
 
-export const ActivityFeed = ({ activities }) => (
+export const ActivityFeed = ({ activities, className }) => (
     <motion.div
         initial={{ opacity: 0, x: 20 }}
         whileInView={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
-        className="bg-neutral-900/20 border border-white/5 rounded-3xl p-8 backdrop-blur-sm"
+        className={cn("bg-neutral-900/20 border border-white/5 rounded-3xl p-8 backdrop-blur-sm", className)}
     >
         <h3 className="text-lg font-bold text-white mb-6">Recent Activity</h3>
         <div className="space-y-0 relative border-l border-white/10 ml-4 pb-2">

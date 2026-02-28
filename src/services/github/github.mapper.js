@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
  * Maps raw GitHub API data to a cleaner, UI-ready format.
  * Removes fake metrics and properly labels estimates.
  */
-export function mapGithubStats({ user, repos, events, contributions }) {
+export function mapGithubStats({ user, repos, events, contributions, totalPRs, totalIssues }) {
 
     // 1. Calculate Total Stars
     const totalStars = repos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0);
@@ -54,8 +54,14 @@ export function mapGithubStats({ user, repos, events, contributions }) {
     const recentPRs = events.filter(e => e.type === 'PullRequestEvent').length;
     const recentIssues = events.filter(e => e.type === 'IssuesEvent').length;
 
+    // Use fetched totals if available from GraphQL, fallback to recent
+    const finalPRs = totalPRs !== undefined ? totalPRs : recentPRs;
+    const finalIssues = totalIssues !== undefined ? totalIssues : recentIssues;
+
     // Total Contributions from GraphQL
     const totalContributions = contributions?.totalContributions || 0;
+
+    const { currentStreak, longestStreak, busiestDay } = calculateStreaks(contributions?.weeks || []);
 
     return {
         username: user.login,
@@ -75,15 +81,21 @@ export function mapGithubStats({ user, repos, events, contributions }) {
         activityMetrics: {
             totalContributions, // Real annual total
             recentCommits,
-            recentPRs,
-            recentIssues,
+            recentPRs: finalPRs,
+            recentIssues: finalIssues,
+            currentStreak,
+            longestStreak,
+            busiestDay,
             isEstimated: false,
-            note: "Last Year"
+            note: "All Time"
         },
 
         // Contributions Heatmap via GraphQL
         contributions: contributions?.weeks?.flatMap(week =>
-            week.contributionDays.map(day => Math.min(day.contributionCount, 4))
+            week.contributionDays.map(day => ({
+                count: day.contributionCount,
+                date: day.date
+            }))
         ) || [],
 
         // Timestamps
@@ -140,4 +152,38 @@ function formatDate(isoString) {
     } catch (e) {
         return isoString;
     }
+}
+
+function calculateStreaks(weeks) {
+    if (!weeks || weeks.length === 0) return { currentStreak: 0, longestStreak: 0, busiestDay: { date: '', count: 0 } };
+
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let busiestDay = { date: '', count: 0 };
+
+    const allDays = weeks.flatMap(w => w.contributionDays);
+    const today = new Date().toISOString().split('T')[0];
+
+    for (let i = 0; i < allDays.length; i++) {
+        const day = allDays[i];
+
+        if (day.date > today) break;
+
+        if (day.contributionCount > busiestDay.count) {
+            busiestDay = { date: day.date, count: day.contributionCount };
+        }
+
+        if (day.contributionCount > 0) {
+            currentStreak++;
+            if (currentStreak > longestStreak) {
+                longestStreak = currentStreak;
+            }
+        } else {
+            if (day.date < today) {
+                currentStreak = 0;
+            }
+        }
+    }
+
+    return { currentStreak, longestStreak, busiestDay };
 }

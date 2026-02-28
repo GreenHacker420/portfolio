@@ -44,7 +44,7 @@ export const StatCard = ({ title, value, icon: Icon, delay = 0, className, descr
             onMouseLeave={handleMouseLeave}
             style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
             className={cn(
-                "relative bg-neutral-900/40 border border-white/5 p-6 rounded-2xl flex flex-col justify-between group overflow-hidden backdrop-blur-sm hover:border-white/10 transition-colors duration-300",
+                "relative bg-gradient-to-b from-neutral-900/60 to-neutral-950/90 border border-white/5 p-6 rounded-3xl flex flex-col justify-between group overflow-hidden backdrop-blur-xl hover:border-neon-green/30 transition-all duration-500 shadow-2xl hover:shadow-[0_0_40px_-10px_rgba(57,255,20,0.15)]",
                 className
             )}
         >
@@ -67,11 +67,16 @@ export const StatCard = ({ title, value, icon: Icon, delay = 0, className, descr
                 {/* Use value or description if provided */}
             </div>
 
-            <div className="relative z-10">
-                <h4 className="text-3xl font-bold text-white mb-1 tracking-tight">{value}</h4>
-                <p className="text-sm text-neutral-500 font-medium uppercase tracking-wider">{title}</p>
+            <div className="relative z-10 flex flex-col pt-2">
+                <p className="text-xs font-semibold text-neutral-500 uppercase tracking-widest mb-1">{title}</p>
+                <div className="flex items-baseline gap-2">
+                    <h4 className="text-4xl xl:text-5xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-500">{value}</h4>
+                </div>
                 {description && (
-                    <p className="text-xs text-neutral-600 mt-2 font-mono">{description}</p>
+                    <p className="text-[10px] sm:text-xs text-neutral-500/80 mt-2 flex flex-row items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-neon-green/70 inline-block shadow-[0_0_8px_rgba(57,255,20,0.8)]" />
+                        {description}
+                    </p>
                 )}
             </div>
         </motion.div>
