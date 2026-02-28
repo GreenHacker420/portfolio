@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 import { useOutsideClick } from "@/hooks/use-outside-click";
 import Tilt3D from "@/components/ui/Tilt3D";
 
-export function ExpandableCard({ cards }) {
-    const [active, setActive] = useState(null);
+export function ExpandableCard({ cards, active: externalActive, setActive: setExternalActive }) {
+    const [internalActive, setInternalActive] = useState(null);
+    const active = externalActive !== undefined ? externalActive : internalActive;
+    const setActive = setExternalActive !== undefined ? setExternalActive : setInternalActive;
     const id = useId();
     const ref = useRef(null);
 
@@ -39,20 +41,20 @@ export function ExpandableCard({ cards }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black/60 z-40 h-full w-full"
+                        className="fixed inset-0 bg-black/60 z-[9990] h-full w-full"
                     />
                 )}
             </AnimatePresence>
             <AnimatePresence>
                 {active && typeof active === "object" ? (
-                    <div className="fixed inset-0 grid place-items-center z-[50] w-full mt-[10vh]">
+                    <div className="fixed inset-0 grid place-items-center z-[9999] w-full mt-[10vh]">
                         <motion.button
                             key={`button-${active.id}-${id}`}
                             layout
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0, transition: { duration: 0.05 } }}
-                            className="flex absolute top-2 right-2 lg:hidden items-center justify-center bg-white rounded-full h-8 w-8 z-50 text-black"
+                            className="flex absolute top-2 right-2 lg:hidden items-center justify-center bg-white rounded-full h-8 w-8 z-[10000] text-black"
                             onClick={() => setActive(null)}
                         >
                             <X size={20} />
@@ -60,7 +62,7 @@ export function ExpandableCard({ cards }) {
                         <motion.div
                             layoutId={`card-${active.id}-${id}`}
                             ref={ref}
-                            className="w-full max-w-3xl lg:max-w-4xl max-h-[85vh] h-full md:h-fit md:max-h-[90vh] flex flex-col bg-neutral-900 border border-white/10 sm:rounded-3xl overflow-hidden"
+                            className="w-full max-w-3xl lg:max-w-4xl max-h-[85vh] h-full md:h-fit md:max-h-[90vh] flex flex-col bg-neutral-900 border border-white/10 sm:rounded-3xl overflow-hidden shadow-2xl"
                         >
                             <motion.div layoutId={`image-${active.id}-${id}`} className="relative w-full h-64 md:h-80 sm:p-2 bg-neutral-900">
                                 <Image
@@ -77,7 +79,7 @@ export function ExpandableCard({ cards }) {
                                     <div className="flex flex-col">
                                         <motion.h3
                                             layoutId={`title-${active.id}-${id}`}
-                                            className="font-bold text-2xl md:text-3xl text-white"
+                                            className="font-bold text-2xl md:text-3xl text-white tracking-tight"
                                         >
                                             {active.title}
                                         </motion.h3>
@@ -129,14 +131,14 @@ export function ExpandableCard({ cards }) {
                                     >
                                         {active.longDescription && (
                                             <div>
-                                                <h4 className="text-xl font-semibold text-white mb-2">About</h4>
+                                                <h4 className="text-xl font-semibold text-white mb-2 tracking-tight">About</h4>
                                                 <div className="prose prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: active.longDescription }} />
                                             </div>
                                         )}
 
                                         {active.techStack && active.techStack.length > 0 && (
                                             <div>
-                                                <h4 className="text-xl font-semibold text-white mb-3">Technologies used</h4>
+                                                <h4 className="text-xl font-semibold text-white mb-3 tracking-tight">Technologies used</h4>
                                                 <div className="flex flex-wrap gap-2">
                                                     {active.techStack.map((tech, i) => (
                                                         <span key={i} className="px-3 py-1.5 bg-neutral-800 rounded-lg text-sm text-neutral-200 border border-white/5">
@@ -176,30 +178,30 @@ export function ExpandableCard({ cards }) {
             </AnimatePresence>
             <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 lg:gap-8 gap-6 max-w-5xl mx-auto w-full">
                 {cards.map((card, index) => (
-                    <Tilt3D key={card.id + index} className="w-full h-96">
+                    <Tilt3D key={card.id + index} className="w-full h-[400px]">
                         <motion.div
                             layoutId={`card-${card.id}-${id}`}
                             onClick={() => setActive(card)}
-                            className="w-full h-full p-4 flex flex-col items-center justify-between bg-neutral-900/50 hover:bg-neutral-800/80 dark:hover:bg-neutral-800/80 rounded-2xl cursor-pointer border border-white/5 transition-colors overflow-hidden group"
+                            className="relative w-full h-full flex flex-col items-center justify-between bg-neutral-900/40 hover:bg-neutral-800/60 backdrop-blur-xl rounded-[2rem] cursor-pointer border border-white/5 transition-all duration-500 overflow-hidden group shadow-2xl"
                         >
-                            <motion.div layoutId={`image-${card.id}-${id}`} className="relative w-full h-full rounded-xl overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
+                            <motion.div layoutId={`image-${card.id}-${id}`} className="relative w-full h-full rounded-[2rem] overflow-hidden z-10">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:from-black/95 group-hover:via-black/40" />
                                 <Image
                                     fill
                                     src={card.src}
                                     alt={card.title}
-                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                 />
-                                <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col">
+                                <div className="absolute bottom-0 left-0 right-0 p-8 z-20 flex flex-col translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
                                     <motion.h3
                                         layoutId={`title-${card.id}-${id}`}
-                                        className="font-bold text-2xl text-white md:text-left text-center"
+                                        className="font-bold text-2xl sm:text-3xl text-white text-left tracking-tight group-hover:text-purple-300 transition-colors duration-300"
                                     >
                                         {card.title}
                                     </motion.h3>
                                     <motion.p
                                         layoutId={`description-${card.id}-${id}`}
-                                        className="text-neutral-300 md:text-left text-center mt-1 text-sm line-clamp-2"
+                                        className="text-neutral-300 text-left mt-2 text-sm sm:text-base line-clamp-2 text-white/70 font-medium"
                                     >
                                         {card.description}
                                     </motion.p>

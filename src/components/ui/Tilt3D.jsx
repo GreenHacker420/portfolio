@@ -49,7 +49,7 @@ export default function Tilt3D({ children, className }) {
             }}
             className={className}
         >
-            <div style={{ transform: "translateZ(50px)", transformStyle: "preserve-3d" }}>
+            <div className="w-full h-full" style={{ transform: "translateZ(50px)", transformStyle: "preserve-3d" }}>
                 {children}
             </div>
         </motion.div>
