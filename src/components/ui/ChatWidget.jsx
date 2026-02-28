@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Send, MessageCircle, X, Loader2, Sparkles, Bot, Terminal } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Send, MessageCircle, X, Loader2, Bot, Terminal, Copy, Check, Trash2, FolderKanban, Cpu, BarChart3, Mail } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,69 @@ import { AnimatePresence, motion } from "framer-motion";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// ============================================================
+// SUGGESTED PROMPTS
+// ============================================================
+const SUGGESTED_PROMPTS = [
+    { label: "Projects", text: "What are Harsh's best projects?", icon: FolderKanban },
+    { label: "Skills", text: "What tech stack does Harsh use?", icon: Cpu },
+    { label: "GitHub", text: "Analyze Harsh's GitHub activity", icon: BarChart3 },
+    { label: "Contact", text: "How can I get in touch with Harsh?", icon: Mail },
+];
+
+// ============================================================
+// TYPING INDICATOR
+// ============================================================
+const TypingIndicator = () => (
+    <div className="flex gap-3 max-w-[85%]">
+        <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+            <Bot className="h-4 w-4 text-emerald-500" />
+        </div>
+        <div className="rounded-2xl px-4 py-3 bg-zinc-900/80 border border-zinc-800 rounded-tl-sm flex items-center gap-1.5">
+            {[0, 1, 2].map(i => (
+                <motion.div
+                    key={i}
+                    className="w-2 h-2 rounded-full bg-emerald-500/60"
+                    animate={{ y: [0, -6, 0], opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }}
+                />
+            ))}
+        </div>
+    </div>
+);
+
+// ============================================================
+// CODE BLOCK WITH COPY BUTTON
+// ============================================================
+const CodeBlock = ({ children, className }) => {
+    const [copied, setCopied] = useState(false);
+    const codeStr = String(children).replace(/\n$/, '');
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(codeStr);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="relative group/code my-2">
+            <pre className={cn("bg-zinc-950 border border-emerald-500/20 rounded-lg p-3 overflow-x-auto text-xs", className)}>
+                <code>{children}</code>
+            </pre>
+            <button
+                onClick={handleCopy}
+                className="absolute top-2 right-2 p-1.5 rounded-md bg-zinc-800/80 border border-zinc-700 text-zinc-400 hover:text-white opacity-0 group-hover/code:opacity-100 transition-all"
+                aria-label="Copy code"
+            >
+                {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+            </button>
+        </div>
+    );
+};
+
+// ============================================================
+// MAIN CHAT WIDGET
+// ============================================================
 export default function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
@@ -19,6 +82,7 @@ export default function ChatWidget() {
     const [isLoading, setIsLoading] = useState(false);
     const [threadId, setThreadId] = useState(null);
     const messagesEndRef = useRef(null);
+    const [showSuggestions, setShowSuggestions] = useState(true);
 
     useEffect(() => {
         const storedThreadId = localStorage.getItem('chat_thread_id');
@@ -35,6 +99,7 @@ export default function ChatWidget() {
                                 ...data.messages
                             ];
                         });
+                        setShowSuggestions(false);
                     }
                 })
                 .catch(err => console.error("Failed to load history:", err))
@@ -64,28 +129,25 @@ export default function ChatWidget() {
         }
     }, [messages[messages.length - 1]?.content, isHovering]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!input.trim() || isLoading) return;
+    const sendMessage = useCallback(async (messageText) => {
+        if (!messageText.trim() || isLoading) return;
 
-        const userMessage = input.trim();
+        setShowSuggestions(false);
         setInput('');
-        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+        setMessages(prev => [...prev, { role: 'user', content: messageText.trim() }]);
         setIsLoading(true);
         setTimeout(() => scrollToBottom(), 10);
 
         try {
-            // Initiate the request
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    message: userMessage,
+                    message: messageText.trim(),
                     threadId: threadId
                 }),
             });
 
-            // Handle Thread ID from Header
             const newThreadId = res.headers.get("X-Thread-Id");
             if (newThreadId && newThreadId !== threadId) {
                 setThreadId(newThreadId);
@@ -96,7 +158,6 @@ export default function ChatWidget() {
                 throw new Error(res.statusText);
             }
 
-            // Prepare for streaming response
             setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
             const reader = res.body.getReader();
@@ -110,7 +171,6 @@ export default function ChatWidget() {
                 const chunk = decoder.decode(value, { stream: true });
                 accumulatedResponse += chunk;
 
-                // Update the last message (assistant's placeholder) with new accumulated text
                 setMessages(prev => {
                     const newMessages = [...prev];
                     const lastMsg = { ...newMessages[newMessages.length - 1], content: accumulatedResponse };
@@ -125,21 +185,33 @@ export default function ChatWidget() {
         } finally {
             setIsLoading(false);
         }
+    }, [isLoading, threadId]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        sendMessage(input);
     };
 
-    const [dimensions, setDimensions] = useState({ width: 400, height: 550 });
+    const handleClearChat = () => {
+        setMessages([
+            { role: 'assistant', content: 'System Internal // Online. How can I assist you with this portfolio?' }
+        ]);
+        setShowSuggestions(true);
+        setThreadId(null);
+        localStorage.removeItem('chat_thread_id');
+    };
+
+    const [dimensions, setDimensions] = useState({ width: 420, height: 600 });
     const isResizingRef = useRef(false);
 
     useEffect(() => {
         const handleMouseMove = (e) => {
             if (!isResizingRef.current) return;
-
             const newWidth = window.innerWidth - e.clientX - 16;
             const newHeight = window.innerHeight - e.clientY - 16;
-
             setDimensions({
-                width: Math.max(300, Math.min(newWidth, 800)), // clamp width
-                height: Math.max(400, Math.min(newHeight, window.innerHeight - 40)) // clamp height
+                width: Math.max(340, Math.min(newWidth, 800)),
+                height: Math.max(400, Math.min(newHeight, window.innerHeight - 40))
             });
         };
 
@@ -159,6 +231,17 @@ export default function ChatWidget() {
         };
     }, [isOpen]);
 
+    // Markdown components with copy button for code blocks
+    const markdownComponents = {
+        pre: ({ children }) => <>{children}</>,
+        code: ({ inline, children, className }) => {
+            if (inline) {
+                return <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-emerald-300 text-xs">{children}</code>;
+            }
+            return <CodeBlock className={className}>{children}</CodeBlock>;
+        }
+    };
+
     return (
         <div className="fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-4 font-sans">
             <AnimatePresence>
@@ -171,7 +254,7 @@ export default function ChatWidget() {
                         style={{ width: dimensions.width, height: dimensions.height }}
                         className="bg-zinc-950/80 backdrop-blur-xl border border-emerald-500/20 rounded-2xl shadow-[0_0_50px_-12px_rgba(16,185,129,0.25)] flex flex-col overflow-hidden relative ring-1 ring-white/10"
                     >
-                        {/* Resize Handle (Top-Left) */}
+                        {/* Resize Handle */}
                         <div
                             className="absolute top-0 left-0 w-6 h-6 cursor-nw-resize z-50 group flex items-start justify-start p-1"
                             onMouseDown={(e) => {
@@ -183,7 +266,7 @@ export default function ChatWidget() {
                             <div className="w-2 h-2 rounded-full bg-emerald-500/30 group-hover:bg-emerald-500 transition-colors" />
                         </div>
 
-                        {/* Cyber Grid Background */}
+                        {/* Background Grid */}
                         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
                         {/* Header */}
@@ -206,15 +289,27 @@ export default function ChatWidget() {
                                     </p>
                                 </div>
                             </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setIsOpen(false)}
-                                aria-label="Close chat"
-                                className="text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-full"
-                            >
-                                <X className="h-5 w-5" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={handleClearChat}
+                                    aria-label="Clear chat"
+                                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-full h-8 w-8"
+                                    title="Clear chat"
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setIsOpen(false)}
+                                    aria-label="Close chat"
+                                    className="text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded-full h-8 w-8"
+                                >
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Messages */}
@@ -226,8 +321,6 @@ export default function ChatWidget() {
                             onMouseEnter={() => setIsHovering(true)}
                             onMouseLeave={() => setIsHovering(false)}
                         >
-
-
                             {messages.map((m, i) => (
                                 <motion.div
                                     initial={{ opacity: 0, y: 10 }}
@@ -255,9 +348,10 @@ export default function ChatWidget() {
                                         {m.role === 'user' ? (
                                             m.content
                                         ) : (
-                                            <div className="prose prose-invert prose-sm max-w-none prose-p:my-1 prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-emerald-500/20">
+                                            <div className="prose prose-invert prose-sm max-w-none prose-p:my-1">
                                                 <ReactMarkdown
                                                     remarkPlugins={[remarkGfm]}
+                                                    components={markdownComponents}
                                                 >
                                                     {typeof m.content === 'string' ? m.content : ''}
                                                 </ReactMarkdown>
@@ -266,17 +360,36 @@ export default function ChatWidget() {
                                     </div>
                                 </motion.div>
                             ))}
-                            <div ref={messagesEndRef} />
-                            {isLoading && (
-                                <div className="flex gap-3 max-w-[85%]">
-                                    <div className="h-8 w-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-                                        <Loader2 className="h-4 w-4 text-emerald-500 animate-spin" />
-                                    </div>
-                                    <div className="rounded-2xl px-4 py-2.5 text-sm bg-zinc-900/80 border border-zinc-800 text-zinc-400 rounded-tl-sm opacity-70">
-                                        Processing...
-                                    </div>
-                                </div>
+
+                            {/* Suggested Prompts */}
+                            {showSuggestions && messages.length <= 1 && !isLoading && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="flex flex-wrap gap-2 pt-2"
+                                >
+                                    {SUGGESTED_PROMPTS.map((prompt, i) => {
+                                        const PromptIcon = prompt.icon;
+                                        return (
+                                            <motion.button
+                                                key={i}
+                                                initial={{ opacity: 0, scale: 0.9 }}
+                                                animate={{ opacity: 1, scale: 1 }}
+                                                transition={{ delay: 0.4 + i * 0.08 }}
+                                                onClick={() => sendMessage(prompt.text)}
+                                                className="px-3 py-2 text-xs rounded-xl bg-emerald-500/5 border border-emerald-500/15 text-emerald-300/80 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-300 transition-all whitespace-nowrap flex items-center gap-1.5"
+                                            >
+                                                <PromptIcon className="w-3.5 h-3.5" />
+                                                {prompt.label}
+                                            </motion.button>
+                                        );
+                                    })}
+                                </motion.div>
                             )}
+
+                            <div ref={messagesEndRef} />
+                            {isLoading && messages[messages.length - 1]?.content === '' && <TypingIndicator />}
                         </div>
 
                         {/* Input */}

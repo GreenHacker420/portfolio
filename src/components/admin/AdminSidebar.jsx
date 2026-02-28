@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, FolderKanban, Settings, LogOut, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, FolderKanban, Settings, LogOut, MessageSquare, BookOpen, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function AdminSidebar() {
@@ -13,6 +13,8 @@ export function AdminSidebar() {
         { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
         { href: "/admin/projects", label: "Projects", icon: FolderKanban },
         { href: "/admin/messages", label: "Messages", icon: MessageSquare },
+        { href: "/admin/kb", label: "Knowledge Base", icon: BookOpen },
+        { href: "/admin/resume", label: "Resume", icon: FileText },
         { href: "/admin/settings", label: "Settings", icon: Settings },
     ];
 

@@ -181,8 +181,12 @@ export function ExpandableCard({ cards, active: externalActive, setActive: setEx
                     <Tilt3D key={card.id + index} className="w-full h-[400px]">
                         <motion.div
                             layoutId={`card-${card.id}-${id}`}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            transition={{ delay: index * 0.12, duration: 0.5, ease: "easeOut" }}
                             onClick={() => setActive(card)}
-                            className="relative w-full h-full flex flex-col items-center justify-between bg-neutral-900/40 hover:bg-neutral-800/60 backdrop-blur-xl rounded-[2rem] cursor-pointer border border-white/5 transition-all duration-500 overflow-hidden group shadow-2xl"
+                            className="relative w-full h-full flex flex-col items-center justify-between bg-neutral-900/40 hover:bg-neutral-800/60 backdrop-blur-xl rounded-[2rem] cursor-pointer border border-white/5 hover:border-neon-green/20 transition-all duration-500 overflow-hidden group shadow-2xl"
                         >
                             <motion.div layoutId={`image-${card.id}-${id}`} className="relative w-full h-full rounded-[2rem] overflow-hidden z-10">
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:from-black/95 group-hover:via-black/40" />
@@ -195,7 +199,7 @@ export function ExpandableCard({ cards, active: externalActive, setActive: setEx
                                 <div className="absolute bottom-0 left-0 right-0 p-8 z-20 flex flex-col translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
                                     <motion.h3
                                         layoutId={`title-${card.id}-${id}`}
-                                        className="font-bold text-2xl sm:text-3xl text-white text-left tracking-tight group-hover:text-purple-300 transition-colors duration-300"
+                                        className="font-bold text-2xl sm:text-3xl text-white text-left tracking-tight group-hover:text-neon-green transition-colors duration-300"
                                     >
                                         {card.title}
                                     </motion.h3>
@@ -205,6 +209,24 @@ export function ExpandableCard({ cards, active: externalActive, setActive: setEx
                                     >
                                         {card.description}
                                     </motion.p>
+                                    {/* Tech Stack Pills — slide up on hover */}
+                                    {card.techStack && card.techStack.length > 0 && (
+                                        <div className="flex flex-wrap gap-1.5 mt-3 opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
+                                            {card.techStack.slice(0, 5).map((tech, ti) => (
+                                                <span
+                                                    key={ti}
+                                                    className="px-2 py-1 text-[10px] font-medium rounded-full bg-white/10 text-white/80 border border-white/10 backdrop-blur-sm"
+                                                >
+                                                    {tech}
+                                                </span>
+                                            ))}
+                                            {card.techStack.length > 5 && (
+                                                <span className="px-2 py-1 text-[10px] font-medium rounded-full bg-neon-green/10 text-neon-green/70 border border-neon-green/20">
+                                                    +{card.techStack.length - 5}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         </motion.div>

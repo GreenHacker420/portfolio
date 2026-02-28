@@ -4,7 +4,7 @@ import { formatDistanceToNow } from 'date-fns';
  * Maps raw GitHub API data to a cleaner, UI-ready format.
  * Removes fake metrics and properly labels estimates.
  */
-export function mapGithubStats({ user, repos, events, contributions, totalPRs, totalIssues }) {
+export function mapGithubStats({ user, repos, events, contributions, totalPRs, totalIssues, pinnedRepos, topRepos, createdAt, contributedTo }) {
 
     // 1. Calculate Total Stars
     const totalStars = repos.reduce((acc, repo) => acc + (repo.stargazers_count || 0), 0);
@@ -37,31 +37,53 @@ export function mapGithubStats({ user, repos, events, contributions, totalPRs, t
             message: getEventMessage(event),
             date: formatDate(event.created_at)
         }))
-        // Simple deduping: remove consecutive identical activites (e.g. multiple pushes)
         .filter((item, index, self) => {
             if (index === 0) return true;
             const prev = self[index - 1];
-            // Dedupe if same type, repo, and message
             return !(item.type === prev.type && item.repo === prev.repo && item.message === prev.message);
         })
         .slice(0, 5);
 
-    // 4. Metrics (No Fake Data)
+    // 4. Metrics
     const recentCommits = events
         .filter(e => e.type === 'PushEvent')
         .reduce((acc, e) => acc + (e.payload?.size || 1), 0);
 
     const recentPRs = events.filter(e => e.type === 'PullRequestEvent').length;
     const recentIssues = events.filter(e => e.type === 'IssuesEvent').length;
-
-    // Use fetched totals if available from GraphQL, fallback to recent
     const finalPRs = totalPRs !== undefined ? totalPRs : recentPRs;
     const finalIssues = totalIssues !== undefined ? totalIssues : recentIssues;
 
-    // Total Contributions from GraphQL
     const totalContributions = contributions?.totalContributions || 0;
-
     const { currentStreak, longestStreak, busiestDay } = calculateStreaks(contributions?.weeks || []);
+
+    // 5. Most Active Day of Week
+    const dayOfWeekMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+    (contributions?.weeks || []).forEach(week => {
+        week.contributionDays.forEach(day => {
+            const dow = new Date(day.date + 'T00:00:00').getDay();
+            dayTotals[dow] += day.contributionCount;
+        });
+    });
+    const maxDayIdx = dayTotals.indexOf(Math.max(...dayTotals));
+    const mostActiveDay = { day: dayOfWeekMap[maxDayIdx], count: dayTotals[maxDayIdx] };
+
+    // 6. Top Repos (prefer pinned, fallback to star-sorted)
+    const showcaseRepos = (pinnedRepos && pinnedRepos.length > 0 ? pinnedRepos : topRepos || [])
+        .slice(0, 4)
+        .map(r => ({
+            name: r.name,
+            description: r.description || '',
+            url: r.url,
+            stars: r.stargazerCount || 0,
+            forks: r.forkCount || 0,
+            language: r.primaryLanguage?.name || null,
+            languageColor: r.primaryLanguage?.color || '#ededed'
+        }));
+
+    // 7. Account age
+    const memberSince = createdAt ? new Date(createdAt).getFullYear() : null;
 
     return {
         username: user.login,
@@ -72,20 +94,34 @@ export function mapGithubStats({ user, repos, events, contributions, totalPRs, t
         followers: user.followers,
         following: user.following,
 
+        // Profile card data
+        profile: {
+            name: user.name || user.login,
+            avatar: user.avatar_url,
+            bio: user.bio,
+            location: user.location,
+            company: user.company,
+            blog: user.blog,
+            memberSince,
+            contributedTo: contributedTo || 0,
+        },
+
         // Calculated
         totalStars,
         languages: languageStats,
         recentActivity,
+        showcaseRepos,
 
         // Windowed / Activity Based
         activityMetrics: {
-            totalContributions, // Real annual total
+            totalContributions,
             recentCommits,
             recentPRs: finalPRs,
             recentIssues: finalIssues,
             currentStreak,
             longestStreak,
             busiestDay,
+            mostActiveDay,
             isEstimated: false,
             note: "All Time"
         },

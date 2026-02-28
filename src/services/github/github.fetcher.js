@@ -4,6 +4,8 @@ export async function fetchGithubData(username, headers = {}) {
   const query = `
       query ($username: String!) {
         user(login: $username) {
+          createdAt
+          repositoriesContributedTo(first: 1) { totalCount }
           contributionsCollection {
             contributionCalendar {
               totalContributions
@@ -15,11 +17,29 @@ export async function fetchGithubData(username, headers = {}) {
               }
             }
           }
-          pullRequests(first: 1) {
-            totalCount
+          pullRequests(first: 1) { totalCount }
+          issues(first: 1) { totalCount }
+          pinnedItems(first: 6, types: REPOSITORY) {
+            nodes {
+              ... on Repository {
+                name
+                description
+                url
+                stargazerCount
+                forkCount
+                primaryLanguage { name color }
+              }
+            }
           }
-          issues(first: 1) {
-            totalCount
+          repositories(first: 6, orderBy: { field: STARGAZERS, direction: DESC }, ownerAffiliations: OWNER) {
+            nodes {
+              name
+              description
+              url
+              stargazerCount
+              forkCount
+              primaryLanguage { name color }
+            }
           }
         }
       }
@@ -99,6 +119,10 @@ export async function fetchGithubData(username, headers = {}) {
     events: safeEvents,
     contributions: parsedGqlUser?.contributionsCollection?.contributionCalendar,
     totalPRs: parsedGqlUser?.pullRequests?.totalCount,
-    totalIssues: parsedGqlUser?.issues?.totalCount
+    totalIssues: parsedGqlUser?.issues?.totalCount,
+    pinnedRepos: parsedGqlUser?.pinnedItems?.nodes || [],
+    topRepos: parsedGqlUser?.repositories?.nodes || [],
+    createdAt: parsedGqlUser?.createdAt || user?.created_at,
+    contributedTo: parsedGqlUser?.repositoriesContributedTo?.totalCount || 0
   };
 }
