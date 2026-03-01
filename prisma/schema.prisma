@@ -500,11 +500,28 @@ model Resume {
   id        String   @id @default(cuid())
   title     String
   latex     String   @db.Text
+  structured Json?
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  versions  ResumeVersion[]
 
   @@map("resumes")
+}
+
+model ResumeVersion {
+  id         String   @id @default(cuid())
+  resumeId   String
+  title      String
+  latex      String   @db.Text
+  structured Json?
+  source     String   @default("manual")
+  createdAt  DateTime @default(now())
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([resumeId, createdAt])
+  @@map("resume_versions")
 }
 
 // ================================

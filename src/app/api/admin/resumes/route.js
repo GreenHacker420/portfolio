@@ -1,10 +1,17 @@
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
+import { createResumeWithInitialVersion } from "@/lib/resume/versioning";
+import { ensureStructuredResume } from "@/lib/resume/structured";
 
 export async function GET() {
     try {
         const resumes = await prisma.resume.findMany({
-            orderBy: { updatedAt: 'desc' }
+            orderBy: { updatedAt: 'desc' },
+            include: {
+                _count: {
+                    select: { versions: true }
+                }
+            }
         });
         return NextResponse.json(resumes);
     } catch (error) {
@@ -16,18 +23,23 @@ export async function GET() {
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { title, latex } = body;
+        const { title, latex, structured } = body;
+        const cleanTitle = typeof title === "string" ? title.trim() : "";
+        const cleanLatex = typeof latex === "string" && latex.trim() ? latex : "% New Resume";
 
-        const resume = await prisma.resume.create({
-            data: {
-                title,
-                latex: latex || "% New Resume",
-                isDefault: false
-            }
+        if (!cleanTitle) {
+            return NextResponse.json({ error: "title is required" }, { status: 400 });
+        }
+
+        const resume = await createResumeWithInitialVersion({
+            title: cleanTitle,
+            latex: cleanLatex,
+            structured: ensureStructuredResume({ latex: cleanLatex, structured }),
+            source: "create"
         });
 
         return NextResponse.json(resume);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to create resume" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to create resume", details: error.message }, { status: 500 });
     }
 }

@@ -80,6 +80,9 @@ export default function ResumeListPage() {
                                 <p className="text-xs text-zinc-500 mb-6">
                                     Last updated: {new Date(resume.updatedAt).toLocaleDateString()}
                                 </p>
+                                <p className="text-[11px] text-zinc-600 mb-6">
+                                    Versions: {resume?._count?.versions ?? 0}
+                                </p>
 
                                 <div className="flex gap-2">
                                     <Link href={`/admin/resumes/${resume.id}`} className="flex-1">

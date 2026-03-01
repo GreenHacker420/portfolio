@@ -1,6 +1,8 @@
 import prisma from "@/lib/db";
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { updateResumeAndCreateVersion } from "@/lib/resume/versioning";
+import { ensureStructuredResume } from "@/lib/resume/structured";
 
 export async function POST(req) {
     try {
@@ -26,12 +28,16 @@ ${resume.latex}
         });
         const newLatex = typeof result.text === "function" ? result.text() : result.text || resume.latex;
 
-        const updated = await prisma.resume.update({
-            where: { id: resumeId },
-            data: { latex: newLatex }
+        const updated = await updateResumeAndCreateVersion({
+            id: resumeId,
+            title: resume.title,
+            latex: newLatex,
+            isDefault: resume.isDefault,
+            source: "rewrite_jd",
+            structured: ensureStructuredResume({ latex: newLatex, structured: resume.structured })
         });
 
-        return NextResponse.json({ success: true, latex: updated.latex });
+        return NextResponse.json({ success: true, latex: updated.latex, structured: updated.structured });
     } catch (e) {
         return NextResponse.json({ error: e.message }, { status: 500 });
     }

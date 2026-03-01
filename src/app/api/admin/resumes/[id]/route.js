@@ -1,5 +1,7 @@
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
+import { updateResumeAndCreateVersion } from "@/lib/resume/versioning";
+import { ensureStructuredResume } from "@/lib/resume/structured";
 
 export async function GET(req, { params }) {
     try {
@@ -22,28 +24,26 @@ export async function PUT(req, { params }) {
     try {
         const { id } = await params;
         const body = await req.json();
-        const { title, latex, isDefault } = body;
+        const { title, latex, isDefault, source, structured } = body;
+        const cleanTitle = typeof title === "string" ? title.trim() : "";
+        const cleanLatex = typeof latex === "string" && latex.trim() ? latex : "% New Resume";
 
-        // If setting as default, unset others (transaction)
-        if (isDefault) {
-            await prisma.resume.updateMany({
-                where: { id: { not: id } },
-                data: { isDefault: false }
-            });
+        if (!cleanTitle) {
+            return NextResponse.json({ error: "title is required" }, { status: 400 });
         }
 
-        const resume = await prisma.resume.update({
-            where: { id },
-            data: {
-                title,
-                latex,
-                isDefault
-            }
+        const resume = await updateResumeAndCreateVersion({
+            id,
+            title: cleanTitle,
+            latex: cleanLatex,
+            isDefault: !!isDefault,
+            source: source || "manual",
+            structured: ensureStructuredResume({ latex: cleanLatex, structured }),
         });
 
         return NextResponse.json(resume);
     } catch (error) {
-        return NextResponse.json({ error: "Failed to update resume" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to update resume", details: error.message }, { status: 500 });
     }
 }
 
