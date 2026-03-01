@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useMail } from "@/components/admin/mail/use-mail";
 import { MailLayout, MailListContainer, MailDisplayContainer, MailSidebarContainer } from "@/components/admin/mail/mail-layout";
@@ -15,28 +16,32 @@ export default function MailPage() {
     const { mails, setMails, selected, setSelected, isLoading, setIsLoading, mailFolder, setMailFolder } = useMail();
     const [navCollapsed, setNavCollapsed] = useState(false);
     const [isComposeOpen, setIsComposeOpen] = useState(false);
+    const [isMockData, setIsMockData] = useState(false);
 
     useEffect(() => {
         const fetchEmails = async () => {
             setIsLoading(true);
+            setIsMockData(false);
             try {
                 const res = await fetch(`/api/mail?folder=${mailFolder}`);
-                // Check if response is JSON (safeguard against HTML errors)
                 const contentType = res.headers.get("content-type");
                 if (!contentType || !contentType.includes("application/json")) {
                     throw new Error("Received non-JSON response from server");
                 }
                 const data = await res.json();
-                if (data.error) throw new Error(data.error);
 
-                // Add some fake labels for the UI demo since standard Graph API doesn't always give categories
-                const enhancedMails = (data.messages || []).map(m => ({
+                // Detect mock data fallback
+                if (data.error) {
+                    setIsMockData(true);
+                }
+
+                // Use actual Graph API categories instead of fake labels
+                const processedMails = (data.messages || []).map(m => ({
                     ...m,
-                    labels: Math.random() > 0.7 ? ["work"] : ["personal"]
+                    labels: m.categories || []
                 }));
 
-                setMails(enhancedMails);
-                // Clear selection when changing folders
+                setMails(processedMails);
                 setSelected(null);
             } catch (error) {
                 console.error(error);
@@ -53,6 +58,12 @@ export default function MailPage() {
 
     return (
         <div className="h-full w-full overflow-hidden bg-black/50 backdrop-blur-xl">
+            {isMockData && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border-b border-yellow-500/20 text-yellow-400 text-xs">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    <span>Graph API unavailable — showing mock data. Configure Azure credentials in Settings.</span>
+                </div>
+            )}
             <MailLayout>
                 {/* Left Sidebar (Folders) */}
                 <MailSidebarContainer className={cn(navCollapsed ? "w-[50px]" : "w-[240px]")}>

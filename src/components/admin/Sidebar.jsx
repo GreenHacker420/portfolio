@@ -1,24 +1,29 @@
 
 "use client";
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
 import {
     LayoutDashboard,
+    BarChart3,
     FolderGit2,
     Briefcase,
+    FileCheck,
     Cpu,
     GraduationCap,
     Award,
     Image as ImageIcon,
-    MessageSquare, // For Contacts
-    Mail, // For Email Service
-    BrainCircuit, // For Knowledge Base
+    MessageSquare,
+    Mail,
+    BrainCircuit,
     User,
     Share2,
     HelpCircle,
     LogOut,
     Terminal,
-    FileText
+    FileText,
+    FileCode,
+    Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -27,142 +32,122 @@ import { signOut } from "next-auth/react";
 
 export default function AdminSidebar() {
     const [open, setOpen] = useState(false);
+    const pathname = usePathname();
 
     const links = [
         {
             label: "Dashboard",
             href: "/admin",
-            icon: (
-                <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <LayoutDashboard className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Analytics",
             href: "/admin/analytics",
-            icon: (
-                <LayoutDashboard className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <BarChart3 className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Profile",
             href: "/admin/personal-info",
-            icon: (
-                <User className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <User className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Projects",
             href: "/admin/projects",
-            icon: (
-                <FolderGit2 className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <FolderGit2 className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Mail Service",
             href: "/admin/mail",
-            icon: (
-                <Mail className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Mail className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Job Leads",
             href: "/admin/job-leads",
-            icon: (
-                <Briefcase className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Briefcase className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Applications",
             href: "/admin/applications",
-            icon: (
-                <Briefcase className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <FileCheck className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Settings",
             href: "/admin/settings",
-            icon: (
-                <Terminal className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Settings className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Knowledge Base",
             href: "/admin/kb",
-            icon: (
-                <BrainCircuit className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <BrainCircuit className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Resumes",
             href: "/admin/resumes",
-            icon: (
-                <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <FileText className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Messages",
-            href: "/admin/contacts",
-            icon: (
-                <MessageSquare className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            href: "/admin/messages",
+            icon: <MessageSquare className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Experience",
             href: "/admin/experience",
-            icon: (
-                <Briefcase className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Briefcase className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Skills",
             href: "/admin/skills",
-            icon: (
-                <Cpu className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Cpu className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Education",
             href: "/admin/education",
-            icon: (
-                <GraduationCap className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <GraduationCap className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Certifications",
             href: "/admin/certifications",
-            icon: (
-                <Award className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Award className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Media",
             href: "/admin/media",
-            icon: (
-                <ImageIcon className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <ImageIcon className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Socials",
             href: "/admin/social-links",
-            icon: (
-                <Share2 className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <Share2 className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "FAQs",
             href: "/admin/faqs",
-            icon: (
-                <HelpCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
-        }, 
+            icon: <HelpCircle className="h-5 w-5 flex-shrink-0" />,
+        },
         {
             label: "Templates",
             href: "/admin/templates",
-            icon: (
-                <Terminal className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-            ),
+            icon: <FileCode className="h-5 w-5 flex-shrink-0" />,
         }
     ];
+
+    // Active link highlighting
+    const getIconClass = (href) => {
+        const isActive = href === "/admin"
+            ? pathname === "/admin"
+            : pathname.startsWith(href);
+        return isActive
+            ? "text-emerald-400"
+            : "text-neutral-500 dark:text-neutral-400";
+    };
+
+    const linksWithActiveState = links.map(link => ({
+        ...link,
+        icon: React.cloneElement(link.icon, {
+            className: cn(link.icon.props.className, getIconClass(link.href))
+        }),
+    }));
 
     return (
         <Sidebar open={open} setOpen={setOpen}>
@@ -170,7 +155,7 @@ export default function AdminSidebar() {
                 <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
                     {open ? <Logo /> : <LogoIcon />}
                     <div className="mt-8 flex flex-col gap-2">
-                        {links.map((link, idx) => (
+                        {linksWithActiveState.map((link, idx) => (
                             <SidebarLink key={idx} link={link} />
                         ))}
 
