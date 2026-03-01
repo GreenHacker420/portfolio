@@ -148,22 +148,24 @@ export default function ResumeEditor({ resumeId }) {
     }
 
     return (
-        <div className="h-[calc(100vh-64px)] flex flex-col bg-zinc-950">
-            {/* Toolbar */}
-            <div className="h-16 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50">
-                <div className="flex items-center gap-4">
+        <div className="h-[calc(100vh-64px)] overflow-hidden rounded-2xl border border-zinc-800 bg-[radial-gradient(circle_at_0%_0%,rgba(16,185,129,0.11),transparent_38%),radial-gradient(circle_at_100%_0%,rgba(14,165,233,0.10),transparent_34%),#0a0a0f]">
+            <div className="h-16 px-4 md:px-6 border-b border-zinc-800/80 bg-zinc-950/70 backdrop-blur flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                     <Button variant="ghost" size="icon" onClick={() => router.push('/admin/resumes')}>
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    <Input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Resume Title"
-                        className="bg-transparent border-none text-lg font-bold w-64 focus-visible:ring-0"
-                    />
+                    <div className="min-w-0">
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-emerald-400/80">Resume Intelligence</p>
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Resume Title"
+                            className="h-8 border-none bg-transparent px-0 text-base font-semibold text-zinc-100 focus-visible:ring-0"
+                        />
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button onClick={handleSave} disabled={isSaving} className="bg-emerald-500 hover:bg-emerald-600 text-black">
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-emerald-500 hover:bg-emerald-400 text-black">
                         <Save className="h-4 w-4 mr-2" />
                         {isSaving ? "Saving..." : "Save"}
                     </Button>
@@ -189,44 +191,51 @@ export default function ResumeEditor({ resumeId }) {
                             }
                         }}
                         disabled={isRewriting}
+                        className="border-zinc-700"
                     >
-                        {isRewriting ? "Rewriting..." : "Rewrite for JD"}
+                        {isRewriting ? "Rewriting..." : "Rewrite Full Resume"}
                     </Button>
                 </div>
             </div>
 
-            {/* Editor & Preview Split */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Editor */}
-                <div className="w-1/2 border-r border-zinc-800">
-                    <Editor
-                        height="100%"
-                        defaultLanguage="latex"
-                        theme="vs-dark"
-                        value={code}
-                        onChange={(value) => setCode(value)}
-                        options={{
-                            minimap: { enabled: false },
-                            fontSize: 14,
-                            wordWrap: 'on'
-                        }}
-                    />
-                </div>
+            <div className="h-[calc(100%-64px)] grid grid-cols-12">
+                <section className="col-span-12 lg:col-span-7 border-r border-zinc-800/70 p-4 md:p-5">
+                    <div className="h-full rounded-2xl border border-zinc-800 bg-zinc-900/45 overflow-hidden">
+                        <div className="h-10 px-4 border-b border-zinc-800 flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">LaTeX Source</p>
+                            <p className="text-[11px] text-zinc-500">Monaco Editor</p>
+                        </div>
+                        <Editor
+                            height="calc(100% - 40px)"
+                            defaultLanguage="latex"
+                            theme="vs-dark"
+                            value={code}
+                            onChange={(value) => setCode(value)}
+                            options={{
+                                minimap: { enabled: false },
+                                fontSize: 14,
+                                wordWrap: 'on'
+                            }}
+                        />
+                    </div>
+                </section>
 
-                {/* Preview (Placeholder for now) */}
-                <div className="w-1/2 bg-white flex flex-col">
-                    <div className="p-4 border-b border-zinc-200">
-                        <label className="block text-xs font-semibold text-zinc-600 mb-1">Job Description (paste)</label>
+                <aside className="col-span-12 lg:col-span-5 p-4 md:p-5 overflow-y-auto space-y-4">
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
+                        <label className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mb-2">
+                            Job Description Context
+                        </label>
                         <Textarea
                             rows={6}
                             value={jdText}
                             onChange={(e) => setJdText(e.target.value)}
-                            placeholder="Paste JD to tailor this resume"
+                            placeholder="Paste target JD to align keywords, impact statements, and role fit."
+                            className="bg-zinc-950 border-zinc-700 text-zinc-100"
                         />
                         {!isNewResume && (
-                            <div className="mt-3 grid grid-cols-1 md:grid-cols-4 gap-2">
+                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <select
-                                    className="h-9 rounded-md border border-zinc-300 bg-white px-2 text-xs text-zinc-800"
+                                    className="h-9 rounded-md border border-zinc-700 bg-zinc-950 px-2 text-xs text-zinc-200"
                                     value={selectedSectionKey}
                                     onChange={(e) => setSelectedSectionKey(e.target.value)}
                                 >
@@ -241,7 +250,7 @@ export default function ResumeEditor({ resumeId }) {
                                     )}
                                 </select>
                                 <select
-                                    className="h-9 rounded-md border border-zinc-300 bg-white px-2 text-xs text-zinc-800"
+                                    className="h-9 rounded-md border border-zinc-700 bg-zinc-950 px-2 text-xs text-zinc-200"
                                     value={tone}
                                     onChange={(e) => setTone(e.target.value)}
                                 >
@@ -253,15 +262,15 @@ export default function ResumeEditor({ resumeId }) {
                                 </select>
                                 <Button
                                     variant="outline"
-                                    className="h-9 text-xs"
+                                    className="h-9 text-xs border-zinc-700"
                                     disabled={!jdText || !selectedSectionKey || isSectionRewriting}
                                     onClick={handleSectionRewrite}
                                 >
-                                    {isSectionRewriting ? "Rewriting Section..." : "Rewrite Section"}
+                                    {isSectionRewriting ? "Rewriting Section..." : "Rewrite Selected Section"}
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    className="h-9 text-xs"
+                                    className="h-9 text-xs border-zinc-700"
                                     disabled={isGithubSyncing}
                                     onClick={handleGithubSync}
                                 >
@@ -272,24 +281,24 @@ export default function ResumeEditor({ resumeId }) {
                     </div>
 
                     {!isNewResume && (
-                        <div className="border-b border-zinc-200 p-3 bg-zinc-50">
+                        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4">
                             <div className="flex items-center justify-between mb-2">
-                                <div className="flex items-center gap-2 text-xs font-semibold text-zinc-700">
+                                <div className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
                                     <History className="h-3.5 w-3.5" />
                                     Version History
                                 </div>
                                 <span className="text-[11px] text-zinc-500">{versions.length} entries</span>
                             </div>
-                            <div className="max-h-32 overflow-y-auto space-y-1">
+                            <div className="max-h-32 overflow-y-auto space-y-2">
                                 {isLoadingVersions ? (
                                     <p className="text-xs text-zinc-500">Loading history...</p>
                                 ) : versions.length === 0 ? (
                                     <p className="text-xs text-zinc-500">No versions yet.</p>
                                 ) : (
                                     versions.map((version) => (
-                                        <div key={version.id} className="flex items-center justify-between gap-2 rounded border border-zinc-200 px-2 py-1 bg-white">
+                                        <div key={version.id} className="flex items-center justify-between gap-2 rounded-lg border border-zinc-800 px-2 py-1.5 bg-zinc-950">
                                             <div className="min-w-0">
-                                                <p className="text-[11px] font-medium text-zinc-700 truncate">
+                                                <p className="text-[11px] font-medium text-zinc-300 truncate">
                                                     {version.source || "manual"}
                                                 </p>
                                                 <p className="text-[10px] text-zinc-500">
@@ -299,7 +308,7 @@ export default function ResumeEditor({ resumeId }) {
                                             <Button
                                                 size="sm"
                                                 variant="outline"
-                                                className="h-7 px-2 text-[11px]"
+                                                className="h-7 px-2 text-[11px] border-zinc-700"
                                                 disabled={restoringVersionId === version.id}
                                                 onClick={async () => {
                                                     setRestoringVersionId(version.id);
@@ -333,34 +342,41 @@ export default function ResumeEditor({ resumeId }) {
                         </div>
                     )}
 
-                    <iframe
-                        srcDoc={`
-                            <html>
-                            <head>
-                                <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js"></script>
-                                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js/css/katex.css">
-                                <style>body { padding: 20px; }</style>
-                            </head>
-                            <body>
-                                <div id="latex-output"></div>
-                                <script>
-                                    const generator = new latexjs.HtmlGenerator({ hyphenate: false });
-                                    try {
-                                        const latex = ${JSON.stringify(code)}; // Simple injection
-                                        const generator = new latexjs.HtmlGenerator({ hyphenate: false });
-                                        const doc = latexjs.parse(latex, { generator: generator });
-                                        document.head.appendChild(generator.stylesAndScripts("https://cdn.jsdelivr.net/npm/latex.js/dist/"));
-                                        document.body.appendChild(doc.domFragment());
-                                    } catch (e) {
-                                        document.body.innerHTML = "<pre style='color:red'>" + e.message + "</pre>";
-                                    }
-                                </script>
-                            </body>
-                            </html>
-                        `}
-                        className="w-full h-full border-none"
-                    />
-                </div>
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 overflow-hidden">
+                        <div className="h-10 px-4 border-b border-zinc-800 flex items-center justify-between">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Live Preview</p>
+                            <p className="text-[11px] text-zinc-500">LaTeX.js render</p>
+                        </div>
+                        <div className="h-[420px] bg-white">
+                            <iframe
+                                srcDoc={`
+                                    <html>
+                                    <head>
+                                        <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js"></script>
+                                        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.js/css/katex.css">
+                                        <style>body { padding: 20px; font-family: "Times New Roman", serif; }</style>
+                                    </head>
+                                    <body>
+                                        <div id="latex-output"></div>
+                                        <script>
+                                            try {
+                                                const latex = ${JSON.stringify(code)};
+                                                const generator = new latexjs.HtmlGenerator({ hyphenate: false });
+                                                const doc = latexjs.parse(latex, { generator: generator });
+                                                document.head.appendChild(generator.stylesAndScripts("https://cdn.jsdelivr.net/npm/latex.js/dist/"));
+                                                document.body.appendChild(doc.domFragment());
+                                            } catch (e) {
+                                                document.body.innerHTML = "<pre style='color:red'>" + e.message + "</pre>";
+                                            }
+                                        </script>
+                                    </body>
+                                    </html>
+                                `}
+                                className="w-full h-full border-none"
+                            />
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
     );

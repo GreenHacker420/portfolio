@@ -524,6 +524,36 @@ model ResumeVersion {
   @@map("resume_versions")
 }
 
+model Proposal {
+  id           String   @id @default(cuid())
+  title        String
+  program      String   @default("GSOC")
+  organization String?
+  projectIdea  String?  @db.Text
+  tone         String   @default("academic")
+  data         Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  versions     ProposalVersion[]
+
+  @@map("proposals")
+}
+
+model ProposalVersion {
+  id         String   @id @default(cuid())
+  proposalId String
+  title      String
+  tone       String
+  data       Json
+  source     String   @default("manual")
+  createdAt  DateTime @default(now())
+
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+
+  @@index([proposalId, createdAt])
+  @@map("proposal_versions")
+}
+
 // ================================
 // JOB DISCOVERY & APPLICATIONS
 // ================================

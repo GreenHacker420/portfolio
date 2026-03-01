@@ -24,6 +24,7 @@ import {
     FileText,
     FileCode,
     Settings,
+    Wand2,
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -84,6 +85,11 @@ export default function AdminSidebar() {
             label: "Resumes",
             href: "/admin/resumes",
             icon: <FileText className="h-5 w-5 flex-shrink-0" />,
+        },
+        {
+            label: "GSOC Lab",
+            href: "/admin/gsoc",
+            icon: <Wand2 className="h-5 w-5 flex-shrink-0" />,
         },
         {
             label: "Messages",

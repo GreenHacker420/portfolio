@@ -23,7 +23,7 @@ Current Resume LaTeX:
 ${resume.latex}
 `;
         const result = await genAI.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-flash-latest",
             contents: [{ role: "user", parts: [{ text: prompt }] }]
         });
         const newLatex = typeof result.text === "function" ? result.text() : result.text || resume.latex;
