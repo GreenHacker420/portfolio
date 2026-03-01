@@ -6,18 +6,19 @@ import { cn } from "@/lib/utils";
 export default function AdminContentWrapper({ children, title, actions }) {
     const pathname = usePathname();
     const isMailPage = pathname?.startsWith("/admin/mail");
+    const isImmersiveEditorPage = pathname?.startsWith("/admin/resumes/") || pathname?.startsWith("/admin/gsoc/");
 
     return (
         <main
             className={cn(
                 "flex-1 h-full min-h-0 min-w-0 overflow-y-auto",
-                isMailPage ? "p-0 overflow-hidden" : "p-8"
+                isMailPage ? "p-0 overflow-hidden" : isImmersiveEditorPage ? "p-3 md:p-4" : "p-8"
             )}
         >
             <div
                 className={cn(
                     "mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500",
-                    isMailPage ? "h-full" : "max-w-7xl pb-20"
+                    isMailPage ? "h-full" : isImmersiveEditorPage ? "max-w-none h-full pb-0 space-y-4" : "max-w-7xl pb-20"
                 )}
             >
                 {(title || actions) && (

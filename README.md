@@ -136,6 +136,11 @@ A high-performance, visually stunning developer portfolio template built with **
 
    # GitHub (for Stats)
    GITHUB_TOKEN="your-github-personal-access-token"
+
+   # Optional MCP bridge for inline AI chat augmentation
+   # Example endpoint: your local/remote MCP HTTP bridge
+   MCP_BRIDGE_URL="http://localhost:8787/mcp/query"
+   MCP_BRIDGE_TOKEN="optional-bearer-token"
    ```
 
 4. **Initialize Database**

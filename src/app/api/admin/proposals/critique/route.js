@@ -1,9 +1,10 @@
 import prisma from "@/lib/db";
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { ensureProposalData } from "@/lib/proposals/defaults";
 import { parseJsonFromModelText } from "@/lib/proposals/ai";
 import { updateProposalAndCreateVersion } from "@/lib/proposals/versioning";
+import { generateModelText } from "@/lib/ai/router";
+import { DEFAULT_MODEL_ID } from "@/lib/ai/models";
 
 function normalizeScore(value) {
     const num = Number(value);
@@ -13,7 +14,7 @@ function normalizeScore(value) {
 
 export async function POST(req) {
     try {
-        const { proposalId } = await req.json();
+        const { proposalId, modelId, enableGeminiWebSearch = false } = await req.json();
         if (!proposalId) {
             return NextResponse.json({ error: "proposalId is required" }, { status: 400 });
         }
@@ -31,7 +32,6 @@ export async function POST(req) {
 
         const compactSections = data.sections.map((section) => `## ${section.title}\n${section.content || ""}`).join("\n\n");
 
-        const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
         const prompt = `
 You are an elite GSOC proposal reviewer.
 Critique this proposal and score it like a strict mentor.
@@ -64,13 +64,14 @@ Rules:
 - Penalize vague implementation details.
 - Do not include markdown fences.
 `;
-
-        const result = await genAI.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [{ role: "user", parts: [{ text: prompt }] }]
+        const text = await generateModelText({
+            modelId: modelId || DEFAULT_MODEL_ID,
+            systemPrompt: "You are a strict GSOC mentor evaluating acceptance quality.",
+            userPrompt: prompt,
+            temperature: 0.2,
+            maxTokens: 2200,
+            enableWebSearch: Boolean(enableGeminiWebSearch)
         });
-
-        const text = typeof result.text === "function" ? result.text() : result.text || "";
         const parsed = parseJsonFromModelText(text);
 
         const nextData = {

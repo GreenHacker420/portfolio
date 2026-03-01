@@ -19,7 +19,11 @@ export function createDefaultProposalData({
             organization,
             projectIdea,
             program: "GSOC",
-            lastCritiqueAt: null
+            lastCritiqueAt: null,
+            lastResearchAt: null,
+            research: null,
+            mentorQuestions: [],
+            researchOptions: null
         },
         sections: GSOC_SECTION_ORDER.map((section) => ({
             key: section.key,
@@ -46,11 +50,16 @@ export function ensureProposalData(data, fallback = {}) {
         return {
             ...data,
             meta: {
+                ...(data.meta || {}),
                 title: fallback.title || data.meta?.title || "GSOC Proposal",
                 organization: fallback.organization || data.meta?.organization || "",
                 projectIdea: fallback.projectIdea || data.meta?.projectIdea || "",
                 program: "GSOC",
-                lastCritiqueAt: data.meta?.lastCritiqueAt || null
+                lastCritiqueAt: data.meta?.lastCritiqueAt || null,
+                lastResearchAt: data.meta?.lastResearchAt || null,
+                research: data.meta?.research || null,
+                mentorQuestions: Array.isArray(data.meta?.mentorQuestions) ? data.meta.mentorQuestions : [],
+                researchOptions: data.meta?.researchOptions || null
             },
             sections: GSOC_SECTION_ORDER.map((defaultSection) => {
                 const found = current.get(defaultSection.key);

@@ -1,18 +1,20 @@
 import prisma from "@/lib/db";
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { updateResumeAndCreateVersion } from "@/lib/resume/versioning";
 import { ensureStructuredResume } from "@/lib/resume/structured";
+import { generateModelText } from "@/lib/ai/router";
+import { DEFAULT_MODEL_ID } from "@/lib/ai/models";
+import { getPublicResumePdfContext } from "@/lib/resume/pdf-context";
 
 export async function POST(req) {
     try {
-        const { resumeId, jdText } = await req.json();
+        const { resumeId, jdText, modelId } = await req.json();
         if (!resumeId || !jdText) return NextResponse.json({ error: "resumeId and jdText required" }, { status: 400 });
 
         const resume = await prisma.resume.findUnique({ where: { id: resumeId } });
         if (!resume) return NextResponse.json({ error: "resume not found" }, { status: 404 });
+        const pdfContext = await getPublicResumePdfContext();
 
-        const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
         const prompt = `
 Tailor the following LaTeX resume to the job description. Keep LaTeX valid, concise, and emphasize matching skills. Return ONLY LaTeX.
 
@@ -21,12 +23,18 @@ ${jdText}
 
 Current Resume LaTeX:
 ${resume.latex}
+
+Reference context from existing resume.pdf (use facts only if relevant):
+${pdfContext?.available ? pdfContext.text : "Not available"}
 `;
-        const result = await genAI.models.generateContent({
-            model: "gemini-flash-latest",
-            contents: [{ role: "user", parts: [{ text: prompt }] }]
+        const generated = await generateModelText({
+            modelId: modelId || DEFAULT_MODEL_ID,
+            systemPrompt: "You are a precise resume tailoring engine that preserves factual integrity.",
+            userPrompt: prompt,
+            temperature: 0.2,
+            maxTokens: 3200
         });
-        const newLatex = typeof result.text === "function" ? result.text() : result.text || resume.latex;
+        const newLatex = generated || resume.latex;
 
         const updated = await updateResumeAndCreateVersion({
             id: resumeId,

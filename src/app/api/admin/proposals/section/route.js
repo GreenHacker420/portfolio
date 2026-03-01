@@ -1,14 +1,15 @@
 import prisma from "@/lib/db";
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { ensureProposalData } from "@/lib/proposals/defaults";
 import { updateProposalAndCreateVersion } from "@/lib/proposals/versioning";
+import { generateModelText } from "@/lib/ai/router";
+import { DEFAULT_MODEL_ID } from "@/lib/ai/models";
 
 const ALLOWED_TONES = new Set(["academic", "technical", "humanized", "concise", "confident"]);
 
 export async function POST(req) {
     try {
-        const { proposalId, sectionKey, instruction, tone } = await req.json();
+        const { proposalId, sectionKey, instruction, tone, modelId, enableGeminiWebSearch = false } = await req.json();
         if (!proposalId || !sectionKey) {
             return NextResponse.json({ error: "proposalId and sectionKey are required" }, { status: 400 });
         }
@@ -33,7 +34,6 @@ export async function POST(req) {
             ? String(tone).toLowerCase()
             : (proposal.tone || "academic");
 
-        const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
         const prompt = `
 You are a top-tier GSOC proposal writing assistant.
 Rewrite and improve one section to maximize reviewer confidence.
@@ -49,15 +49,19 @@ Instruction: ${instruction || "Make it specific, technically credible, and high-
 Current Content:
 ${targetSection.content || ""}
 
+Research context:
+${data?.meta?.research ? JSON.stringify(data.meta.research, null, 2) : "Not available"}
+
 Output plain text only for the rewritten section content. Do not wrap in JSON.
 `;
-
-        const result = await genAI.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [{ role: "user", parts: [{ text: prompt }] }]
-        });
-
-        const rewrittenContent = (typeof result.text === "function" ? result.text() : result.text || "")
+        const rewrittenContent = (await generateModelText({
+            modelId: modelId || DEFAULT_MODEL_ID,
+            systemPrompt: "You are an elite proposal section writer focused on feasibility and clarity.",
+            userPrompt: prompt,
+            temperature: 0.35,
+            maxTokens: 2200,
+            enableWebSearch: Boolean(enableGeminiWebSearch)
+        }))
             .replace(/```/g, "")
             .trim();
 

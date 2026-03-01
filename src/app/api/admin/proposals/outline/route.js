@@ -1,13 +1,14 @@
 import prisma from "@/lib/db";
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { ensureProposalData, GSOC_SECTION_ORDER } from "@/lib/proposals/defaults";
 import { parseJsonFromModelText } from "@/lib/proposals/ai";
 import { updateProposalAndCreateVersion } from "@/lib/proposals/versioning";
+import { generateModelText } from "@/lib/ai/router";
+import { DEFAULT_MODEL_ID } from "@/lib/ai/models";
 
 export async function POST(req) {
     try {
-        const { proposalId } = await req.json();
+        const { proposalId, modelId, enableGeminiWebSearch = false } = await req.json();
         if (!proposalId) {
             return NextResponse.json({ error: "proposalId is required" }, { status: 400 });
         }
@@ -24,7 +25,6 @@ export async function POST(req) {
         });
 
         const sectionsGuide = GSOC_SECTION_ORDER.map((section) => `${section.key}: ${section.title}`).join("\n");
-        const genAI = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
         const prompt = `
 You are a world-class Google Summer of Code proposal strategist.
 Generate a compelling, realistic, and specific proposal outline.
@@ -36,6 +36,9 @@ Preferred Tone: ${proposal.tone}
 
 Required section keys:
 ${sectionsGuide}
+
+Research context:
+${data?.meta?.research ? JSON.stringify(data.meta.research, null, 2) : "Not available"}
 
 Return strict JSON:
 {
@@ -49,13 +52,14 @@ Rules:
 - Make timeline and implementation details concrete.
 - Do not include markdown fences.
 `;
-
-        const result = await genAI.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: [{ role: "user", parts: [{ text: prompt }] }]
+        const text = await generateModelText({
+            modelId: modelId || DEFAULT_MODEL_ID,
+            systemPrompt: "You are an elite GSOC outline architect.",
+            userPrompt: prompt,
+            temperature: 0.35,
+            maxTokens: 3200,
+            enableWebSearch: Boolean(enableGeminiWebSearch)
         });
-
-        const text = typeof result.text === "function" ? result.text() : result.text || "";
         const parsed = parseJsonFromModelText(text);
         const generatedSections = Array.isArray(parsed?.sections) ? parsed.sections : [];
 
