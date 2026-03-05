@@ -43,7 +43,7 @@ export async function POST(request) {
 
         // New SDK Method
         const result = await genAI.models.generateContent({
-            model: "gemini-flash-latest",
+            model: "gemini-2.5-flash",
             contents: [
                 {
                     role: "user",

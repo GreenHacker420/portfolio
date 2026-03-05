@@ -32,7 +32,7 @@ export function getGraph() {
     }
 
     const model = new ChatGoogleGenerativeAI({
-        model: "gemini-flash-latest",
+        model: "gemini-2.5-flash",
         apiKey: process.env.GOOGLE_API_KEY.trim(),
         streaming: true,
     });
