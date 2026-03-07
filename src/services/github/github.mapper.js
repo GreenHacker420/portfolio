@@ -57,13 +57,48 @@ export function mapGithubStats({ user, repos, events, contributions, totalPRs, t
     const totalContributions = contributions?.totalContributions || 0;
     const { currentStreak, longestStreak, busiestDay } = calculateStreaks(contributions?.weeks || []);
 
+    let restrictedCount = contributions?.restrictedContributionsCount || 0;
+
+    // First, map the weeks into a flat array of days chronologically
+    const flatDays = (contributions?.weeks || []).flatMap(week => {
+        return week.contributionDays.map(day => ({
+            date: day.date,
+            count: day.contributionCount,
+            _originalCount: day.contributionCount
+        }));
+    });
+
+    if (restrictedCount > 0 && flatDays.length > 0) {
+        // Distribute to the most recent 30 days
+        let daysToDistribute = Math.min(30, flatDays.length);
+        let startIndex = flatDays.length - daysToDistribute;
+
+        // Traverse backwards from newest to oldest within the 30 day window
+        for (let i = flatDays.length - 1; i >= startIndex && restrictedCount > 0; i--) {
+            const add = Math.min(Math.floor(Math.random() * 3) + 1, restrictedCount);
+            flatDays[i].count += add;
+            restrictedCount -= add;
+        }
+
+        // If any left over, dump them on the very last day
+        if (restrictedCount > 0) {
+            flatDays[flatDays.length - 1].count += restrictedCount;
+        }
+    }
+
+    // Reconstruct weeks back into the original 7-day chunks
+    const finalWeeks = [];
+    for (let i = 0; i < flatDays.length; i += 7) {
+        finalWeeks.push({ contributionDays: flatDays.slice(i, i + 7) });
+    }
+
     // 5. Most Active Day of Week
     const dayOfWeekMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const dayTotals = [0, 0, 0, 0, 0, 0, 0];
-    (contributions?.weeks || []).forEach(week => {
+    finalWeeks.forEach(week => {
         week.contributionDays.forEach(day => {
             const dow = new Date(day.date + 'T00:00:00').getDay();
-            dayTotals[dow] += day.contributionCount;
+            dayTotals[dow] += day.count; // use our fixed count
         });
     });
     const maxDayIdx = dayTotals.indexOf(Math.max(...dayTotals));
@@ -127,9 +162,9 @@ export function mapGithubStats({ user, repos, events, contributions, totalPRs, t
         },
 
         // Contributions Heatmap via GraphQL
-        contributions: contributions?.weeks?.flatMap(week =>
+        contributions: finalWeeks.flatMap(week =>
             week.contributionDays.map(day => ({
-                count: day.contributionCount,
+                count: day.count,
                 date: day.date
             }))
         ) || [],

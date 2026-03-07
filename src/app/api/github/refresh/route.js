@@ -1,6 +1,6 @@
-
 import { NextResponse } from 'next/server';
 import { getGithubStats } from '@/services/github/github.service';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request) {
     try {
@@ -9,6 +9,9 @@ export async function POST(request) {
 
         console.log(`[API] Refreshing GitHub stats for ${username}...`);
         await getGithubStats(username, true); // true = force refresh
+
+        // Revalidate the homepage to ensure static pages get the fresh data
+        revalidatePath('/');
 
         return NextResponse.json({ success: true, message: "Stats refreshed successfully" });
     } catch (error) {

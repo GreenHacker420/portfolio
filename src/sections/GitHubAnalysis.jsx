@@ -71,6 +71,8 @@ const GithubHeatmapFast = ({ data, total }) => {
 
     const [tooltip, setTooltip] = useState(null);
     const [isMobile, setIsMobile] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [dayDetails, setDayDetails] = useState({ loading: false, data: null, error: null });
 
     useEffect(() => {
         setIsMobile(window.innerWidth < 768);
@@ -116,6 +118,27 @@ const GithubHeatmapFast = ({ data, total }) => {
         });
     };
 
+    const handleCellClick = async (day) => {
+        if (!day?.date || day.count === 0) return;
+
+        if (selectedDate === day.date) {
+            setSelectedDate(null); // Toggle off
+            return;
+        }
+
+        setSelectedDate(day.date);
+        setDayDetails({ loading: true, data: null, error: null });
+
+        try {
+            const res = await fetch(`/api/github/contributions/details?date=${day.date}`);
+            if (!res.ok) throw new Error("Failed to fetch details");
+            const result = await res.json();
+            setDayDetails({ loading: false, data: result.details, error: null });
+        } catch (err) {
+            setDayDetails({ loading: false, data: null, error: err.message });
+        }
+    };
+
     return (
         <div className="w-full bg-neutral-900/40 border border-white/5 rounded-3xl p-5 md:p-8 backdrop-blur-sm relative group overflow-hidden">
             <div className="flex justify-between items-end mb-6 relative z-10">
@@ -126,7 +149,7 @@ const GithubHeatmapFast = ({ data, total }) => {
                     </h3>
                     <p className="text-xs md:text-sm text-neutral-500 mt-1">Last 365 days of coding activity</p>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-500">
                     <span>Less</span>
                     <div className="flex gap-[3px]">
                         {['#161b22', '#14532d', '#15803d', '#22c55e', '#39ff14'].map(c => (
@@ -169,20 +192,78 @@ const GithubHeatmapFast = ({ data, total }) => {
                     <div className="flex" style={{ gap: cellGap }}>
                         {weeks.map((week, wi) => (
                             <div key={wi} className="flex flex-col" style={{ gap: cellGap }}>
-                                {week.map((day, di) => (
-                                    <div
-                                        key={day?.date || `${wi}-${di}`}
-                                        className="rounded-[3px] transition-all duration-150 hover:ring-1 hover:ring-white/30 hover:scale-110 cursor-pointer"
-                                        style={{ width: cellSize, height: cellSize, backgroundColor: getColor(day?.count || 0) }}
-                                        onMouseEnter={(e) => handleCellEnter(day, e)}
-                                        onMouseLeave={() => setTooltip(null)}
-                                    />
-                                ))}
+                                {week.map((day, di) => {
+                                    const isSelected = selectedDate === day?.date;
+                                    return (
+                                        <div
+                                            key={day?.date || `${wi}-${di}`}
+                                            className={`rounded-[3px] transition-colors duration-150 cursor-pointer ${isSelected ? 'outline outline-2 outline-offset-1 outline-[#39ff14]' : 'hover:brightness-125'}`}
+                                            style={{ width: cellSize, height: cellSize, backgroundColor: getColor(day?.count || 0) }}
+                                            onMouseEnter={(e) => handleCellEnter(day, e)}
+                                            onMouseLeave={() => setTooltip(null)}
+                                            onClick={() => handleCellClick(day)}
+                                        />
+                                    );
+                                })}
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
+
+            {/* Daily Details Panel */}
+            {selectedDate && (
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-6 p-4 rounded-xl bg-black/40 border border-white/5"
+                >
+                    <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-neon-green" />
+                            Activity on {formatTooltipDate(selectedDate)}
+                        </h4>
+                        <button
+                            onClick={() => setSelectedDate(null)}
+                            className="text-neutral-500 hover:text-white text-xs px-2 py-1 rounded bg-white/5"
+                        >
+                            Close
+                        </button>
+                    </div>
+
+                    {dayDetails.loading ? (
+                        <div className="flex items-center gap-2 text-xs text-neutral-500 py-4">
+                            <RefreshCcw className="w-3 h-3 animate-spin" /> Fetching details...
+                        </div>
+                    ) : dayDetails.error ? (
+                        <div className="text-xs text-red-400 py-2">Could not load details.</div>
+                    ) : dayDetails.data?.length > 0 ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                            {dayDetails.data.map((item, i) => (
+                                <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+                                    <div className="mt-0.5">
+                                        {item.type === 'commits' && <GitCommit className="w-4 h-4 text-emerald-400" />}
+                                        {item.type === 'pull requests' && <GitPullRequest className="w-4 h-4 text-blue-400" />}
+                                        {item.type === 'issues' && <Code2 className="w-4 h-4 text-purple-400" />}
+                                        {item.type === 'reviews' && <Activity className="w-4 h-4 text-orange-400" />}
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-white font-medium">
+                                            {item.count} {item.count === 1 ? item.type.slice(0, -1) : item.type}
+                                        </p>
+                                        <p className="text-xs text-neutral-400 truncate flex items-center gap-1 mt-0.5">
+                                            {item.isPrivate ? <MapPin className="w-3 h-3" /> : <GitFork className="w-3 h-3" />}
+                                            {item.repo}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-xs text-neutral-500 py-2">No detailed data available for this day.</div>
+                    )}
+                </motion.div>
+            )}
 
             <div className="mt-4 flex justify-between items-center text-xs text-neutral-500 border-t border-white/5 pt-4">
                 <span>{(total || 0).toLocaleString()} contributions in the last year</span>
@@ -201,6 +282,7 @@ const GithubHeatmapFast = ({ data, total }) => {
                             {tooltip.count} contribution{tooltip.count !== 1 ? 's' : ''}
                         </strong>
                         <span className="text-zinc-400 text-[11px]">{formatTooltipDate(tooltip.date)}</span>
+                        <div className="text-[10px] text-zinc-500 mt-1 italic">Click to view details</div>
                         <div className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-full w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-zinc-800/95" />
                     </div>
                 </BodyPortal>
