@@ -158,7 +158,7 @@ export default function AdminSidebar() {
     return (
         <Sidebar open={open} setOpen={setOpen}>
             <SidebarBody className="justify-between gap-10 bg-zinc-950 border-r border-zinc-800">
-                <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+                <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                     {open ? <Logo /> : <LogoIcon />}
                     <div className="mt-8 flex flex-col gap-2">
                         {linksWithActiveState.map((link, idx) => (
