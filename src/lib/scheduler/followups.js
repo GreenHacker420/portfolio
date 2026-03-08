@@ -2,6 +2,9 @@ import prisma from "@/lib/db";
 import { addMinutes } from "date-fns";
 import { logEmailEvent } from "@/lib/mail.events";
 import { sendMail } from "@/lib/mail";
+import { render } from "@react-email/render";
+import FollowupTemplate from "@/emails/FollowupTemplate";
+import * as React from "react";
 
 // Simple follow-up scheduler to run via cron/automation.
 export async function processFollowups() {
@@ -13,15 +16,26 @@ export async function processFollowups() {
 
     for (const app of due) {
         if (!app.recruiter?.email) continue;
-        const body = `<p>Following up on ${app.lead?.title} at ${app.lead?.company}.</p>`;
+
+        const rawBody = `Following up on ${app.lead?.title} at ${app.lead?.company}.`;
+        const emailHtml = await render(
+            <FollowupTemplate
+                recipientName={app.recruiter?.name?.split(' ')[0] || "There"}
+                subjectReference={`${app.lead?.title} at ${app.lead?.company}`}
+                bodyContent={rawBody}
+            />
+        );
+
         await sendMail({
             to: app.recruiter.email,
             subject: `Follow-up: ${app.lead?.title} @ ${app.lead?.company}`,
-            html: body,
+            html: emailHtml,
+            text: rawBody,
             campaignId: null,
             applicationId: app.id,
             metadata: { followup: true }
         });
+
         await prisma.application.update({
             where: { id: app.id },
             data: { status: "followup_sent" }

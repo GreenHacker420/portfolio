@@ -99,7 +99,7 @@ export const TerminalContact = () => {
     };
 
     return (
-        <div className="w-full max-w-2xl bg-black/80 border border-green-500/30 rounded-lg p-6 font-mono text-sm md:text-base shadow-[0_0_20px_rgba(0,255,0,0.1)] relative overflow-hidden backdrop-blur-sm h-[400px] flex flex-col" onClick={() => inputRef.current?.focus()}>
+        <div className="w-full max-w-3xl bg-black/80 border border-green-500/30 rounded-lg p-6 font-mono text-sm md:text-base shadow-[0_0_20px_rgba(0,255,0,0.1)] relative overflow-hidden backdrop-blur-sm h-[400px] flex flex-col" onClick={() => inputRef.current?.focus()}>
 
             {/* Terminal Header */}
             <div className="flex items-center justify-between border-b border-green-500/20 pb-4 mb-4 select-none">
@@ -135,19 +135,41 @@ export const TerminalContact = () => {
 
                 {/* Input Area */}
                 {step < 4 && (
-                    <div className="flex items-center text-white relative">
-                        <span className="text-green-500 opacity-50 mr-2">$</span>
-                        <input
-                            ref={inputRef}
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleCommand}
-                            className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500"
-                            spellCheck="false"
-                            autoComplete="off"
-                        />
-                        <span className="w-2 h-4 bg-green-500 animate-pulse ml-1 inline-block" />
+                    <div className={`flex text-white relative ${step === 3 ? "items-start mt-1" : "items-center"}`}>
+                        <span className="text-green-500 opacity-50 mr-2 mt-[2px]">$</span>
+                        {step === 3 ? (
+                            <textarea
+                                ref={inputRef}
+                                value={input}
+                                onChange={(e) => {
+                                    setInput(e.target.value);
+                                    e.target.style.height = 'auto';
+                                    e.target.style.height = e.target.scrollHeight + 'px';
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleCommand(e);
+                                    }
+                                }}
+                                rows={1}
+                                className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500 resize-none overflow-hidden min-h-[24px]"
+                                spellCheck="false"
+                                placeholder={`Type your message...\n(Press Shift+Enter for new line, Enter to send)`}
+                            />
+                        ) : (
+                            <input
+                                ref={inputRef}
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={handleCommand}
+                                className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500"
+                                spellCheck="false"
+                                autoComplete="off"
+                            />
+                        )}
+                        <span className={`w-2 h-4 bg-green-500 animate-pulse ml-1 inline-block ${step === 3 ? "mt-[4px]" : ""}`} />
                     </div>
                 )}
 

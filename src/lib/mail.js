@@ -2,7 +2,7 @@ import { getGraphClient } from "@/lib/graph";
 import { logEmailEvent } from "@/lib/mail.events";
 
 // Use Graph API instead of SMTP for better reliability with O365
-export const sendMail = async ({ to, subject, html, text, campaignId, applicationId, metadata }) => {
+export const sendMail = async ({ to, subject, html, text, campaignId, applicationId, metadata, replyTo }) => {
     try {
         const client = await getGraphClient();
         const emailUser = process.env.EMAIL_USER; // The sender address
@@ -29,13 +29,21 @@ export const sendMail = async ({ to, subject, html, text, campaignId, applicatio
                             address: to
                         }
                     }
-                ]
+                ],
+                // Anti-spam enhancement: Explicitly set reply-to if provided
+                ...(replyTo ? {
+                    replyTo: [
+                        {
+                            emailAddress: {
+                                address: replyTo
+                            }
+                        }
+                    ]
+                } : {})
             },
             saveToSentItems: "true"
         };
 
-        // If 'to' is the same as 'from', it's an internal notification. 
-        // Graph API allows sending to self.
 
         await client.api(`/users/${emailUser}/sendMail`)
             .post(sendMailPayload);

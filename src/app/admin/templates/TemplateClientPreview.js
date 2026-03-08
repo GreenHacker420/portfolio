@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default function TemplateClientPreview({ adminHtml, userHtml }) {
+export default function TemplateClientPreview({ adminHtml, userHtml, coldHtml, followupHtml }) {
     if (!adminHtml && !userHtml) {
         return (
             <div className="flex items-center justify-center h-[600px]">
@@ -25,6 +25,8 @@ export default function TemplateClientPreview({ adminHtml, userHtml }) {
                 <TabsList className="bg-zinc-900 border border-zinc-800">
                     <TabsTrigger value="admin" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Admin Notification</TabsTrigger>
                     <TabsTrigger value="user" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">User Acknowledgment</TabsTrigger>
+                    <TabsTrigger value="cold" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Cold Outreach</TabsTrigger>
+                    <TabsTrigger value="followup" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white">Follow-up</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="admin" className="mt-8">
@@ -33,6 +35,14 @@ export default function TemplateClientPreview({ adminHtml, userHtml }) {
 
                 <TabsContent value="user" className="mt-8">
                     <PreviewContainer title="User Acknowledgment (Sent to Client)" html={userHtml} />
+                </TabsContent>
+
+                <TabsContent value="cold" className="mt-8">
+                    <PreviewContainer title="Cold Outreach (AI Generated)" html={coldHtml} />
+                </TabsContent>
+
+                <TabsContent value="followup" className="mt-8">
+                    <PreviewContainer title="Follow-up (Automated)" html={followupHtml} />
                 </TabsContent>
             </Tabs>
         </div>

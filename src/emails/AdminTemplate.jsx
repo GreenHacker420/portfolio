@@ -1,169 +1,329 @@
 import {
-    Html,
     Body,
+    Container,
     Head,
     Heading,
-    Container,
-    Text,
-    Link,
-    Tailwind,
+    Html,
+    Preview,
     Section,
-    Hr,
+    Text,
+    Button,
+    Font,
     Row,
     Column,
-    Preview,
 } from "@react-email/components";
 import * as React from "react";
 
+const main = {
+    backgroundColor: "#050505",
+    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    backgroundImage: `
+    linear-gradient(#59595dff 1px, transparent 1px), 
+    linear-gradient(90deg, #59595dff 1px, transparent 1px)
+  `,
+    backgroundSize: "40px 40px",
+    backgroundPosition: "center center",
+    minHeight: "100vh",
+    color: "#ffffff",
+    margin: "0",
+    padding: "0",
+    width: "100%",
+};
+
+const outerWrapper = {
+    padding: "40px 20px",
+};
+
+const container = { margin: "0 auto", padding: "60px 20px 48px", maxWidth: "600px", width: "100%" };
+
+const ticketWrapper = {
+    backgroundColor: "#0a0a0b",
+    borderRadius: "12px",
+    overflow: "hidden",
+    border: "1px solid #1f1f22",
+    boxShadow: "0 0 40px rgba(34, 197, 94, 0.05)",
+};
+
+const topSection = {
+    padding: "48px 40px",
+    textAlign: "center",
+    borderBottom: "1px solid #1f1f22",
+    position: "relative",
+};
+
+const topGlow = {
+    position: "absolute",
+    top: 0,
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "200px",
+    height: "100px",
+    background: "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(0,0,0,0) 70%)",
+    pointerEvents: "none",
+};
+
+const badgeContainer = {
+    textAlign: "center",
+    marginBottom: "24px",
+    position: "relative",
+    zIndex: 1,
+};
+
+const badge = {
+    display: "inline-block",
+    backgroundColor: "rgba(34, 197, 94, 0.05)",
+    border: "1px solid rgba(34, 197, 94, 0.2)",
+    borderRadius: "100px",
+    padding: "6px 20px",
+};
+
+const badgeText = {
+    fontSize: "11px",
+    fontWeight: "700",
+    color: "#a1a1aa",
+    letterSpacing: "0.2em",
+    fontFamily: "'JetBrains Mono', monospace",
+    margin: 0,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+};
+
+const dot = {
+    display: "inline-block",
+    width: "8px",
+    height: "8px",
+    backgroundColor: "#22c55e",
+    borderRadius: "50%",
+    marginRight: "10px",
+    boxShadow: "0 0 10px #22c55e",
+};
+
+const heading = {
+    fontSize: "36px",
+    fontWeight: "800",
+    color: "#ffffff",
+    letterSpacing: "-1px",
+    lineHeight: "1.1",
+    margin: "0 0 16px",
+};
+
+const dateText = {
+    fontSize: "13px",
+    color: "#22c55e",
+    fontFamily: "'JetBrains Mono', monospace",
+    margin: 0,
+};
+
+const contentSection = {
+    padding: "40px",
+    backgroundColor: "#0a0a0b",
+};
+
+const sectionLabel = {
+    fontSize: "11px",
+    fontWeight: "700",
+    color: "#71717a",
+    letterSpacing: "0.2em",
+    fontFamily: "'JetBrains Mono', monospace",
+    textTransform: "uppercase",
+    marginBottom: "16px",
+    display: "block",
+};
+
+const cardStyles = {
+    backgroundColor: "#111113",
+    border: "1px solid #1f1f22",
+    borderRadius: "12px",
+    padding: "24px",
+    marginBottom: "32px",
+};
+
+const avatarBox = {
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    backgroundColor: "rgba(34, 197, 94, 0.05)",
+    border: "1px solid rgba(34, 197, 94, 0.3)",
+    display: "inline-block",
+    textAlign: "center",
+    lineHeight: "48px",
+    color: "#22c55e",
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginRight: "16px",
+    verticalAlign: "middle",
+};
+
+const senderDetailsBox = {
+    display: "inline-block",
+    verticalAlign: "middle",
+};
+
+const senderName = {
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#ffffff",
+    margin: "0 0 4px 0",
+};
+
+const senderEmail = {
+    fontSize: "14px",
+    color: "#a1a1aa",
+    margin: 0,
+};
+
+const payloadText = {
+    fontSize: "15px",
+    color: "#e4e4e7",
+    lineHeight: "1.7",
+    fontFamily: "'JetBrains Mono', monospace",
+    margin: 0,
+    whiteSpace: "pre-wrap",
+};
+
+const actionRow = {
+    marginTop: "16px",
+    width: "100%",
+};
+
+const primaryButton = {
+    backgroundColor: "#22c55e",
+    borderRadius: "8px",
+    color: "#050505",
+    fontSize: "15px",
+    fontWeight: "700",
+    textDecoration: "none",
+    textAlign: "center",
+    display: "inline-block",
+    padding: "16px 24px",
+    width: "100%",
+    boxSizing: "border-box",
+    transition: "all 0.2s",
+};
+
+const secondaryButton = {
+    backgroundColor: "transparent",
+    border: "1px solid #27272a",
+    borderRadius: "8px",
+    color: "#ffffff",
+    fontSize: "15px",
+    fontWeight: "600",
+    textDecoration: "none",
+    textAlign: "center",
+    display: "inline-block",
+    padding: "16px 24px",
+    width: "100%",
+    boxSizing: "border-box",
+};
+
+const footerContainer = {
+    backgroundColor: "#111113",
+    borderTop: "1px solid #1f1f22",
+    padding: "24px",
+    textAlign: "center",
+};
+
+const footerText = {
+    fontSize: "11px",
+    color: "#52525b",
+    fontFamily: "'JetBrains Mono', monospace",
+    letterSpacing: "0.1em",
+    margin: 0,
+};
+
 export default function AdminTemplate({
-    name = "Ghost User",
-    email = "ghost@shell.com",
-    subject = "System Breach Attempt",
-    message = "I found a vulnerability in your mainframe.",
-    date = new Date().toLocaleString()
+    name = "",
+    email = "",
+    message = "",
 }) {
+    const displayName = name || "John Doe";
+    const displayEmail = email || "john@example.com";
+    const displayMessage = message || "Hi, I'd like to hire you for a secret project involving blockchain and AI. We've seen your GitHub and would love to collaborate.";
+    const displayDate = new Date().toLocaleString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    });
+
     return (
         <Html>
-            <Tailwind
-                config={{
-                    theme: {
-                        extend: {
-                            colors: {
-                                brand: "#22c55e",
-                                "brand-dim": "#15803d",
-                                "brand-glow": "rgba(34, 197, 94, 0.4)",
-                                background: "#050505",
-                                surface: "#0a0a0b",
-                                "surface-light": "#121214",
-                                border: "#1f1f22",
-                                "border-light": "#2a2a2e",
-                            },
-                        },
-                    },
-                }}
-            >
-                <Head>
-                    <style>{`
-                        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap');
-                        .text-gradient {
-                            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                        }
-                        .aurora-gradient {
-                            background: linear-gradient(135deg, #22c55e 0%, #10b981 50%, #3b82f6 100%);
-                            -webkit-background-clip: text;
-                            -webkit-text-fill-color: transparent;
-                        }
-                        .grid-bg {
-                            background-size: 30px 30px;
-                            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                                              linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-                        }
-                    `}</style>
-                </Head>
-                <Preview>New Contact: {subject} — from {name}</Preview>
-                <Body className="bg-background my-auto mx-auto font-sans text-white">
-                    <Container className="my-[40px] mx-auto max-w-[600px] bg-background">
+            <Head>
+                <Font fontFamily="Inter" fallbackFontFamily="Helvetica" fontWeight={400} />
+                <Font fontFamily="JetBrains Mono" fallbackFontFamily="Courier New" fontWeight={400} />
+            </Head>
+            <Preview>Project Inquiry from {displayName}</Preview>
+            <Body style={main}>
+                <Section style={outerWrapper}>
+                    <Container style={container}>
+                        <Section style={ticketWrapper}>
+                            {/* TOP SECTION */}
+                            <Section style={topSection}>
+                                <div style={topGlow} />
 
-                        {/* React Bits inspired: Gradient glowing top bar */}
-                        <Section className="h-[4px] w-full bg-gradient-to-r from-emerald-500 via-blue-500 to-emerald-500 blur-[1px]" />
-                        <Section className="h-[1px] w-full bg-gradient-to-r from-emerald-500 via-blue-500 to-emerald-500" />
+                                <div style={badgeContainer}>
+                                    <div style={badge}>
+                                        <Text style={badgeText}>
+                                            <span style={dot}></span> NEW SIGNAL DETECTED
+                                        </Text>
+                                    </div>
+                                </div>
 
-                        {/* Header */}
-                        <Section className="bg-surface border-x border-border px-8 py-8 text-center grid-bg relative overflow-hidden shadow-[0_0_40px_rgba(34,197,94,0.05)]">
-                            {/* React Bits inspired: Soft blur background spotlight */}
-                            <div className="absolute top-[-50px] left-1/2 ml-[-150px] w-[300px] h-[100px] bg-brand-glow blur-[60px] rounded-full pointer-events-none" />
+                                <Heading style={heading}>Project Inquiry</Heading>
 
-                            <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-6 relative z-10 shadow-lg">
-                                <div className="w-2 h-2 rounded-full bg-brand shadow-[0_0_10px_#22c55e] animate-pulse" />
-                                <span className="text-zinc-300 text-[11px] font-mono uppercase tracking-[0.2em]">
-                                    New Signal Detected
-                                </span>
-                            </div>
+                                <Text style={dateText}>{displayDate}</Text>
+                            </Section>
 
-                            <Heading className="text-white text-[28px] font-bold m-0 p-0 tracking-tight leading-tight relative z-10 text-gradient">
-                                {subject}
-                            </Heading>
-                            <Text className="text-brand-dim text-xs mt-3 mb-0 font-mono relative z-10">
-                                {date}
-                            </Text>
-                        </Section>
+                            {/* CONTENT SECTION */}
+                            <Section style={contentSection}>
 
-                        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-border-light to-transparent" />
+                                <span style={sectionLabel}>SENDER DETAILS</span>
 
-                        {/* Content */}
-                        <Section className="bg-surface border-x border-border px-8 py-8">
-                            {/* Sender Info */}
-                            <Text className="text-zinc-500 text-[10.5px] font-mono uppercase tracking-[0.25em] mb-4">
-                                Sender Details
-                            </Text>
+                                <div style={cardStyles}>
+                                    <div style={avatarBox}>
+                                        {displayName.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div style={senderDetailsBox}>
+                                        <Text style={senderName}>{displayName}</Text>
+                                        <Text style={senderEmail}>{displayEmail}</Text>
+                                    </div>
+                                </div>
 
-                            {/* Profile Card Mockup */}
-                            <div className="bg-surface-light border border-white/10 rounded-xl p-5 mb-8 shadow-xl relative overflow-hidden">
-                                {/* Top inner glow line */}
-                                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent" />
+                                <span style={sectionLabel}>MESSAGE PAYLOAD</span>
 
-                                <Row>
-                                    <Column className="w-[52px]">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-brand/20 to-blue-500/20 border border-brand/30 flex items-center justify-center text-brand text-lg font-bold shadow-[0_0_15px_rgba(34,197,94,0.15)]">
-                                            {name.charAt(0).toUpperCase()}
-                                        </div>
+                                <div style={cardStyles}>
+                                    <Text style={payloadText}>
+                                        {displayMessage}
+                                    </Text>
+                                </div>
+
+                                {/* ACTION BUTTONS */}
+                                <Row style={actionRow}>
+                                    <Column style={{ width: "48%", paddingRight: "4%" }}>
+                                        <Button href={`mailto:${displayEmail}`} style={primaryButton}>
+                                            Reply to Signal
+                                        </Button>
                                     </Column>
-                                    <Column>
-                                        <Text className="text-white text-[17px] font-semibold m-0 leading-tight">{name}</Text>
-                                        <Text className="text-zinc-400 text-[14px] m-0 mt-1">{email}</Text>
+                                    <Column style={{ width: "48%" }}>
+                                        <Button href="https://greenhacker.in/admin" style={secondaryButton}>
+                                            Open Dashboard
+                                        </Button>
                                     </Column>
                                 </Row>
-                            </div>
+                            </Section>
 
-                            {/* Message */}
-                            <Text className="text-zinc-500 text-[10.5px] font-mono uppercase tracking-[0.25em] mb-4">
-                                Message Payload
-                            </Text>
-
-                            {/* Depth Card Mockup */}
-                            <div className="bg-surface-light border border-white/10 rounded-xl p-6 mb-8 relative shadow-xl overflow-hidden">
-                                {/* Side gradient bar */}
-                                <div className="absolute top-0 left-0 w-[4px] h-full bg-gradient-to-b from-brand via-blue-500 to-brand" />
-                                {/* Bottom inner glow line */}
-                                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand/20 to-transparent" />
-
-                                <Text className="text-zinc-300 text-[15px] leading-[1.8] whitespace-pre-wrap m-0 pl-3 font-mono font-light">
-                                    {message}
-                                </Text>
-                            </div>
-
-                            {/* Quick Actions */}
-                            <div className="text-center mt-6">
-                                <Link
-                                    href={`mailto:${email}?subject=Re: ${subject}`}
-                                    className="inline-block px-8 py-3.5 bg-brand text-black font-bold tracking-wide rounded-lg text-sm no-underline mr-4 shadow-[0_0_20px_rgba(34,197,94,0.3)] hover:brightness-110 transition-all border border-brand/50"
-                                >
-                                    Reply to Signal
-                                </Link>
-                                <Link
-                                    href="https://greenhacker.in/admin"
-                                    className="inline-block px-8 py-3.5 bg-black border border-border-light text-zinc-300 font-medium rounded-lg text-sm no-underline hover:bg-surface-light transition-all"
-                                >
-                                    Open Dashboard
-                                </Link>
-                            </div>
+                            {/* FOOTER */}
+                            <Section style={footerContainer}>
+                                <Text style={footerText}>SECURE TRANSMISSION // ADMIN EYES ONLY</Text>
+                            </Section>
                         </Section>
-
-                        {/* Footer */}
-                        <Section className="bg-surface-light border-x border-b border-border rounded-b-xl relative overflow-hidden">
-                            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-border-light to-transparent" />
-                            <div className="px-8 py-6 text-center">
-                                <Text className="text-zinc-600 text-[10px] font-mono m-0 tracking-widest">
-                                    SECURE TRANSMISSION // ADMIN EYES ONLY
-                                </Text>
-                            </div>
-                        </Section>
-
                     </Container>
-                </Body>
-            </Tailwind>
+                </Section>
+            </Body>
         </Html>
     );
 }
