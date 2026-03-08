@@ -135,8 +135,8 @@ export const TerminalContact = () => {
 
                 {/* Input Area */}
                 {step < 4 && (
-                    <div className={`flex text-white relative ${step === 3 ? "items-start mt-1" : "items-center"}`}>
-                        <span className="text-green-500 opacity-50 mr-2 mt-[2px]">$</span>
+                    <div className="flex text-white relative items-start mt-1">
+                        <span className="text-green-500 opacity-50 mr-2 leading-normal pt-[1px] font-mono">$</span>
                         {step === 3 ? (
                             <textarea
                                 ref={inputRef}
@@ -153,7 +153,7 @@ export const TerminalContact = () => {
                                     }
                                 }}
                                 rows={1}
-                                className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500 resize-none overflow-hidden min-h-[24px]"
+                                className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500 resize-none overflow-hidden min-h-[24px] p-0 m-0 leading-normal"
                                 spellCheck="false"
                                 placeholder={`Type your message...\n(Press Shift+Enter for new line, Enter to send)`}
                             />
@@ -164,12 +164,12 @@ export const TerminalContact = () => {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleCommand}
-                                className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500"
+                                className="bg-transparent border-none outline-none flex-1 text-white font-mono caret-green-500 p-0 m-0 leading-normal"
                                 spellCheck="false"
                                 autoComplete="off"
                             />
                         )}
-                        <span className={`w-2 h-4 bg-green-500 animate-pulse ml-1 inline-block ${step === 3 ? "mt-[4px]" : ""}`} />
+                        <span className={`w-2 h-4 bg-green-500 animate-pulse ml-1 inline-block mt-[4px]`} />
                     </div>
                 )}
 
