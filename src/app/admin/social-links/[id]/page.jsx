@@ -1,12 +1,11 @@
-import SocialLinkForm from "@/components/admin/forms/social-link-form";
-import prisma from "@/lib/db";
+import { SocialLinkForm } from "@/components/admin/forms/social-link-form";
+import { getSocialLinkById } from "@/repositories/portfolio.repository";
 import { notFound } from "next/navigation";
 
 export default async function EditSocialLinkPage({ params }) {
-    const { id } = await params;
-    const link = await prisma.socialLink.findUnique({
-        where: { id },
-    });
+    const resolvedParams = await params;
+    const link = await getSocialLinkById(resolvedParams.id);
+
 
     if (!link) {
         notFound();

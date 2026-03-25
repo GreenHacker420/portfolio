@@ -1,29 +1,14 @@
-import prisma from "@/lib/db";
+import { getAllResumes, getResumeVersionCounts } from "@/repositories/resume.repository";
 import { NextResponse } from "next/server";
 import { createResumeWithInitialVersion } from "@/lib/resume/versioning";
 import { ensureStructuredResume } from "@/lib/resume/structured";
 
 export async function GET() {
     try {
-        const resumes = await prisma.resume.findMany({
-            orderBy: { updatedAt: "desc" }
-        });
-
-        // Some environments can fail on relation counts; compute defensively.
-        let versionCountsByResumeId = {};
-        if (prisma?.resumeVersion && typeof prisma.resumeVersion === "object") {
-            try {
-                const grouped = await prisma.resumeVersion.groupBy({
-                    by: ["resumeId"],
-                    _count: { _all: true }
-                });
-                versionCountsByResumeId = Object.fromEntries(
-                    grouped.map((row) => [row.resumeId, Number(row._count?._all || 0)])
-                );
-            } catch {
-                versionCountsByResumeId = {};
-            }
-        }
+        const [resumes, versionCountsByResumeId] = await Promise.all([
+            getAllResumes(),
+            getResumeVersionCounts().catch(() => ({}))
+        ]);
 
         const payload = resumes.map((resume) => ({
             ...resume,

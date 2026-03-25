@@ -1,24 +1,24 @@
-import CertificationForm from "@/components/admin/forms/certification-form";
-import prisma from "@/lib/db";
+
+import { getCertificationById } from "@/repositories/portfolio.repository";
+import ProjectForm from "@/components/admin/ProjectForm";
 import { notFound } from "next/navigation";
 
 export default async function EditCertificationPage({ params }) {
     const { id } = await params;
-    const certification = await prisma.certification.findUnique({
-        where: { id },
-    });
+    const cert = await getCertificationById(id);
 
-    if (!certification) {
+    if (!cert) {
         notFound();
     }
 
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold tracking-tight text-white">Edit Certification</h1>
-                <p className="text-zinc-400">Update your certification.</p>
+                <h1 className="text-3xl font-bold">Edit Certification</h1>
+                <p className="text-zinc-400">Update certification details.</p>
             </div>
-            <CertificationForm initialData={certification} />
+
+            <ProjectForm initialData={cert} type="certification" />
         </div>
     );
 }

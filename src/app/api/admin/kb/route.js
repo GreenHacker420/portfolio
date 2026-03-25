@@ -1,42 +1,22 @@
 
-import prisma from "@/lib/db";
+import { getAllSnippets, createSnippetRecord } from "@/repositories/kb.repository";
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // Assuming auth options export
 
-export async function GET(request) {
+export async function GET() {
     try {
-        // Check auth
-        // const session = await getServerSession(authOptions);
-        // if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-        const snippets = await prisma.knowledgeSnippet.findMany({
-            orderBy: { createdAt: "desc" },
-        });
+        const snippets = await getAllSnippets();
         return NextResponse.json(snippets);
-    } catch (error) {
-        console.error("Error fetching snippets:", error);
-        return NextResponse.json({ error: "Failed to fetch snippets" }, { status: 500 });
+    } catch (e) {
+        return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }
 
-export async function POST(request) {
+export async function POST(req) {
     try {
-        const json = await request.json();
-        const { content, source, tags, isVisible } = json;
-
-        const snippet = await prisma.knowledgeSnippet.create({
-            data: {
-                content,
-                source,
-                tags: tags ? JSON.stringify(tags) : null,
-                isVisible: isVisible ?? true,
-            },
-        });
-
+        const body = await req.json();
+        const snippet = await createSnippetRecord(body);
         return NextResponse.json(snippet);
-    } catch (error) {
-        console.error("Error creating snippet:", error);
-        return NextResponse.json({ error: "Failed to create snippet" }, { status: 500 });
+    } catch (e) {
+        return NextResponse.json({ error: e.message }, { status: 500 });
     }
 }

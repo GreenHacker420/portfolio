@@ -1,39 +1,36 @@
+
 "use server";
 
-import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { withErrorHandler } from "@/lib/response";
+import { requireAdmin } from "@/lib/guard";
+import { 
+    getAllMedia, 
+    createMediaRecord, 
+    deleteMediaRecord 
+} from "@/repositories/portfolio.repository";
 
 export async function getMedia() {
-    try {
-        return await prisma.media.findMany({
-            orderBy: { createdAt: 'desc' }
-        });
-    } catch (error) {
-        console.error("Failed to fetch media:", error);
-        return [];
-    }
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        return await getAllMedia();
+    });
 }
 
 export async function createMedia(data) {
-    try {
-        await prisma.media.create({ data });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const media = await createMediaRecord(data);
         revalidatePath("/admin/media");
-        revalidatePath("/");
-        return { success: true };
-    } catch (error) {
-        console.error("Failed to create media:", error);
-        return { success: false, error: error.message };
-    }
+        return media;
+    });
 }
 
 export async function deleteMedia(id) {
-    try {
-        await prisma.media.delete({ where: { id } });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        await deleteMediaRecord(id);
         revalidatePath("/admin/media");
-        revalidatePath("/");
         return { success: true };
-    } catch (error) {
-        console.error("Failed to delete media:", error);
-        return { success: false, error: error.message };
-    }
+    });
 }

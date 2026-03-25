@@ -1,54 +1,14 @@
 
-import { NextResponse } from 'next/server';
-import prisma from '@/lib/db';
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getProjectById } from "@/repositories/portfolio.repository";
+import { NextResponse } from "next/server";
 
-export async function PUT(req, { params }) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
+export async function GET(req, { params }) {
+    const { id } = await params;
     try {
-        const { id } = params;
-        const body = await req.json();
-        const { title, description, techStack, projectUrl, repoUrl, imageUrl, featured, category } = body;
-
-        const project = await prisma.project.update({
-            where: { id },
-            data: {
-                title,
-                description,
-                techStack,
-                projectUrl,
-                repoUrl,
-                imageUrl,
-                featured,
-                category,
-            },
-        });
-
+        const project = await getProjectById(id);
+        if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
         return NextResponse.json(project);
     } catch (error) {
-        return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
-    }
-}
-
-export async function DELETE(req, { params }) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    try {
-        const { id } = params;
-        await prisma.project.delete({
-            where: { id },
-        });
-
-        return NextResponse.json({ success: true });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
     }
 }

@@ -1,15 +1,11 @@
-import prisma from "@/lib/db";
+import { getResumeById } from "@/repositories/resume.repository";
 import ReactMarkdown from "react-markdown";
 
 export const revalidate = 0;
 
-async function getResume(id) {
-    return prisma.resume.findUnique({ where: { id } });
-}
-
 export default async function ResumePublicPage({ params }) {
     const { id } = params;
-    const resume = await getResume(id);
+    const resume = await getResumeById(id);
     if (!resume) return <div className="min-h-screen flex items-center justify-center text-white">Resume not found</div>;
 
     return (

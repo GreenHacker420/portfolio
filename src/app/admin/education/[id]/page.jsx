@@ -1,12 +1,11 @@
-import EducationForm from "@/components/admin/forms/education-form";
-import prisma from "@/lib/db";
+import { EducationForm } from "@/components/admin/forms/education-form";
+import { getEducationById } from "@/repositories/portfolio.repository";
 import { notFound } from "next/navigation";
 
 export default async function EditEducationPage({ params }) {
-    const { id } = await params;
-    const education = await prisma.education.findUnique({
-        where: { id },
-    });
+    const resolvedParams = await params;
+    const education = await getEducationById(resolvedParams.id);
+
 
     if (!education) {
         notFound();

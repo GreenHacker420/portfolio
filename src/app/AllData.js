@@ -1,16 +1,7 @@
-import { getMockData } from '@/lib/mockData';
-import getData from './dbfetch';
 
+// DEPRECATED: Use getPortfolioDataWithFallback directly
+import { getPortfolioDataWithFallback } from "@/lib/getPortfolioDataWithFallback";
 
 export default async function AllData() {
-
-
-    const mockData = getMockData();
-    const dbData = await getData();
-
-    if (!dbData) {
-        return mockData;
-    }
-    return dbData;
-
+    return await getPortfolioDataWithFallback();
 }

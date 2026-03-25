@@ -1,59 +1,64 @@
+
 'use server'
 
-import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { withErrorHandler } from "@/lib/response";
+import { requireAdmin } from "@/lib/guard";
+import { 
+    getAllExperience, 
+    createExperienceRecord, 
+    updateExperienceRecord, 
+    deleteExperienceRecord, 
+    refreshPortfolioData 
+} from "@/repositories/portfolio.repository";
 
 export async function getExperience() {
-    try {
-        const experience = await prisma.workExperience.findMany({
-            orderBy: { startDate: 'desc' }
-        });
-        return { success: true, data: experience };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+    return withErrorHandler(async () => {
+        return await getAllExperience();
+    });
 }
 
 export async function createExperience(data) {
-    try {
-        const experience = await prisma.workExperience.create({
-            data: {
-                ...data,
-                // Ensure array fields are strings or handled
-                achievements: data.achievements ? JSON.stringify(data.achievements) : null,
-                technologies: data.technologies ? JSON.stringify(data.technologies) : null,
-            }
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const experience = await createExperienceRecord({
+            ...data,
+            startDate: new Date(data.startDate),
+            endDate: data.endDate ? new Date(data.endDate) : null,
+            achievements: data.achievements ? JSON.stringify(data.achievements) : null,
+            technologies: data.technologies ? JSON.stringify(data.technologies) : null,
         });
+        await refreshPortfolioData();
         revalidatePath('/admin/experience');
-        return { success: true, data: experience };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+        revalidatePath('/');
+        return experience;
+    });
 }
 
 export async function updateExperience(id, data) {
-    try {
-        const experience = await prisma.workExperience.update({
-            where: { id },
-            data: {
-                ...data,
-                achievements: data.achievements ? JSON.stringify(data.achievements) : undefined,
-                technologies: data.technologies ? JSON.stringify(data.technologies) : undefined,
-            }
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const experience = await updateExperienceRecord(id, {
+            ...data,
+            startDate: data.startDate ? new Date(data.startDate) : undefined,
+            endDate: data.endDate ? new Date(data.endDate) : undefined,
+            achievements: data.achievements ? JSON.stringify(data.achievements) : undefined,
+            technologies: data.technologies ? JSON.stringify(data.technologies) : undefined,
         });
+        await refreshPortfolioData();
         revalidatePath('/admin/experience');
-        return { success: true, data: experience };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+        revalidatePath('/');
+        return experience;
+    });
 }
 
 export async function deleteExperience(id) {
-    try {
-        await prisma.workExperience.delete({ where: { id } });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        await deleteExperienceRecord(id);
+        await refreshPortfolioData();
         revalidatePath('/admin/experience');
+        revalidatePath('/');
         return { success: true };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+    });
 }

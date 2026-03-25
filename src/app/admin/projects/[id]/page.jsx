@@ -1,5 +1,5 @@
 import { ProjectForm } from "@/components/admin/forms/project-form";
-import prisma from "@/lib/db";
+import { getProjectById } from "@/repositories/portfolio.repository";
 import { notFound } from "next/navigation";
 
 // Next.js 15: params is async
@@ -7,9 +7,7 @@ export default async function EditProjectPage({ params }) {
     // Await params in case it's a promise (Next 15)
     // Adding extra key to force re-render if needed
     const resolvedParams = await params;
-    const project = await prisma.project.findUnique({
-        where: { id: resolvedParams.id }
-    });
+    const project = await getProjectById(resolvedParams.id);
 
     if (!project) {
         notFound();

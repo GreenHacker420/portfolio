@@ -1,31 +1,29 @@
+
 "use client"
 
 import { useEffect, useRef } from 'react'
 import { usePortfolioStore } from '@/store/useStore'
 
-export default function ClientHydrator({
-    projects,
-    skills,
-    experience,
-    personalInfo,
-    socialLinks,
-    githubStats
-}) {
-    const store = usePortfolioStore()
+/**
+ * Hydrates the client-side Zustand store with data fetched on the server.
+ * This component returns null and only performs an atomic update once.
+ */
+export default function ClientHydrator({ data, githubStats }) {
+    const hydratePortfolio = usePortfolioStore(state => state.hydratePortfolio)
+    const setGithubStats = usePortfolioStore(state => state.setGithubStats)
     const initialized = useRef(false)
 
     useEffect(() => {
         if (!initialized.current) {
-            store.setProjects(projects || [])
-            store.setSkills(skills || [])
-            store.setExperience(experience || [])
-            store.setPersonalInfo(personalInfo || null)
-            store.setSocialLinks(socialLinks || [])
-            if (githubStats) store.setGithubStats(githubStats)
-
-            initialized.current = true
+            if (data) {
+                hydratePortfolio(data);
+            }
+            if (githubStats) {
+                setGithubStats(githubStats);
+            }
+            initialized.current = true;
         }
-    }, [projects, skills, experience, personalInfo, socialLinks, githubStats, store])
+    }, []); // Empty dependencies ensure this only runs once on mount
 
-    return null
+    return null;
 }

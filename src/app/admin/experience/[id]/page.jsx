@@ -1,12 +1,10 @@
 import { ExperienceForm } from "@/components/admin/forms/experience-form";
-import prisma from "@/lib/db";
+import { getExperienceById } from "@/repositories/portfolio.repository";
 import { notFound } from "next/navigation";
 
 export default async function EditExperiencePage({ params }) {
     const resolvedParams = await params;
-    const experience = await prisma.workExperience.findUnique({
-        where: { id: resolvedParams.id }
-    });
+    const experience = await getExperienceById(resolvedParams.id);
 
     if (!experience) {
         notFound();

@@ -1,10 +1,11 @@
+
 import { sendMail } from "@/lib/mail";
-import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
 import { render } from "@react-email/render";
 import ContactReplyEmail from "@/emails/ContactTemplate";
 import AdminTemplate from "@/emails/AdminTemplate";
 import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
+import { createContactRecord } from "@/repositories/contact.repository";
 
 export async function POST(req) {
     try {
@@ -23,15 +24,13 @@ export async function POST(req) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Save to Database
-        const contact = await prisma.contact.create({
-            data: {
-                name,
-                email,
-                subject: subject || "No Subject",
-                message,
-                source: "website",
-            },
+        // Save to Database via Repository
+        const contact = await createContactRecord({
+            name,
+            email,
+            subject: subject || "No Subject",
+            message,
+            source: "website",
         });
 
         const adminEmail = process.env.EMAIL_USER;

@@ -1,30 +1,28 @@
+
 'use server'
 
-import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { withErrorHandler } from "@/lib/response";
+import { requireAdmin } from "@/lib/guard";
+import { 
+    getPersonalInfoRecord, 
+    updatePersonalInfoRecord, 
+    refreshPortfolioData 
+} from "@/repositories/portfolio.repository";
 
 export async function getPersonalInfo() {
-    try {
-        let info = await prisma.personalInfo.findUnique({
-            where: { id: "default" }
-        });
-
-        return { success: true, data: info };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+    return withErrorHandler(async () => {
+        return await getPersonalInfoRecord();
+    });
 }
 
 export async function updatePersonalInfo(data) {
-    try {
-        const info = await prisma.personalInfo.update({
-            where: { id: "default" },
-            data
-        });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const info = await updatePersonalInfoRecord(data);
+        await refreshPortfolioData();
         revalidatePath('/admin/personal-info');
-        revalidatePath('/'); // Revalidate home as it likely uses this info
-        return { success: true, data: info };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+        revalidatePath('/');
+        return info;
+    });
 }

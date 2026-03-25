@@ -1,17 +1,27 @@
-import { create } from 'zustand'
 
-export const usePortfolioStore = create((set) => ({
-    projects: [],
-    skills: [],
-    experience: [],
-    personalInfo: null,
-    socialLinks: [],
-    githubStats: null,
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+import { createPortfolioSlice } from './slices/portfolioSlice';
+import { createGithubSlice } from './slices/githubSlice';
 
-    setProjects: (projects) => set({ projects }),
-    setSkills: (skills) => set({ skills }),
-    setExperience: (experience) => set({ experience }),
-    setPersonalInfo: (personalInfo) => set({ personalInfo }),
-    setSocialLinks: (socialLinks) => set({ socialLinks }),
-    setGithubStats: (stats) => set({ githubStats: stats }),
-}))
+export const usePortfolioStore = create(
+    devtools(
+        (set, get) => ({
+            ...createPortfolioSlice(set, get),
+            ...createGithubSlice(set, get),
+        }),
+        { name: "PortfolioStore" }
+    )
+);
+
+// Named Selectors for performance and cleaner imports
+export const useProjects = () => usePortfolioStore((state) => state.projects);
+export const useSkills = () => usePortfolioStore((state) => state.skills);
+export const useExperience = () => usePortfolioStore((state) => state.experience);
+export const useEducation = () => usePortfolioStore((state) => state.education);
+export const useCertifications = () => usePortfolioStore((state) => state.certifications);
+export const usePersonalInfo = () => usePortfolioStore((state) => state.personalInfo);
+export const useSocialLinks = () => usePortfolioStore((state) => state.socialLinks);
+export const useGithubStats = () => usePortfolioStore((state) => state.githubStats);
+
+export default usePortfolioStore;

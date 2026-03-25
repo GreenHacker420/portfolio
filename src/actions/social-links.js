@@ -1,55 +1,53 @@
+
 "use server";
 
-import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { withErrorHandler } from "@/lib/response";
+import { requireAdmin } from "@/lib/guard";
+import { 
+    getAllSocialLinks, 
+    createSocialLinkRecord, 
+    updateSocialLinkRecord, 
+    deleteSocialLinkRecord, 
+    refreshPortfolioData 
+} from "@/repositories/portfolio.repository";
 
 export async function getSocialLinks() {
-    try {
-        return await prisma.socialLink.findMany({
-            orderBy: { platform: 'asc' }
-        });
-    } catch (error) {
-        console.error("Failed to fetch social links:", error);
-        return [];
-    }
+    return withErrorHandler(async () => {
+        return await getAllSocialLinks();
+    });
 }
 
 export async function createSocialLink(data) {
-    try {
-        await prisma.socialLink.create({ data });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const link = await createSocialLinkRecord(data);
+        await refreshPortfolioData();
         revalidatePath("/admin/social-links");
         revalidatePath("/");
-        return { success: true };
-    } catch (error) {
-        console.error("Failed to create social link:", error);
-        return { success: false, error: error.message };
-    }
+        return link;
+    });
 }
 
 export async function updateSocialLink(id, data) {
-    try {
-        await prisma.socialLink.update({
-            where: { id },
-            data
-        });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const link = await updateSocialLinkRecord(id, data);
+        await refreshPortfolioData();
         revalidatePath("/admin/social-links");
         revalidatePath("/");
         revalidatePath(`/admin/social-links/${id}`);
-        return { success: true };
-    } catch (error) {
-        console.error("Failed to update social link:", error);
-        return { success: false, error: error.message };
-    }
+        return link;
+    });
 }
 
 export async function deleteSocialLink(id) {
-    try {
-        await prisma.socialLink.delete({ where: { id } });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        await deleteSocialLinkRecord(id);
+        await refreshPortfolioData();
         revalidatePath("/admin/social-links");
         revalidatePath("/");
         return { success: true };
-    } catch (error) {
-        console.error("Failed to delete social link:", error);
-        return { success: false, error: error.message };
-    }
+    });
 }

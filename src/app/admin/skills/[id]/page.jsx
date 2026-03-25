@@ -1,12 +1,11 @@
-import { SkillForm } from "@/components/admin/forms/skill-form";
-import prisma from "@/lib/db";
+
+import { getSkillById } from "@/repositories/portfolio.repository";
+import ProjectForm from "@/components/admin/ProjectForm";
 import { notFound } from "next/navigation";
 
 export default async function EditSkillPage({ params }) {
-    const resolvedParams = await params;
-    const skill = await prisma.skill.findUnique({
-        where: { id: resolvedParams.id }
-    });
+    const { id } = await params;
+    const skill = await getSkillById(id);
 
     if (!skill) {
         notFound();
@@ -14,12 +13,12 @@ export default async function EditSkillPage({ params }) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold text-white">Edit Skill</h1>
+            <div>
+                <h1 className="text-3xl font-bold">Edit Skill</h1>
+                <p className="text-zinc-400">Update skill details.</p>
             </div>
-            <div className="bg-zinc-950/50 border border-zinc-800 rounded-xl p-6">
-                <SkillForm initialData={skill} />
-            </div>
+
+            <ProjectForm initialData={skill} type="skill" />
         </div>
     );
 }

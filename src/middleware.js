@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { AUTH_PATHS } from "@/config/constants";
 
 // Protect admin routes and block access when role !== admin
 export default withAuth(
@@ -8,7 +9,7 @@ export default withAuth(
         const role = req.nextauth.token?.role;
 
         if (isAdminPath && role !== "admin") {
-            return NextResponse.redirect(new URL("/auth/unauthorized", req.url));
+            return NextResponse.redirect(new URL(AUTH_PATHS.UNAUTHORIZED, req.url));
         }
     },
     {

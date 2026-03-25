@@ -1,15 +1,18 @@
+
 import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
-import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import { 
+    upsertAnalyticsSession, 
+    createAnalyticsEvents 
+} from "@/repositories/analytics.repository";
 
 function hashIp(ip) {
     if (!ip) return null;
-    return crypto.createHash("sha256").update(ip + process.env.ANALYTICS_SALT || "").digest("hex");
+    return crypto.createHash("sha256").update(ip + (process.env.ANALYTICS_SALT || "")).digest("hex");
 }
 
 function pickGeo(request) {
-    // Rely on standard headers; keep coarse only.
     const country = request.headers.get("x-vercel-ip-country") || request.headers.get("cf-ipcountry") || null;
     const city = request.headers.get("x-vercel-ip-city") || null;
     return { country, city };
@@ -31,37 +34,20 @@ export async function POST(req) {
             return NextResponse.json({ error: "No events" }, { status: 400 });
         }
 
-        // Upsert session (bounded writes)
         const { country, city } = pickGeo(req);
-        const session = await prisma.analyticsSession.upsert({
-            where: { id: sessionId || "temp" },
-            update: {
-                lastSeenAt: new Date(),
-                country,
-                city,
-                referrer: referrer?.slice(0, 300) || null,
-                utmSource: utm?.source || null,
-                utmMedium: utm?.medium || null,
-                utmCampaign: utm?.campaign || null,
-                device: device || null,
-                userAgent: userAgent?.slice(0, 300) || null,
-                hashedIp: hashIp(ip),
-            },
-            create: {
-                id: sessionId || crypto.randomUUID(),
-                country,
-                city,
-                referrer: referrer?.slice(0, 300) || null,
-                utmSource: utm?.source || null,
-                utmMedium: utm?.medium || null,
-                utmCampaign: utm?.campaign || null,
-                device: device || null,
-                userAgent: userAgent?.slice(0, 300) || null,
-                hashedIp: hashIp(ip),
-            }
+        const session = await upsertAnalyticsSession({
+            id: sessionId || crypto.randomUUID(),
+            country,
+            city,
+            referrer: referrer?.slice(0, 300) || null,
+            utmSource: utm?.source || null,
+            utmMedium: utm?.medium || null,
+            utmCampaign: utm?.campaign || null,
+            device: device || null,
+            userAgent: userAgent?.slice(0, 300) || null,
+            hashedIp: hashIp(ip),
         });
 
-        // Create events (truncate meta to safe size)
         const safeEvents = events.slice(0, 100).map((evt) => ({
             sessionId: session.id,
             type: evt.type,
@@ -72,7 +58,7 @@ export async function POST(req) {
             meta: evt.meta ? JSON.parse(JSON.stringify(evt.meta)) : undefined
         }));
 
-        await prisma.analyticsEvent.createMany({ data: safeEvents });
+        await createAnalyticsEvents(safeEvents);
 
         const res = NextResponse.json({ ok: true, sessionId: session.id });
         rateLimitResponse(res, rl);

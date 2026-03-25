@@ -1,56 +1,58 @@
+
 'use server'
 
-import prisma from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { withErrorHandler } from "@/lib/response";
+import { requireAdmin } from "@/lib/guard";
+import { 
+    getAllSkills, 
+    createSkillRecord, 
+    updateSkillRecord, 
+    deleteSkillRecord, 
+    refreshPortfolioData 
+} from "@/repositories/portfolio.repository";
 
 export async function getSkills() {
-    try {
-        const skills = await prisma.skill.findMany({
-            orderBy: { level: 'desc' }
-        });
-        return { success: true, data: skills };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+    return withErrorHandler(async () => {
+        return await getAllSkills();
+    });
 }
 
 export async function createSkill(data) {
-    try {
-        const skill = await prisma.skill.create({
-            data: {
-                ...data,
-                level: Number(data.level)
-            }
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const skill = await createSkillRecord({
+            ...data,
+            level: Number(data.level)
         });
+        await refreshPortfolioData();
         revalidatePath('/admin/skills');
-        return { success: true, data: skill };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+        revalidatePath('/');
+        return skill;
+    });
 }
 
 export async function updateSkill(id, data) {
-    try {
-        const skill = await prisma.skill.update({
-            where: { id },
-            data: {
-                ...data,
-                level: Number(data.level)
-            }
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const skill = await updateSkillRecord(id, {
+            ...data,
+            level: Number(data.level)
         });
+        await refreshPortfolioData();
         revalidatePath('/admin/skills');
-        return { success: true, data: skill };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+        revalidatePath('/');
+        return skill;
+    });
 }
 
 export async function deleteSkill(id) {
-    try {
-        await prisma.skill.delete({ where: { id } });
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        await deleteSkillRecord(id);
+        await refreshPortfolioData();
         revalidatePath('/admin/skills');
+        revalidatePath('/');
         return { success: true };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
+    });
 }
