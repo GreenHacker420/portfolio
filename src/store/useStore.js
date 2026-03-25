@@ -23,5 +23,11 @@ export const useCertifications = () => usePortfolioStore((state) => state.certif
 export const usePersonalInfo = () => usePortfolioStore((state) => state.personalInfo);
 export const useSocialLinks = () => usePortfolioStore((state) => state.socialLinks);
 export const useGithubStats = () => usePortfolioStore((state) => state.githubStats);
+export const useGithubLoading = () => usePortfolioStore((state) => state.githubLoading);
+export const useGithubError = () => usePortfolioStore((state) => state.githubError);
+
+// Actions
+export const useHydratePortfolio = () => usePortfolioStore((state) => state.hydratePortfolio);
+export const useSetGithubStats = () => usePortfolioStore((state) => state.setGithubStats);
 
 export default usePortfolioStore;

@@ -2,15 +2,15 @@
 "use client"
 
 import { useEffect, useRef } from 'react'
-import { usePortfolioStore } from '@/store/useStore'
+import { useHydratePortfolio, useSetGithubStats } from '@/store/useStore'
 
 /**
  * Hydrates the client-side Zustand store with data fetched on the server.
  * This component returns null and only performs an atomic update once.
  */
 export default function ClientHydrator({ data, githubStats }) {
-    const hydratePortfolio = usePortfolioStore(state => state.hydratePortfolio)
-    const setGithubStats = usePortfolioStore(state => state.setGithubStats)
+    const hydratePortfolio = useHydratePortfolio()
+    const setGithubStats = useSetGithubStats()
     const initialized = useRef(false)
 
     useEffect(() => {

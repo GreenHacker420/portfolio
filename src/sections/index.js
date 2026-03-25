@@ -1,0 +1,13 @@
+export { default as About } from './About';
+export { default as Certifications } from './Certifications';
+export { default as Contact } from './Contact';
+export { default as Education } from './Education';
+export { default as Experience } from './Experience';
+export { default as Footer } from './Footer';
+export { default as GitHubAnalysis } from './GitHubAnalysis';
+export { default as Projects } from './Projects';
+export { default as Resume } from './Resume';
+export { default as SectionErrorFallback } from './SectionErrorFallback';
+export { default as Skills } from './Skills';
+export { default as SplineSkills } from './SplineSkills';
+export { default as Stats } from './Stats';

@@ -4,7 +4,6 @@ import Footer from '@/sections/Footer';
 import Education from '@/sections/Education';
 import Certifications from '@/sections/Certifications';
 import About from '@/sections/About';
-import SplineSkills from '@/sections/SplineSkills';
 import Projects from '@/sections/Projects';
 import Experience from '@/sections/Experience';
 import GitHubAnalysis from '@/sections/GitHubAnalysis';
@@ -12,10 +11,11 @@ import Contact from '@/sections/Contact';
 import { BackgroundPaths } from "@/components/ui/background-paths";
 import { getGithubStats } from "@/services/github/github.service";
 import ClientHydrator from "@/components/ClientHydrator";
-import { ParallaxStars } from "@/components/DynamicWrapper";
+import { ParallaxStars, SplineSkills } from "@/components/DynamicWrapper";
 import CanvasCursor from "@/components/ui/canvas-cursor";
 import { getPortfolioDataWithFallback } from "@/lib/getPortfolioDataWithFallback";
 import { NAV_ITEMS, APP_CONFIG } from "@/config/constants";
+import SectionErrorFallback from "@/sections/SectionErrorFallback";
 
 export default async function Home() {
     const data = await getPortfolioDataWithFallback();
@@ -53,47 +53,65 @@ export default async function Home() {
             <FloatingNav navItems={NAV_ITEMS} />
 
             <section id="home">
-                <BackgroundPaths title={data.personalInfo?.fullName || "Harsh Hirawat aka Green Hacker"} />
+                <SectionErrorFallback section="Home">
+                    <BackgroundPaths title={data.personalInfo?.fullName || "Harsh Hirawat aka Green Hacker"} />
+                </SectionErrorFallback>
             </section>
 
             {/* About Section */}
             <section id="about">
-                <About data={data.personalInfo} />
+                <SectionErrorFallback section="About">
+                    <About data={data.personalInfo} />
+                </SectionErrorFallback>
             </section>
 
             {/* Skills Section */}
             <section id="skills">
-                <SplineSkills data={data.skills} />
+                <SectionErrorFallback section="Skills">
+                    <SplineSkills data={data.skills} />
+                </SectionErrorFallback>
             </section>
 
             {/* Projects Section */}
             <section id="projects">
-                <Projects data={data.projects} />
+                <SectionErrorFallback section="Projects">
+                    <Projects data={data.projects} />
+                </SectionErrorFallback>
             </section>
 
             {/* Experience Section */}
             <section id="experience">
-                <Experience data={data.experience} />
+                <SectionErrorFallback section="Experience">
+                    <Experience data={data.experience} />
+                </SectionErrorFallback>
             </section>
 
             {/* Education Section */}
             <section id="education">
-                <Education data={data.education} />
+                <SectionErrorFallback section="Education">
+                    <Education data={data.education} />
+                </SectionErrorFallback>
             </section>
 
             {/* Certifications Section */}
             <section id="certifications">
-                <Certifications data={data.certifications} />
+                <SectionErrorFallback section="Certifications">
+                    <Certifications data={data.certifications} />
+                </SectionErrorFallback>
             </section>
 
             {/* GitHub Analysis Section */}
             <section id="github">
-                <GitHubAnalysis initialData={githubStats} />
+                <SectionErrorFallback section="GitHub Intelligence">
+                    <GitHubAnalysis initialData={githubStats} />
+                </SectionErrorFallback>
             </section>
 
             {/* Contact Section */}
             <section id="contact">
-                <Contact />
+                <SectionErrorFallback section="Contact">
+                    <Contact />
+                </SectionErrorFallback>
             </section>
 
             <Footer />

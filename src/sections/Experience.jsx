@@ -1,6 +1,20 @@
 import { Timeline } from "@/components/ui/timeline";
 
 export default function Experience({ data = [] }) {
+    if (!data || data.length === 0) {
+        return (
+            <section id="experience" className="py-20 w-full bg-black">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="h-12 w-64 bg-white/5 animate-pulse rounded-lg mb-12" />
+                    <div className="space-y-12">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-32 bg-white/5 animate-pulse rounded-2xl" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
     // Fallback data for dev
     const displayData = data.length > 0 ? data : [
         {

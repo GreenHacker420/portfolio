@@ -2,6 +2,20 @@
 import { Timeline } from "@/components/ui/timeline";
 
 export default function Education({ data = [] }) {
+    if (!data || data.length === 0) {
+        return (
+            <section id="education" className="py-20 w-full bg-black">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="h-12 w-64 bg-white/5 animate-pulse rounded-lg mb-12" />
+                    <div className="space-y-12">
+                        {[1, 2].map(i => (
+                            <div key={i} className="h-32 bg-white/5 animate-pulse rounded-2xl" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
     // Helper for safe date parsing
     const getYear = (dateString) => {
         if (!dateString) return '';

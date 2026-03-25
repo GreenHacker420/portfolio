@@ -1,7 +1,7 @@
 import SmoothScroll from "@/components/layout/SmoothScroll";
 import "./globals.css";
 import { Inter } from "next/font/google";
-import ChatWidget from "@/components/ui/ChatWidget";
+import { ChatWidget } from "@/components/DynamicWrapper";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import siteMetadata from "./metadata";
 import TrackerScript from "@/components/analytics/TrackerScript";

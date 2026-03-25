@@ -1,6 +1,9 @@
 import { Pool } from 'pg'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from '@prisma/client'
+import { validateEnv } from './env'
+
+validateEnv();
 
 const prismaClientSingleton = () => {
     if (!process.env.DATABASE_URL) {

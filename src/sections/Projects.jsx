@@ -1,13 +1,34 @@
 'use client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react'; // Added useState, useEffect, useRef
-import { GSAPProjects } from '@/components/ui/GSAPProjects';
+import { GSAPProjects } from '@/components/DynamicWrapper';
 import { ExpandableCard } from '@/components/ui/expandable-card';
 import { getMockData } from '@/lib/mockData';
 
 export default function Projects({ data = [] }) {
     const [active, setActive] = useState(null);
-    const ref = useRef(null); // ref is declared but not used in the provided snippet, keeping it for consistency if it's used elsewhere
+    const ref = useRef(null);
+
+    // Use provided data or fallback to mock data
+    const mockData = getMockData() || {};
+    const MOCK_PROJECTS = mockData.projects || [];
+    const projects = data && data.length > 0 ? data : MOCK_PROJECTS;
+
+    // Skeleton loader if no data
+    if (!projects || projects.length === 0) {
+        return (
+            <section id="projects" className="py-20 w-full bg-neutral-950">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="h-12 w-64 bg-white/5 animate-pulse rounded-lg mb-8" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-64 bg-white/5 animate-pulse rounded-3xl" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     // We still want the ExpandableCard modal logic when a card is clicked
     useEffect(() => {
@@ -26,11 +47,6 @@ export default function Projects({ data = [] }) {
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
     }, [active]);
-
-    // Use provided data or fallback to mock data
-    const mockData = getMockData() || {};
-    const MOCK_PROJECTS = mockData.projects || [];
-    const projects = data && data.length > 0 ? data : MOCK_PROJECTS;
 
     // Separate featured project from the rest (assuming index 0 is best)
     const featuredProject = projects[0];

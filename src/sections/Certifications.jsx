@@ -20,7 +20,23 @@ const certifications = [
     // Add more
 ];
 
-export default function Certifications() {
+export default function Certifications({ data = [] }) {
+    if (!data || data.length === 0) {
+        return (
+            <section id="certifications" className="py-20 w-full bg-black">
+                <div className="max-w-7xl mx-auto px-4 md:px-8">
+                    <div className="h-12 w-64 bg-white/5 animate-pulse rounded-lg mb-12" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-48 bg-white/5 animate-pulse rounded-2xl" />
+                        ))}
+                    </div>
+                </div>
+            </section>
+        );
+    }
+    const displayData = data.length > 0 ? data : certifications;
+
     return (
         <section className="py-20 bg-transparent relative z-10" id="certifications">
             <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -30,7 +46,7 @@ export default function Certifications() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {certifications.map((cert, idx) => (
+                    {displayData.map((cert, idx) => (
                         <div key={idx} className="group relative bg-neutral-900/40 border border-white/5 rounded-2xl p-6 hover:bg-neutral-900/60 transition-colors">
                             <div className="flex justify-between items-start mb-4">
                                 <div className={`p-3 rounded-xl ${cert.color} border`}>
