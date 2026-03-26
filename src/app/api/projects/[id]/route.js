@@ -1,14 +1,10 @@
 
 import { getProjectById } from "@/repositories/portfolio.repository";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
 
-export async function GET(req, { params }) {
+export const GET = withApiHandler(async (req, { params }) => {
     const { id } = await params;
-    try {
-        const project = await getProjectById(id);
-        if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
-        return NextResponse.json(project);
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to fetch project" }, { status: 500 });
-    }
-}
+    const project = await getProjectById(id);
+    if (!project) throw new Error("Project not found");
+    return apiOk(project);
+});

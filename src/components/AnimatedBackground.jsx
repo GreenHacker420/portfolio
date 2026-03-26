@@ -9,8 +9,11 @@ import Spline from "@splinetool/react-spline";
 import { Skill, SkillNames, SKILLS } from "@/data/constants";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { usePreloader } from "./preloader";
+// import { usePreloader } from "./preloader";
 import { useTheme } from "next-themes";
+
+// Mock preloader since the file is missing from the repository
+const usePreloader = () => ({ isLoading: false, bypassLoading: true });
 import { useRouter } from "next/navigation";
 
 gsap.registerPlugin(ScrollTrigger);
