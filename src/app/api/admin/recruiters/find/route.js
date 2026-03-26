@@ -1,14 +1,12 @@
 import { findRecruiterEmails, verifyEmail } from "@/lib/osint/recruiter";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
-export async function POST(req) {
-    try {
-        const { domain } = await req.json();
-        if (!domain) return NextResponse.json({ error: "domain required" }, { status: 400 });
-        const emails = await findRecruiterEmails(domain);
-        const verified = await Promise.all(emails.map(verifyEmail));
-        return NextResponse.json({ emails: verified });
-    } catch (e) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
-    }
-}
+export const POST = withApiHandler(async (req) => {
+    await requireAdmin();
+    const { domain } = await req.json();
+    if (!domain) throw new Error("domain required");
+    const emails = await findRecruiterEmails(domain);
+    const verified = await Promise.all(emails.map(verifyEmail));
+    return apiOk({ emails: verified });
+});
