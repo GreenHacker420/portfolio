@@ -16,6 +16,8 @@ function parseJson(text = "") {
     }
 }
 
+const MAX_ITERATIONS = 5;
+
 const ProposalLoopState = Annotation.Root({
     sections: Annotation({ reducer: (_, y) => y, default: () => [] }),
     organization: Annotation({ reducer: (_, y) => y, default: () => "" }),
@@ -117,7 +119,8 @@ ${sectionsToText(state.sections)}
 }
 
 function routeAfterReview(state) {
-    if (state.score >= state.targetScore || state.iteration >= state.maxIterations) {
+    const effectiveMax = Math.min(state.maxIterations, MAX_ITERATIONS);
+    if (state.score >= state.targetScore || state.iteration >= effectiveMax) {
         return END;
     }
     return "writer";

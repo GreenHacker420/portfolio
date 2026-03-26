@@ -1,6 +1,6 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import prisma from "@/lib/db";
+import { createContactRecord } from "@/repositories/contact.repository";
 import { sendMail } from "@/lib/mail";
 import { render } from "@react-email/render";
 import ContactReplyEmail from "@/emails/ContactTemplate";
@@ -21,15 +21,13 @@ export const contactTool = new DynamicStructuredTool({
 
             const finalSubject = subject || "Message from Chatbot";
 
-            // 1. Save to Database
-            const contact = await prisma.contact.create({
-                data: {
-                    name,
-                    email,
-                    subject: finalSubject,
-                    message,
-                    source: "chatbot",
-                },
+            // 1. Save to Database via Repository
+            const contact = await createContactRecord({
+                name,
+                email,
+                subject: finalSubject,
+                message,
+                source: "chatbot",
             });
 
             const adminEmail = process.env.EMAIL_USER;

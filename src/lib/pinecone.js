@@ -1,18 +1,30 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 
-if (!process.env.PINECONE_API_KEY) {
-    throw new Error('PINECONE_API_KEY is not defined');
-}
+let _pinecone = null;
 
-const pinecone = new Pinecone({
-    apiKey: process.env.PINECONE_API_KEY,
-});
-
-export const getIndex = () => {
-    if (!process.env.PINECONE_INDEX_NAME) {
-        throw new Error('PINECONE_INDEX_NAME is not defined');
+export const getPineconeClient = () => {
+    if (_pinecone) return _pinecone;
+    
+    const apiKey = process.env.PINECONE_API_KEY;
+    if (!apiKey) {
+        console.warn('PINECONE_API_KEY is not defined. Vector features will be unavailable.');
+        return null;
     }
-    return pinecone.index(process.env.PINECONE_INDEX_NAME);
+
+    _pinecone = new Pinecone({ apiKey });
+    return _pinecone;
 };
 
-export default pinecone;
+export const getIndex = () => {
+    const client = getPineconeClient();
+    if (!client) return null;
+
+    const indexName = process.env.PINECONE_INDEX_NAME;
+    if (!indexName) {
+        console.warn('PINECONE_INDEX_NAME is not defined');
+        return null;
+    }
+    return client.index(indexName);
+};
+
+export default getPineconeClient;

@@ -55,7 +55,10 @@ export function getGraph() {
             return { messages: [response] };
         } catch (err) {
             console.error("🔥 Agent Error:", err);
-            throw err;
+            const errorResponse = new AIMessage({
+                content: "I'm having trouble thinking right now. My connection to the language model failed. Please try again in a moment.",
+            });
+            return { messages: [errorResponse] };
         }
     }
 

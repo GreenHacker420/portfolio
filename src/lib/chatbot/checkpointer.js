@@ -144,4 +144,28 @@ export class PrismaCheckpointer extends BaseCheckpointSaver {
         // skipping for now as it adds complexity and getTuple works fine without recovering in-progress steps for this simple chatbot
         return;
     }
+
+    /**
+     * Deletes checkpoints older than a certain number of hours.
+     */
+    async cleanupCheckpoints(olderThanHours = 24) {
+        const threshold = new Date(Date.now() - olderThanHours * 60 * 60 * 1000);
+        const result = await prisma.chatCheckpoint.deleteMany({
+            where: {
+                createdAt: {
+                    lt: threshold
+                }
+            }
+        });
+        console.log(`[Checkpointer] Cleaned up ${result.count} stale checkpoints.`);
+        return result.count;
+    }
+}
+
+/**
+ * Standalone cleanup function for use in crons.
+ */
+export async function cleanupChatCheckpoints(olderThanHours = 24) {
+    const checkpointer = new PrismaCheckpointer();
+    return await checkpointer.cleanupCheckpoints(olderThanHours);
 }

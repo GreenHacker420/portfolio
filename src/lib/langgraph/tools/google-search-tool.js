@@ -1,5 +1,6 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
+import { fetchWithTimeout } from "@/lib/utils/timeout";
 
 /**
  * Google Custom Search tool using CSE ID + API key.
@@ -22,10 +23,15 @@ export const googleSearchTool = new DynamicStructuredTool({
         url.searchParams.set("cx", cseId);
         url.searchParams.set("q", query);
         url.searchParams.set("num", String(num));
-        const res = await fetch(url.toString(), { cache: "no-store" });
-        if (!res.ok) return `Google search failed: ${res.statusText}`;
-        const data = await res.json();
-        const items = data.items || [];
-        return items.map((i, idx) => `${idx + 1}. ${i.title} — ${i.link}`).join("\n");
+        
+        try {
+            const res = await fetchWithTimeout(url.toString(), { cache: "no-store" }, 10000, "Google Search");
+            if (!res.ok) return `Google search failed: ${res.statusText}`;
+            const data = await res.json();
+            const items = data.items || [];
+            return items.map((i, idx) => `${idx + 1}. ${i.title} — ${i.link}`).join("\n");
+        } catch (e) {
+            return `Google search error: ${e.message}`;
+        }
     }
 });

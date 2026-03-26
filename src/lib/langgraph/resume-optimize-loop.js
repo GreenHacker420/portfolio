@@ -16,6 +16,8 @@ function safeJsonParse(text = "") {
     }
 }
 
+const MAX_ITERATIONS = 5;
+
 const LoopState = Annotation.Root({
     latex: Annotation({ reducer: (_, y) => y, default: () => "" }),
     jdText: Annotation({ reducer: (_, y) => y, default: () => "" }),
@@ -114,7 +116,8 @@ Return only LaTeX.
 }
 
 function routeAfterReview(state) {
-    if (state.score >= state.targetScore || state.iteration >= state.maxIterations) {
+    const effectiveMax = Math.min(state.maxIterations, MAX_ITERATIONS);
+    if (state.score >= state.targetScore || state.iteration >= effectiveMax) {
         return END;
     }
     return "writer";

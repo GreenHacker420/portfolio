@@ -1,5 +1,6 @@
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
+import { fetchWithTimeout } from "@/lib/utils/timeout";
 
 export const githubTool = new DynamicStructuredTool({
     name: "github_analyzer",
@@ -21,7 +22,7 @@ export const githubTool = new DynamicStructuredTool({
 
         try {
             if (action === "list_repos") {
-                const res = await fetch(`${BASE_URL}/users/${targetUser}/repos?sort=updated&per_page=5`, { headers });
+                const res = await fetchWithTimeout(`${BASE_URL}/users/${targetUser}/repos?sort=updated&per_page=5`, { headers }, 10000, "GitHub");
                 if (!res.ok) throw new Error(`GitHub API Error: ${res.statusText}`);
                 const data = await res.json();
                 return data.map(r => `• ${r.name} (${r.language}): ${r.description} [⭐ ${r.stargazers_count}]`).join("\n");
@@ -29,7 +30,7 @@ export const githubTool = new DynamicStructuredTool({
 
             if (action === "get_repo") {
                 if (!repo) return "Error: Repository name is required.";
-                const res = await fetch(`${BASE_URL}/repos/${targetUser}/${repo}`, { headers });
+                const res = await fetchWithTimeout(`${BASE_URL}/repos/${targetUser}/${repo}`, { headers }, 10000, "GitHub");
                 if (!res.ok) throw new Error(`GitHub API Error: ${res.statusText}`);
                 const data = await res.json();
                 return `Repo: ${data.name}\nDesc: ${data.description}\nStars: ${data.stargazers_count}\nForks: ${data.forks_count}\nURL: ${data.html_url}`;
@@ -37,7 +38,7 @@ export const githubTool = new DynamicStructuredTool({
 
             if (action === "get_file") {
                 if (!repo || !path) return "Error: Repository and file path are required.";
-                const res = await fetch(`${BASE_URL}/repos/${targetUser}/${repo}/contents/${path}`, { headers });
+                const res = await fetchWithTimeout(`${BASE_URL}/repos/${targetUser}/${repo}/contents/${path}`, { headers }, 10000, "GitHub");
                 if (!res.ok) throw new Error(`GitHub API Error: ${res.statusText}`);
                 const data = await res.json();
                 if (data.encoding === 'base64') {

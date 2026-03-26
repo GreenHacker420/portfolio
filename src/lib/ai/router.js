@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { DEFAULT_MODEL_ID, parseModelId } from "./models";
+import { DEFAULT_MODEL_ID, parseModelId, getAvailableModels } from "./models";
 
 function buildMessages(systemPrompt, userPrompt) {
     return [
@@ -123,7 +123,12 @@ export async function generateModelText({
     enableWebSearch = false,
     googleSearchOptions = {}
 }) {
-    const { provider, model } = parseModelId(modelId);
+    const availableModels = getAvailableModels();
+    const isModelAvailable = availableModels.some(m => m.id === modelId);
+
+    // Fallback to DEFAULT_MODEL_ID if requested model is not available
+    const effectiveModelId = isModelAvailable ? modelId : DEFAULT_MODEL_ID;
+    const { provider, model } = parseModelId(effectiveModelId);
 
     try {
         if (provider === "google") {
@@ -184,17 +189,23 @@ export async function generateModelText({
 
         throw new Error(`Unsupported provider: ${provider}`);
     } catch (error) {
-        if (modelId !== DEFAULT_MODEL_ID) {
-            return generateModelText({
-                modelId: DEFAULT_MODEL_ID,
-                systemPrompt,
-                userPrompt,
-                temperature,
-                maxTokens,
-                enableWebSearch,
-                googleSearchOptions
-            });
+        console.error(`[AI Router] Error with model ${effectiveModelId}:`, error);
+
+        // If we already tried the default and failed, throw
+        if (effectiveModelId === DEFAULT_MODEL_ID) {
+            throw error;
         }
-        throw error;
+
+        // Otherwise, try the fallback chain (always ends at DEFAULT_MODEL_ID)
+        console.log(`[AI Router] Falling back to ${DEFAULT_MODEL_ID}...`);
+        return generateModelText({
+            modelId: DEFAULT_MODEL_ID,
+            systemPrompt,
+            userPrompt,
+            temperature,
+            maxTokens,
+            enableWebSearch,
+            googleSearchOptions
+        });
     }
 }
