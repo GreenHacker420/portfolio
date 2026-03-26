@@ -1,20 +1,18 @@
 import prisma from "@/lib/db";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
-export async function POST(req, { params }) {
-    try {
-        const { id } = params;
-        const body = await req.json();
-        const { followupAt } = body;
-        const app = await prisma.application.update({
-            where: { id },
-            data: { followupAt: followupAt ? new Date(followupAt) : null }
-        });
-        await prisma.applicationEvent.create({
-            data: { applicationId: id, type: "followup_scheduled", payload: { followupAt } }
-        });
-        return NextResponse.json(app);
-    } catch (e) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
-    }
-}
+export const POST = withApiHandler(async (req, { params }) => {
+    await requireAdmin();
+    const { id } = await params;
+    const body = await req.json();
+    const { followupAt } = body;
+    const app = await prisma.application.update({
+        where: { id },
+        data: { followupAt: followupAt ? new Date(followupAt) : null }
+    });
+    await prisma.applicationEvent.create({
+        data: { applicationId: id, type: "followup_scheduled", payload: { followupAt } }
+    });
+    return apiOk(app);
+});

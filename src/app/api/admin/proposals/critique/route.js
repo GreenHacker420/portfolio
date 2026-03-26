@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 import { ensureProposalData } from "@/lib/proposals/defaults";
 import { parseJsonFromModelText } from "@/lib/proposals/ai";
 import { updateProposalAndCreateVersion } from "@/lib/proposals/versioning";
@@ -12,27 +13,27 @@ function normalizeScore(value) {
     return Math.max(0, Math.min(10, num));
 }
 
-export async function POST(req) {
-    try {
-        const { proposalId, modelId, enableGeminiWebSearch = false } = await req.json();
-        if (!proposalId) {
-            return NextResponse.json({ error: "proposalId is required" }, { status: 400 });
-        }
+export const POST = withApiHandler(async (req) => {
+    await requireAdmin();
+    const { proposalId, modelId, enableGeminiWebSearch = false } = await req.json();
+    if (!proposalId) {
+        throw new Error("proposalId is required");
+    }
 
-        const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
-        if (!proposal) {
-            return NextResponse.json({ error: "proposal not found" }, { status: 404 });
-        }
+    const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
+    if (!proposal) {
+        throw new Error("proposal not found");
+    }
 
-        const data = ensureProposalData(proposal.data, {
-            title: proposal.title,
-            organization: proposal.organization || "",
-            projectIdea: proposal.projectIdea || ""
-        });
+    const data = ensureProposalData(proposal.data, {
+        title: proposal.title,
+        organization: proposal.organization || "",
+        projectIdea: proposal.projectIdea || ""
+    });
 
-        const compactSections = data.sections.map((section) => `## ${section.title}\n${section.content || ""}`).join("\n\n");
+    const compactSections = data.sections.map((section) => `## ${section.title}\n${section.content || ""}`).join("\n\n");
 
-        const prompt = `
+    const prompt = `
 You are an elite GSOC proposal reviewer.
 Critique this proposal and score it like a strict mentor.
 
@@ -45,18 +46,18 @@ ${compactSections}
 
 Return strict JSON:
 {
-  "scores": {
-    "clarity": 0-10,
-    "feasibility": 0-10,
-    "impact": 0-10,
-    "originality": 0-10,
-    "completeness": 0-10
-  },
-  "verdict": "short verdict",
-  "recommendations": [
-    "specific fix 1",
-    "specific fix 2"
-  ]
+"scores": {
+"clarity": 0-10,
+"feasibility": 0-10,
+"impact": 0-10,
+"originality": 0-10,
+"completeness": 0-10
+},
+"verdict": "short verdict",
+"recommendations": [
+"specific fix 1",
+"specific fix 2"
+]
 }
 
 Rules:
@@ -64,47 +65,44 @@ Rules:
 - Penalize vague implementation details.
 - Do not include markdown fences.
 `;
-        const text = await generateModelText({
-            modelId: modelId || DEFAULT_MODEL_ID,
-            systemPrompt: "You are a strict GSOC mentor evaluating acceptance quality.",
-            userPrompt: prompt,
-            temperature: 0.2,
-            maxTokens: 2200,
-            enableWebSearch: Boolean(enableGeminiWebSearch)
-        });
-        const parsed = parseJsonFromModelText(text);
+    const text = await generateModelText({
+        modelId: modelId || DEFAULT_MODEL_ID,
+        systemPrompt: "You are a strict GSOC mentor evaluating acceptance quality.",
+        userPrompt: prompt,
+        temperature: 0.2,
+        maxTokens: 2200,
+        enableWebSearch: Boolean(enableGeminiWebSearch)
+    });
+    const parsed = parseJsonFromModelText(text);
 
-        const nextData = {
-            ...data,
-            meta: {
-                ...data.meta,
-                lastCritiqueAt: new Date().toISOString()
+    const nextData = {
+        ...data,
+        meta: {
+            ...data.meta,
+            lastCritiqueAt: new Date().toISOString()
+        },
+        critique: {
+            scores: {
+                clarity: normalizeScore(parsed?.scores?.clarity),
+                feasibility: normalizeScore(parsed?.scores?.feasibility),
+                impact: normalizeScore(parsed?.scores?.impact),
+                originality: normalizeScore(parsed?.scores?.originality),
+                completeness: normalizeScore(parsed?.scores?.completeness)
             },
-            critique: {
-                scores: {
-                    clarity: normalizeScore(parsed?.scores?.clarity),
-                    feasibility: normalizeScore(parsed?.scores?.feasibility),
-                    impact: normalizeScore(parsed?.scores?.impact),
-                    originality: normalizeScore(parsed?.scores?.originality),
-                    completeness: normalizeScore(parsed?.scores?.completeness)
-                },
-                verdict: parsed?.verdict || "Needs refinement",
-                recommendations: Array.isArray(parsed?.recommendations) ? parsed.recommendations.slice(0, 8) : []
-            }
-        };
+            verdict: parsed?.verdict || "Needs refinement",
+            recommendations: Array.isArray(parsed?.recommendations) ? parsed.recommendations.slice(0, 8) : []
+        }
+    };
 
-        const updated = await updateProposalAndCreateVersion({
-            id: proposal.id,
-            title: proposal.title,
-            organization: proposal.organization || "",
-            projectIdea: proposal.projectIdea || "",
-            tone: proposal.tone,
-            data: nextData,
-            source: "ai_critique"
-        });
+    const updated = await updateProposalAndCreateVersion({
+        id: proposal.id,
+        title: proposal.title,
+        organization: proposal.organization || "",
+        projectIdea: proposal.projectIdea || "",
+        tone: proposal.tone,
+        data: nextData,
+        source: "ai_critique"
+    });
 
-        return NextResponse.json({ success: true, proposal: updated });
-    } catch (error) {
-        return NextResponse.json({ error: error.message || "Failed to critique proposal" }, { status: 500 });
-    }
-}
+    return apiOk({ success: true, proposal: updated });
+});

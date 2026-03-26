@@ -1,7 +1,9 @@
 import { processFollowups } from "@/lib/scheduler/followups";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
-export async function POST() {
+export const POST = withApiHandler(async () => {
+    await requireAdmin();
     const result = await processFollowups();
-    return NextResponse.json(result);
-}
+    return apiOk(result);
+});

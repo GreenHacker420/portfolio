@@ -1,31 +1,32 @@
 import prisma from "@/lib/db";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 import { ensureProposalData, GSOC_SECTION_ORDER } from "@/lib/proposals/defaults";
 import { parseJsonFromModelText } from "@/lib/proposals/ai";
 import { updateProposalAndCreateVersion } from "@/lib/proposals/versioning";
 import { generateModelText } from "@/lib/ai/router";
 import { DEFAULT_MODEL_ID } from "@/lib/ai/models";
 
-export async function POST(req) {
-    try {
-        const { proposalId, modelId, enableGeminiWebSearch = false } = await req.json();
-        if (!proposalId) {
-            return NextResponse.json({ error: "proposalId is required" }, { status: 400 });
-        }
+export const POST = withApiHandler(async (req) => {
+    await requireAdmin();
+    const { proposalId, modelId, enableGeminiWebSearch = false } = await req.json();
+    if (!proposalId) {
+        throw new Error("proposalId is required");
+    }
 
-        const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
-        if (!proposal) {
-            return NextResponse.json({ error: "proposal not found" }, { status: 404 });
-        }
+    const proposal = await prisma.proposal.findUnique({ where: { id: proposalId } });
+    if (!proposal) {
+        throw new Error("proposal not found");
+    }
 
-        const data = ensureProposalData(proposal.data, {
-            title: proposal.title,
-            organization: proposal.organization || "",
-            projectIdea: proposal.projectIdea || ""
-        });
+    const data = ensureProposalData(proposal.data, {
+        title: proposal.title,
+        organization: proposal.organization || "",
+        projectIdea: proposal.projectIdea || ""
+    });
 
-        const sectionsGuide = GSOC_SECTION_ORDER.map((section) => `${section.key}: ${section.title}`).join("\n");
-        const prompt = `
+    const sectionsGuide = GSOC_SECTION_ORDER.map((section) => `${section.key}: ${section.title}`).join("\n");
+    const prompt = `
 You are a world-class Google Summer of Code proposal strategist.
 Generate a compelling, realistic, and specific proposal outline.
 
@@ -42,9 +43,9 @@ ${data?.meta?.research ? JSON.stringify(data.meta.research, null, 2) : "Not avai
 
 Return strict JSON:
 {
-  "sections": [
-    { "key": "problem_statement", "title": "Problem Statement", "content": "..." }
-  ]
+"sections": [
+{ "key": "problem_statement", "title": "Problem Statement", "content": "..." }
+]
 }
 
 Rules:
@@ -52,50 +53,47 @@ Rules:
 - Make timeline and implementation details concrete.
 - Do not include markdown fences.
 `;
-        const text = await generateModelText({
-            modelId: modelId || DEFAULT_MODEL_ID,
-            systemPrompt: "You are an elite GSOC outline architect.",
-            userPrompt: prompt,
-            temperature: 0.35,
-            maxTokens: 3200,
-            enableWebSearch: Boolean(enableGeminiWebSearch)
-        });
-        const parsed = parseJsonFromModelText(text);
-        const generatedSections = Array.isArray(parsed?.sections) ? parsed.sections : [];
+    const text = await generateModelText({
+        modelId: modelId || DEFAULT_MODEL_ID,
+        systemPrompt: "You are an elite GSOC outline architect.",
+        userPrompt: prompt,
+        temperature: 0.35,
+        maxTokens: 3200,
+        enableWebSearch: Boolean(enableGeminiWebSearch)
+    });
+    const parsed = parseJsonFromModelText(text);
+    const generatedSections = Array.isArray(parsed?.sections) ? parsed.sections : [];
 
-        const generatedMap = new Map(
-            generatedSections
-                .filter((section) => section && section.key)
-                .map((section) => [section.key, section])
-        );
+    const generatedMap = new Map(
+        generatedSections
+            .filter((section) => section && section.key)
+            .map((section) => [section.key, section])
+    );
 
-        const mergedSections = data.sections.map((section) => {
-            const generated = generatedMap.get(section.key);
-            if (!generated) return section;
-            return {
-                ...section,
-                title: generated.title || section.title,
-                content: String(generated.content || section.content || "")
-            };
-        });
-
-        const nextData = {
-            ...data,
-            sections: mergedSections
+    const mergedSections = data.sections.map((section) => {
+        const generated = generatedMap.get(section.key);
+        if (!generated) return section;
+        return {
+            ...section,
+            title: generated.title || section.title,
+            content: String(generated.content || section.content || "")
         };
+    });
 
-        const updated = await updateProposalAndCreateVersion({
-            id: proposal.id,
-            title: proposal.title,
-            organization: proposal.organization || "",
-            projectIdea: proposal.projectIdea || "",
-            tone: proposal.tone,
-            data: nextData,
-            source: "ai_outline"
-        });
+    const nextData = {
+        ...data,
+        sections: mergedSections
+    };
 
-        return NextResponse.json({ success: true, proposal: updated });
-    } catch (error) {
-        return NextResponse.json({ error: error.message || "Failed to generate outline" }, { status: 500 });
-    }
-}
+    const updated = await updateProposalAndCreateVersion({
+        id: proposal.id,
+        title: proposal.title,
+        organization: proposal.organization || "",
+        projectIdea: proposal.projectIdea || "",
+        tone: proposal.tone,
+        data: nextData,
+        source: "ai_outline"
+    });
+
+    return apiOk({ success: true, proposal: updated });
+});

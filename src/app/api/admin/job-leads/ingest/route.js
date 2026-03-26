@@ -1,11 +1,9 @@
 import { ingestOsintLeads } from "@/actions/leads";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
-export async function POST() {
-    try {
-        const result = await ingestOsintLeads();
-        return NextResponse.json({ success: true, ...result });
-    } catch (e) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
-    }
-}
+export const POST = withApiHandler(async () => {
+    await requireAdmin();
+    const result = await ingestOsintLeads();
+    return apiOk(result);
+});

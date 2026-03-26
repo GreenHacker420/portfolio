@@ -1,8 +1,10 @@
 import { rollupAnalytics } from "@/actions/analytics";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
 // Intended to be called by cron/automation
-export async function POST() {
+export const POST = withApiHandler(async () => {
+    await requireAdmin();
     const result = await rollupAnalytics(1);
-    return NextResponse.json({ success: true, ...result });
-}
+    return apiOk(result);
+});

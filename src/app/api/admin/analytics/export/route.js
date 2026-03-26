@@ -1,8 +1,11 @@
 import prisma from "@/lib/db";
-import { NextResponse } from "next/server";
+import { withApiHandler } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 import { subDays } from "date-fns";
+import { NextResponse } from "next/server";
 
-export async function GET(req) {
+export const GET = withApiHandler(async (req) => {
+    await requireAdmin();
     const { searchParams } = new URL(req.url);
     const days = Number(searchParams.get("days") || 7);
     const since = subDays(new Date(), days);
@@ -35,4 +38,4 @@ export async function GET(req) {
             "Content-Disposition": `attachment; filename="analytics-${days}d.csv"`
         }
     });
-}
+});

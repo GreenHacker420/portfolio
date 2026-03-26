@@ -1,23 +1,21 @@
 import prisma from "@/lib/db";
 import { scoreLeadAgainstCv } from "@/lib/match/jd";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
-export async function POST(req) {
-    try {
-        const body = await req.json();
-        const { leadId, cvText } = body;
-        if (!leadId || !cvText) return NextResponse.json({ error: "leadId and cvText required" }, { status: 400 });
+export const POST = withApiHandler(async (req) => {
+    await requireAdmin();
+    const body = await req.json();
+    const { leadId, cvText } = body;
+    if (!leadId || !cvText) throw new Error("leadId and cvText required");
 
-        const lead = await prisma.jobLead.findUnique({ where: { id: leadId } });
-        if (!lead) return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+    const lead = await prisma.jobLead.findUnique({ where: { id: leadId } });
+    if (!lead) throw new Error("Lead not found");
 
-        const { score, missingSkills } = await scoreLeadAgainstCv(lead, cvText);
-        await prisma.jobLead.update({
-            where: { id: leadId },
-            data: { matchScore: score, missingSkills: missingSkills.length ? missingSkills.join(",") : null }
-        });
-        return NextResponse.json({ score, missingSkills });
-    } catch (e) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
-    }
-}
+    const { score, missingSkills } = await scoreLeadAgainstCv(lead, cvText);
+    await prisma.jobLead.update({
+        where: { id: leadId },
+        data: { matchScore: score, missingSkills: missingSkills.length ? missingSkills.join(",") : null }
+    });
+    return apiOk({ score, missingSkills });
+});
