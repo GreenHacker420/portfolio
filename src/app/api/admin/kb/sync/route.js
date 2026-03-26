@@ -6,23 +6,16 @@ import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { Document } from "@langchain/core/documents";
 import { withApiHandler, apiOk } from "@/lib/apiResponse";
 import { requireAdmin } from "@/lib/guard";
+import { fetchRepoReadme, fetchRecentCommits } from "@/services/github/github.fetcher";
+import { getGithubStats, buildGithubHeaders } from "@/services/github/github.service";
 
 export const POST = withApiHandler(async () => {
     await requireAdmin();
     // 1. Fetch from DB
     const snippets = await prisma.knowledgeSnippet.findMany();
 
-    if (snippets.length === 0) {
-        return apiOk({
-            success: true,
-            message: "No snippets found in database to sync.",
-            count: 0
-        });
-    }
-
     // 2. Convert to LangChain Documents
-    const docs = snippets.map(s => {
-        // Parse tags if they are a string, otherwise keep raw
+    const snippetDocs = snippets.map(s => {
         let validTags = [];
         try {
             validTags = s.tags ? JSON.parse(s.tags) : [];
@@ -57,16 +50,49 @@ export const POST = withApiHandler(async () => {
         taskType: "RETRIEVAL_DOCUMENT"
     });
 
-    // 4. Upsert (Overwrite/Add)
-    // Note: This doesn't delete old vectors validation-wise, but good enough for now.
-    await PineconeStore.fromDocuments(docs, embeddings, {
+    // 4. GitHub Enrichment
+    const githubStats = await getGithubStats("GreenHacker420", true);
+    const githubHeaders = buildGithubHeaders();
+    const repoDocs = [];
+
+    if (githubStats && Array.isArray(githubStats.showcaseRepos)) {
+        for (const repo of githubStats.showcaseRepos) {
+            const [readme, commits] = await Promise.all([
+                fetchRepoReadme("GreenHacker420", repo.name, githubHeaders),
+                fetchRecentCommits("GreenHacker420", repo.name, 5, githubHeaders)
+            ]);
+
+            const repoContent = [
+                `REPO: ${repo.name}`,
+                `DESCRIPTION: ${repo.description}`,
+                `STACK: ${repo.language || "Unknown"}`,
+                readme ? `README SUMMARY: ${readme.slice(0, 500)}` : "",
+                commits.length > 0 ? `RECENT ACTIVITY:\n${commits.map(c => `- ${c.message} (${c.date})`).join("\n")}` : ""
+            ].filter(Boolean).join("\n");
+
+            repoDocs.push(new Document({
+                pageContent: repoContent,
+                metadata: {
+                    type: 'repo',
+                    repoName: repo.name,
+                    language: repo.language || 'Unknown',
+                    source: 'github'
+                }
+            }));
+        }
+    }
+
+    const allDocs = [...snippetDocs, ...repoDocs];
+
+    // 5. Upsert (Overwrite/Add)
+    await PineconeStore.fromDocuments(allDocs, embeddings, {
         pineconeIndex,
         maxConcurrency: 5,
     });
 
     return apiOk({
         success: true,
-        message: `Successfully synced ${docs.length} snippets to AI Memory.`,
-        count: docs.length
+        message: `Successfully synced ${snippetDocs.length} snippets and ${repoDocs.length} repos to AI Memory.`,
+        count: allDocs.length
     });
 });

@@ -3,7 +3,7 @@ import { fetchGithubData, fetchContributionDetails } from "./github.fetcher";
 import { getCachedStats, saveStats } from "./github.cache";
 import { mapGithubStats } from "./github.mapper";
 
-function buildGithubHeaders() {
+export function buildGithubHeaders() {
     return {
         Accept: "application/vnd.github+json",
         ...(process.env.GITHUB_TOKEN && {

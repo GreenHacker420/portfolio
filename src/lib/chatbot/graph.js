@@ -20,6 +20,10 @@ const GraphState = Annotation.Root({
         reducer: (x, y) => x.concat(y),
         default: () => [],
     }),
+    systemPrompt: Annotation({
+        reducer: (_, y) => y,
+        default: () => SYSTEM_PROMPT,
+    }),
 });
 
 // Lazy-initialize model + graph to avoid build-time crash when GOOGLE_API_KEY is unavailable
@@ -40,9 +44,9 @@ export function getGraph() {
     const modelWithTools = model.bindTools(tools);
 
     async function agent(state, config) {
-        const { messages } = state;
+        const { messages, systemPrompt } = state;
         try {
-            const messagesWithSystem = [new SystemMessage(SYSTEM_PROMPT), ...messages];
+            const messagesWithSystem = [new SystemMessage(systemPrompt || SYSTEM_PROMPT), ...messages];
             const rawResponse = await modelWithTools.invoke(messagesWithSystem, config);
 
             const response = new AIMessage({
@@ -55,11 +59,53 @@ export function getGraph() {
             return { messages: [response] };
         } catch (err) {
             console.error("🔥 Agent Error:", err);
-            const errorResponse = new AIMessage({
-                content: "I'm having trouble thinking right now. My connection to the language model failed. Please try again in a moment.",
-            });
-            return { messages: [errorResponse] };
+            return {
+                messages: [new AIMessage({
+                    content: "I'm having trouble thinking right now. My connection to the language model failed. Please try again in a moment.",
+                })]
+            };
         }
+    }
+
+    async function router(state) {
+        const messages = state.messages;
+        const lastMessage = messages[messages.length - 1];
+        if (!lastMessage || lastMessage._getType() !== "human") return {};
+
+        const content = String(lastMessage.content || "").toLowerCase();
+        const githubKeywords = ["repo", "project", "commit", "code", "built", "working on", "mofa"];
+        const portfolioKeywords = ["skill", "experience", "job", "work", "education", "certificate"];
+
+        const needsGithub = githubKeywords.some(kw => content.includes(kw));
+        const needsPortfolio = portfolioKeywords.some(kw => content.includes(kw));
+
+        if (needsGithub) {
+            return {
+                messages: [new AIMessage({
+                    content: "Let me check the latest GitHub activity...",
+                    tool_calls: [{
+                        name: "github_analyzer",
+                        args: { action: "list_repos" },
+                        id: "initial_gh_call"
+                    }]
+                })]
+            };
+        }
+
+        if (needsPortfolio) {
+            return {
+                messages: [new AIMessage({
+                    content: "Searching portfolio knowledge base...",
+                    tool_calls: [{
+                        name: "portfolio_search",
+                        args: { query: lastMessage.content },
+                        id: "initial_kb_call"
+                    }]
+                })]
+            };
+        }
+
+        return {};
     }
 
     const toolNode = createToolNode(tools);
@@ -74,11 +120,20 @@ export function getGraph() {
     }
 
     const workflow = new StateGraph(GraphState)
+        .addNode("router", router)
         .addNode("agent", agent)
         .addNode("tools", toolNode)
-        .addEdge(START, "agent")
-        .addConditionalEdges("agent", shouldContinue)
+        .addEdge(START, "router")
+        .addConditionalEdges("router", shouldContinue, {
+            tools: "tools",
+            [END]: "agent"
+        })
+        .addConditionalEdges("agent", shouldContinue, {
+            tools: "tools",
+            [END]: END
+        })
         .addEdge("tools", "agent");
+
 
     const checkpointer = new PrismaCheckpointer();
     _graph = workflow.compile({ checkpointer });

@@ -1,4 +1,6 @@
 
+import { fetchWithTimeout } from "@/lib/utils/timeout";
+
 export async function fetchGithubData(username, headers = {}, forceRefresh = false) {
   const query = `
       query ($username: String!) {
@@ -206,3 +208,48 @@ export async function fetchContributionDetails(username, date, headers = {}) {
 
   return details;
 }
+
+export async function fetchRepoReadme(username, repo, headers) {
+    if (!username || !repo) return null;
+    try {
+        const res = await fetchWithTimeout(`https://api.github.com/repos/${username}/${repo}/readme`, {
+            headers: { ...headers, "Accept": "application/vnd.github.v3.raw" }
+        }, 10000, "GitHub Readme");
+
+        if (!res.ok) return null;
+        
+        let text = await res.text();
+        
+        // Very basic strip of image tags `![alt](url)` and HTML images `<img src...>`
+        text = text.replace(/!\[.*?\]\([^)]+\)/g, "");
+        text = text.replace(/<img[^>]*>/gi, "");
+        
+        return text.trim();
+    } catch (e) {
+        console.error(`Failed to fetch readme for ${username}/${repo}`, e);
+        return null;
+    }
+}
+
+export async function fetchRecentCommits(username, repo, count = 10, headers) {
+     if (!username || !repo) return [];
+     try {
+         const res = await fetchWithTimeout(`https://api.github.com/repos/${username}/${repo}/commits?per_page=${count}`, {
+             headers
+         }, 10000, "GitHub Commits");
+         
+         if (!res.ok) return [];
+         
+         const data = await res.json();
+         if (!Array.isArray(data)) return [];
+         
+         return data.map(c => ({
+             message: c.commit?.message || "No message",
+             date: c.commit?.author?.date || null
+         }));
+     } catch (e) {
+         console.error(`Failed to fetch commits for ${username}/${repo}`, e);
+         return [];
+     }
+}
+
