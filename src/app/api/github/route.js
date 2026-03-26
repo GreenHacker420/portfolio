@@ -1,25 +1,27 @@
 import { getGithubStats } from "@/services/github/github.service";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { getClientIp, requireRateLimit } from "@/lib/guard";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req) {
+export const GET = withApiHandler(async (req) => {
+    const ip = await getClientIp();
+    await requireRateLimit(`github:${ip}`, 20, 60_000);
+
     const { searchParams } = new URL(req.url);
     const username = searchParams.get("username");
 
     if (!username) {
-        return NextResponse.json({ error: "Username is required" }, { status: 400 });
+        throw new Error("Username is required");
     }
 
-    try {
-        const data = await getGithubStats(username);
+    const data = await getGithubStats(username);
 
-        if (!data) {
-            return NextResponse.json({ error: "Failed to fetch GitHub data" }, { status: 500 });
-        }
-
-        return NextResponse.json(data);
-    } catch (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    if (!data) {
+        throw new Error("Failed to fetch GitHub data");
     }
-}
+
+    const response = apiOk(data);
+    response.headers.set("Cache-Control", "public, s-maxage=1800, stale-while-revalidate=3600");
+    return response;
+});

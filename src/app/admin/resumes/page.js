@@ -14,11 +14,11 @@ export default function ResumeListPage() {
     useEffect(() => {
         fetch('/api/admin/resumes')
             .then(res => res.json())
-            .then(data => {
-                if (Array.isArray(data)) {
-                    setResumes(data);
+            .then(res => {
+                if (res.success && Array.isArray(res.data)) {
+                    setResumes(res.data);
                 } else {
-                    console.error("API Error:", data);
+                    console.error("API Error:", res);
                     setResumes([]);
                 }
                 setIsLoading(false);

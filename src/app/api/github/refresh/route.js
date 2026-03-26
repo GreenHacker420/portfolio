@@ -1,21 +1,20 @@
-import { NextResponse } from 'next/server';
 import { getGithubStats } from '@/services/github/github.service';
 import { revalidatePath } from 'next/cache';
+import { withApiHandler, apiOk } from '@/lib/apiResponse';
+import { getClientIp, requireRateLimit } from '@/lib/guard';
 
-export async function POST(request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const username = searchParams.get('username') || "GreenHacker420";
+export const POST = withApiHandler(async (request) => {
+    const ip = await getClientIp();
+    await requireRateLimit(`github-refresh:${ip}`, 5, 60_000);
 
-        console.log(`[API] Refreshing GitHub stats for ${username}...`);
-        await getGithubStats(username, true); // true = force refresh
+    const { searchParams } = new URL(request.url);
+    const username = searchParams.get('username') || "GreenHacker420";
 
-        // Revalidate the homepage to ensure static pages get the fresh data
-        revalidatePath('/');
+    console.log(`[API] Refreshing GitHub stats for ${username}...`);
+    await getGithubStats(username, true); // true = force refresh
 
-        return NextResponse.json({ success: true, message: "Stats refreshed successfully" });
-    } catch (error) {
-        console.error("[API] Refresh Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-}
+    // Revalidate the homepage to ensure static pages get the fresh data
+    revalidatePath('/');
+
+    return apiOk({ message: "Stats refreshed successfully" });
+});

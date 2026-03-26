@@ -108,8 +108,12 @@ export default function KnowledgeBasePage() {
         try {
             const res = await fetch("/api/admin/kb");
             if (!res.ok) throw new Error("Failed to fetch");
-            const data = await res.json();
-            setSnippets(data);
+            const resData = await res.json();
+            if (resData.success && Array.isArray(resData.data)) {
+                setSnippets(resData.data);
+            } else {
+                setSnippets([]);
+            }
         } catch (error) {
             console.error("Failed to fetch snippets", error);
         } finally {
@@ -152,12 +156,12 @@ export default function KnowledgeBasePage() {
 
             if (!res.ok) throw new Error("Failed to save");
 
-            const saved = await res.json();
+            const resData = await res.json();
 
             if (editingId) {
-                setSnippets(snippets.map((s) => (s.id === editingId ? saved : s)));
+                setSnippets(snippets.map((s) => (s.id === editingId ? resData.data : s)));
             } else {
-                setSnippets([saved, ...snippets]);
+                setSnippets([resData.data, ...snippets]);
             }
 
             closeDialog();

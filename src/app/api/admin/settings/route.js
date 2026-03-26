@@ -1,23 +1,18 @@
 
 import { getSettings, upsertSettings } from "@/repositories/settings.repository";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { requireAdmin } from "@/lib/guard";
 
-export async function GET() {
-    try {
-        const settings = await getSettings();
-        return NextResponse.json(settings);
-    } catch (e) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
-    }
-}
+export const GET = withApiHandler(async () => {
+    await requireAdmin();
+    const settings = await getSettings();
+    return apiOk(settings);
+});
 
-export async function POST(req) {
-    try {
-        const settings = await req.json();
-        if (!Array.isArray(settings)) return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
-        await upsertSettings(settings);
-        return NextResponse.json({ success: true });
-    } catch (e) {
-        return NextResponse.json({ error: e.message }, { status: 500 });
-    }
-}
+export const POST = withApiHandler(async (req) => {
+    await requireAdmin();
+    const settings = await req.json();
+    if (!Array.isArray(settings)) throw new Error("Invalid payload");
+    await upsertSettings(settings);
+    return apiOk({ success: true });
+});

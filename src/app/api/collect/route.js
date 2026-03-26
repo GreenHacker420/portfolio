@@ -1,6 +1,6 @@
 
-import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { getClientIp, requireRateLimit } from "@/lib/guard";
 import crypto from "crypto";
 import { 
     upsertAnalyticsSession, 
@@ -18,53 +18,41 @@ function pickGeo(request) {
     return { country, city };
 }
 
-export async function POST(req) {
-    try {
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-        const rl = rateLimit(`collect:${ip}`, 60, 60_000);
-        if (!rl.ok) {
-            const res = NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
-            rateLimitResponse(res, rl);
-            return res;
-        }
+export const POST = withApiHandler(async (req) => {
+    const ip = await getClientIp();
+    await requireRateLimit(`collect:${ip}`, 30, 60_000);
 
-        const payload = await req.json();
-        const { sessionId, events, referrer, utm, device, userAgent } = payload || {};
-        if (!Array.isArray(events) || events.length === 0) {
-            return NextResponse.json({ error: "No events" }, { status: 400 });
-        }
-
-        const { country, city } = pickGeo(req);
-        const session = await upsertAnalyticsSession({
-            id: sessionId || crypto.randomUUID(),
-            country,
-            city,
-            referrer: referrer?.slice(0, 300) || null,
-            utmSource: utm?.source || null,
-            utmMedium: utm?.medium || null,
-            utmCampaign: utm?.campaign || null,
-            device: device || null,
-            userAgent: userAgent?.slice(0, 300) || null,
-            hashedIp: hashIp(ip),
-        });
-
-        const safeEvents = events.slice(0, 100).map((evt) => ({
-            sessionId: session.id,
-            type: evt.type,
-            page: evt.page?.slice(0, 200) || null,
-            ctaId: evt.ctaId?.slice(0, 120) || null,
-            scrollPct: typeof evt.scrollPct === "number" ? Math.round(evt.scrollPct) : null,
-            durationMs: typeof evt.durationMs === "number" ? Math.round(evt.durationMs) : null,
-            meta: evt.meta ? JSON.parse(JSON.stringify(evt.meta)) : undefined
-        }));
-
-        await createAnalyticsEvents(safeEvents);
-
-        const res = NextResponse.json({ ok: true, sessionId: session.id });
-        rateLimitResponse(res, rl);
-        return res;
-    } catch (error) {
-        console.error("[collect] error", error);
-        return NextResponse.json({ error: "collect_failed" }, { status: 500 });
+    const payload = await req.json();
+    const { sessionId, events, referrer, utm, device, userAgent } = payload || {};
+    if (!Array.isArray(events) || events.length === 0) {
+        throw new Error("No events");
     }
-}
+
+    const { country, city } = pickGeo(req);
+    const session = await upsertAnalyticsSession({
+        id: sessionId || crypto.randomUUID(),
+        country,
+        city,
+        referrer: referrer?.slice(0, 300) || null,
+        utmSource: utm?.source || null,
+        utmMedium: utm?.medium || null,
+        utmCampaign: utm?.campaign || null,
+        device: device || null,
+        userAgent: userAgent?.slice(0, 300) || null,
+        hashedIp: hashIp(ip),
+    });
+
+    const safeEvents = events.slice(0, 100).map((evt) => ({
+        sessionId: session.id,
+        type: evt.type,
+        page: evt.page?.slice(0, 200) || null,
+        ctaId: evt.ctaId?.slice(0, 120) || null,
+        scrollPct: typeof evt.scrollPct === "number" ? Math.round(evt.scrollPct) : null,
+        durationMs: typeof evt.durationMs === "number" ? Math.round(evt.durationMs) : null,
+        meta: evt.meta ? JSON.parse(JSON.stringify(evt.meta)) : undefined
+    }));
+
+    await createAnalyticsEvents(safeEvents);
+
+    return apiOk({ ok: true, sessionId: session.id });
+});

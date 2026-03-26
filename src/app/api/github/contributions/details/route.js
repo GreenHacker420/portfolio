@@ -1,21 +1,20 @@
-import { NextResponse } from "next/server";
 import { getContributionDetails } from "@/services/github/github.service";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { getClientIp, requireRateLimit } from "@/lib/guard";
 
-export async function GET(request) {
-    try {
-        const { searchParams } = new URL(request.url);
-        const date = searchParams.get("date");
-        const username = searchParams.get("username") || "GreenHacker420";
+export const GET = withApiHandler(async (request) => {
+    const ip = await getClientIp();
+    await requireRateLimit(`github-details:${ip}`, 30, 60_000);
 
-        if (!date) {
-            return NextResponse.json({ error: "Date parameter is required" }, { status: 400 });
-        }
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get("date");
+    const username = searchParams.get("username") || "GreenHacker420";
 
-        const details = await getContributionDetails(username, date);
-
-        return NextResponse.json({ details }, { status: 200 });
-    } catch (error) {
-        console.error("[Contribution Details API] Error:", error);
-        return NextResponse.json({ error: "Failed to fetch contribution details" }, { status: 500 });
+    if (!date) {
+        throw new Error("Date parameter is required");
     }
-}
+
+    const details = await getContributionDetails(username, date);
+
+    return apiOk({ details });
+});

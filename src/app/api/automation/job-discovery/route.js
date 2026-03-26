@@ -1,8 +1,8 @@
 import { jobDiscoveryGraph } from "@/lib/langgraph/workflows";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
 
-export async function POST() {
+export const POST = withApiHandler(async () => {
     const graph = jobDiscoveryGraph();
     const result = await graph.invoke({});
-    return NextResponse.json({ success: true, result });
-}
+    return apiOk({ result });
+});

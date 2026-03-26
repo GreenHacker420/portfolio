@@ -8,6 +8,35 @@ import {
     getRecentContacts, 
     getRecentAuditLogs 
 } from "@/repositories/admin.repository";
+import { getSettings } from "@/repositories/settings.repository";
+
+function maskSecret(val) {
+    if (!val) return "not configured";
+    if (val.length <= 4) return "****";
+    return "*".repeat(val.length - 4) + val.slice(-4);
+}
+
+export async function getMaskedSettings() {
+    return withErrorHandler(async () => {
+        await requireAdmin();
+        const settings = await getSettings();
+        
+        // Only keys that we consider sensitive
+        const sensitiveKeys = [
+            "GOOGLE_API_KEY",
+            "PINECONE_API_KEY",
+            "AZURE_CLIENT_SECRET",
+            "GITHUB_TOKEN",
+            "JSEARCH_API_KEY",
+            "ADZUNA_API_KEY"
+        ];
+
+        return settings.map(s => ({
+            key: s.key,
+            value: sensitiveKeys.includes(s.key) ? maskSecret(s.value) : s.value
+        }));
+    });
+}
 
 export async function getAdminStats() {
     return withErrorHandler(async () => {

@@ -1,12 +1,12 @@
 
 import { getAllProjects } from "@/repositories/portfolio.repository";
-import { NextResponse } from "next/server";
+import { withApiHandler, apiOk } from "@/lib/apiResponse";
+import { getClientIp, requireRateLimit } from "@/lib/guard";
 
-export async function GET() {
-    try {
-        const projects = await getAllProjects();
-        return NextResponse.json(projects);
-    } catch (error) {
-        return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 });
-    }
-}
+export const GET = withApiHandler(async () => {
+    const ip = await getClientIp();
+    await requireRateLimit(`projects:${ip}`, 20, 60_000);
+
+    const projects = await getAllProjects();
+    return apiOk(projects);
+});

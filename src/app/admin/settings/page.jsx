@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Save, RefreshCw, Shield, BrainCircuit, Mail, Github, Briefcase, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { getMaskedSettings } from "@/actions/admin";
 
 const SETTINGS_GROUPS = [
     {
@@ -69,8 +70,8 @@ export default function AdminSettingsPage() {
     const load = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/admin/settings");
-            const data = await res.json();
+            const res = await getMaskedSettings();
+            const data = res.data;
             const map = {};
             data.forEach(s => { map[s.key] = s.value; });
             setValues(map);
