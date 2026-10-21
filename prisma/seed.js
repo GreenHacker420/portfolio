@@ -162,7 +162,7 @@ async function main() {
             featured: true,
             repoUrl: "https://github.com/GreenHacker420/evergreen",
             projectUrl: "https://evergreenclassic.in",
-            imageUrl: "https://images.unsplash.com/photo-1556742049-0a67e557224f?q=80&w=2670&auto=format&fit=crop",
+            imageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2670&auto=format&fit=crop",
             highlights: JSON.stringify([
                 "Single AI brain handling WhatsApp voice, text, and web chat",
                 "Real-time product recommendation and cart management",

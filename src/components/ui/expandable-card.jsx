@@ -9,16 +9,15 @@ import Tilt3D from "@/components/ui/Tilt3D";
 
 // ── Sub-component: handles the preview area (image ↔ live-iframe toggle) ──
 function ActiveCardPreview({ active, id }) {
-    const [mode, setMode] = useState("image"); // "image" | "iframe"
+    const hasLiveUrl = Boolean(active?.projectUrl);
+    const [mode, setMode] = useState(hasLiveUrl ? "iframe" : "image");
     const [iframeLoading, setIframeLoading] = useState(true);
 
-    // Reset to image mode whenever a new card is opened
+    // Default to iframe mode if projectUrl exists, else image mode
     useEffect(() => {
-        setMode("image");
+        setMode(Boolean(active?.projectUrl) ? "iframe" : "image");
         setIframeLoading(true);
-    }, [active?.id]);
-
-    const hasLiveUrl = Boolean(active?.projectUrl);
+    }, [active?.id, active?.projectUrl]);
 
     return (
         <motion.div
