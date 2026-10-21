@@ -111,8 +111,289 @@ async function main() {
 
     const projects = [
         {
-            title: "Green Hacker — Personal Portfolio CMS",
-            description: "A unified developer CMS to centralize projects, analytics, and content.",
+            title: "ShopControl — Enterprise Retail & Stock Operations Platform",
+            description: "Mobile-first multi-tenant shop operations platform with real-time Tally ERP synchronization and offline resilience.",
+            longDescription: "ShopControl is an end-to-end operations platform built for wholesale, retail, and distribution businesses. Featuring an offline-first React Native/Expo mobile app, a Node.js/Prisma backend with LangGraph AI agents, automated WhatsApp dispatch & invoicing, and a custom desktop agent that synchronizes bidirectional inventory and ledgers with Tally ERP 9 / Tally Prime in real time.",
+            category: "enterprise",
+            techStack: [
+                "React Native",
+                "Expo",
+                "Node.js",
+                "Prisma",
+                "PostgreSQL",
+                "LangGraph",
+                "Google GenAI",
+                "Tally XML/TDL",
+                "AWS S3",
+                "Cloudflare"
+            ],
+            status: "published",
+            featured: true,
+            repoUrl: "https://github.com/GreenHacker420",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Multi-tenant data isolation for wholesale & retail distributors",
+                "Offline-first mobile app with local SQLite/AsyncStorage sync",
+                "Background desktop daemon for bidirectional Tally ERP 9 / Prime ledger sync",
+                "Automated WhatsApp customer invoicing and delivery memos"
+            ]),
+            role: "Lead Full Stack & Mobile Architect",
+            isVisible: true,
+            displayOrder: 1
+        },
+        {
+            title: "Evergreen Classic — Multi-Channel AI Commerce Platform",
+            description: "Multi-channel AI commerce platform unifying customer interactions across WhatsApp voice, web chat, and admin CRM.",
+            longDescription: "Evergreen Classic unifies fragmented e-commerce engagement into a single AI orchestrator. It serves customers across WhatsApp voice calls, web chat, and administrative panels through a unified AI brain that understands context, executes transactions, manages catalogs, and hands off to human agents when appropriate.",
+            category: "ai",
+            techStack: [
+                "Next.js",
+                "React 19",
+                "Node.js",
+                "LangChain",
+                "LangGraph",
+                "WhatsApp Business API",
+                "PostgreSQL",
+                "Redis",
+                "Tailwind CSS"
+            ],
+            status: "published",
+            featured: true,
+            repoUrl: "https://github.com/GreenHacker420/evergreen",
+            projectUrl: "https://evergreenclassic.in",
+            imageUrl: "https://images.unsplash.com/photo-1556742049-0a67e557224f?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Single AI brain handling WhatsApp voice, text, and web chat",
+                "Real-time product recommendation and cart management",
+                "Comprehensive admin CRM with automated broadcast scheduling",
+                "Sub-second response caching with Redis"
+            ]),
+            role: "AI & Full-Stack Architect",
+            isVisible: true,
+            displayOrder: 2
+        },
+        {
+            title: "AskMyNotes — Multi-Modal Corrective RAG Study Tutor",
+            description: "AI-powered study companion turning notes & PDFs into an intelligent tutor using Corrective RAG with zero hallucinations.",
+            longDescription: "AskMyNotes is an intelligent study assistant that ingests PDFs and notes, providing citation-backed answers through streaming text and real-time voice interactions. Powered by Google Gemini 2.5 Flash and Pinecone with a Corrective RAG (CRAG) architecture, it offers strict domain grounding and automated active recall quiz generation.",
+            category: "ai",
+            techStack: [
+                "Next.js 16.1",
+                "Node.js 22",
+                "TypeScript",
+                "Google Gemini 2.5 Flash",
+                "Pinecone Vector DB",
+                "LangChain",
+                "PostgreSQL",
+                "Tailwind CSS"
+            ],
+            status: "published",
+            featured: true,
+            repoUrl: "https://github.com/GreenHacker420/ASKMYNOTES",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Corrective RAG (CRAG) pipeline with strict citation provenance",
+                "Multi-modal interaction with real-time text and voice streaming",
+                "Subject-isolated vector namespaces preventing hallucination",
+                "Automated active recall quiz and flashcard generation"
+            ]),
+            role: "AI Systems Engineer",
+            isVisible: true,
+            displayOrder: 3
+        },
+        {
+            title: "Campus Connect — Peer-to-Peer EdTech Mentorship Platform",
+            description: "Full-stack EdTech platform connecting college applicants with verified student mentors for 1-on-1 counseling.",
+            longDescription: "A scalable web platform facilitating verified student mentorship for higher education admissions. Features real-time mentor discovery, automated Google/Microsoft calendar appointment scheduling, integrated Razorpay payment escrow, and peer review systems.",
+            category: "fullstack",
+            techStack: [
+                "Next.js 16.1",
+                "React 19",
+                "TypeScript",
+                "Supabase",
+                "PostgreSQL",
+                "Razorpay",
+                "Tailwind CSS"
+            ],
+            status: "published",
+            featured: true,
+            repoUrl: "https://github.com/GreenHacker420/Campusconnect",
+            projectUrl: "https://campus-connect.co.in",
+            imageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Live production platform connecting applicants and verified student mentors",
+                "Automated calendar booking and appointment synchronization",
+                "Secure payment escrow and payout workflows via Razorpay",
+                "Optimized SSR frontend built with React 19 and Next.js 16"
+            ]),
+            role: "Full Stack Architect",
+            isVisible: true,
+            displayOrder: 4
+        },
+        {
+            title: "NodeSage — Local CRAG Codebase Q&A & Fixer CLI",
+            description: "Terminal-native Corrective RAG CLI to index, query, and automatically fix codebase issues locally and privately.",
+            longDescription: "A high-performance CLI tool implementing a 7-stage Corrective RAG pipeline (Enhance Query -> Retrieve -> Grade -> Correct -> Re-rank -> Optimize -> Generate) running entirely on local LLMs via Ollama and Vectra.",
+            category: "ai",
+            techStack: [
+                "TypeScript",
+                "Node.js 18+",
+                "Ollama",
+                "Vectra Vector Store",
+                "Commander.js",
+                "LangChain"
+            ],
+            status: "published",
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/NodeSage",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1629654297299-c8506221ca97?q=80&w=2574&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "7-stage production-grade CRAG pipeline for code analysis",
+                "100% offline and private codebase indexing with Vectra and Ollama",
+                "AST-aware automated patch generation for common syntax and logic bugs",
+                "Interactive CLI terminal with streaming responses"
+            ]),
+            role: "Developer & Author",
+            isVisible: true,
+            displayOrder: 5
+        },
+        {
+            title: "FleetAI — Telemetry-Driven Vehicle Maintenance Engine",
+            description: "Predictive vehicle maintenance system predicting component breakdown risks from real-time telemetry streams.",
+            longDescription: "FleetAI processes vehicle IoT sensor streams to predict maintenance risks using tuned Random Forest pipelines and Google Gemini.",
+            category: "ai",
+            techStack: [
+                "Python 3.12",
+                "Scikit-learn",
+                "Pandas",
+                "Google Gemini API",
+                "FastAPI",
+                "Docker"
+            ],
+            status: "published",
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/Vehicle_AIML",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Tuned Random Forest classifier with 92%+ precision on failure metrics",
+                "Deterministic telemetry diagnostic engine for critical alarms",
+                "Generative root-cause analysis with Gemini"
+            ]),
+            role: "ML & Backend Engineer",
+            isVisible: true,
+            displayOrder: 6
+        },
+        {
+            title: "Gesture Canvas — Hands-Free AI Drawing Canvas",
+            description: "Accessible AI drawing application powered by low-latency computer vision and real-time hand gesture recognition.",
+            longDescription: "Hands-free gesture-based drawing app focused on accessibility using MediaPipe and TensorFlow.js.",
+            category: "ai-app",
+            techStack: [
+                "TensorFlow.js",
+                "MediaPipe",
+                "JavaScript",
+                "Canvas API",
+                "React",
+                "Vite"
+            ],
+            status: "published",
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/gesture-canvas",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Real-time 21-point hand tracking in browser",
+                "Low-latency gesture classification",
+                "Smooth 60 FPS rendering pipeline"
+            ]),
+            role: "AI / Frontend Developer",
+            isVisible: true,
+            displayOrder: 7
+        },
+        {
+            title: "WorldQuant BRAIN — Quantitative Alpha Research Vault",
+            description: "Systematic quantitative finance repository for alpha signal formulation, parameter optimization, and backtesting.",
+            longDescription: "Quantitative alpha research compendium containing mathematical formulations and simulation-ready trading alphas.",
+            category: "fintech",
+            techStack: [
+                "Python",
+                "WorldQuant Brain API",
+                "NumPy",
+                "Pandas",
+                "Statistical Modeling"
+            ],
+            status: "published",
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/alpha",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Systematic signal development and parameter optimization",
+                "Market-neutral portfolio construction",
+                "Validated Sharpe ratio and risk factor metrics"
+            ]),
+            role: "Quantitative Researcher",
+            isVisible: true,
+            displayOrder: 8
+        },
+        {
+            title: "tally-sync-ts — Typed Tally ERP 9 & Prime XML/TDL Client",
+            description: "Robust, strongly typed TypeScript SDK interfacing with Tally Prime's XML/TDL server interface.",
+            longDescription: "An open-source TypeScript SDK that bridges modern web platforms with Tally ERP 9 and Tally Prime.",
+            category: "devtools",
+            techStack: [
+                "TypeScript",
+                "XML / TDL",
+                "Node.js",
+                "Axios"
+            ],
+            status: "published",
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/tally-sync-ts",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Complete TypeScript definitions for Tally vouchers and ledgers",
+                "Automated XML request serialization",
+                "Powers real-time synchronization in retail platforms"
+            ]),
+            role: "Author & Maintainer",
+            isVisible: true,
+            displayOrder: 9
+        },
+        {
+            title: "SignFlow — Legally Compliant Aadhaar eSign Engine",
+            description: "Full-stack integration with Setu Aadhaar eSign for automated, legally binding digital document signing.",
+            longDescription: "SignFlow orchestrates legally compliant digital signing workflows using Setu's Aadhaar eSign APIs.",
+            category: "fintech",
+            techStack: [
+                "Next.js",
+                "Node.js",
+                "Setu APIs",
+                "PostgreSQL",
+                "Webhooks"
+            ],
+            status: "published",
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/setu-proj",
+            projectUrl: null,
+            imageUrl: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2670&auto=format&fit=crop",
+            highlights: JSON.stringify([
+                "Aadhaar OTP verification and legal document sealing",
+                "Webhook event processor with idempotent ledger tracking",
+                "Audit-ready verification certificate generation"
+            ]),
+            role: "Fintech Engineer",
+            isVisible: true,
+            displayOrder: 10
+        },
+        {
+            title: "Green Hacker — Personal Portfolio CMS & AI Mainframe",
+            description: "Full-stack developer operating system with automated GitHub intelligence, LangGraph RAG assistant, and dynamic CMS.",
             longDescription: "A full-featured personal portfolio CMS with automated GitHub analytics, RBAC, and real-time indexing.",
             category: "web-app",
             techStack: [
@@ -120,46 +401,22 @@ async function main() {
                 "Prisma",
                 "PostgreSQL",
                 "Docker",
-                "GitHub Actions",
-                "AWS",
-                "GCP"
+                "LangGraph",
+                "Three.js"
             ],
             status: "published",
-            featured: true,
-            repoUrl: "https://github.com/GreenHacker420",
-            projectUrl: null,
+            featured: false,
+            repoUrl: "https://github.com/GreenHacker420/portfolio",
+            projectUrl: "https://greenhacker.in",
+            imageUrl: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2670&auto=format&fit=crop",
             highlights: JSON.stringify([
-                "Automated project indexing",
-                "Role-based access control",
-                "Real-time GitHub analytics"
+                "Automated project indexing and GitHub analytics",
+                "LangGraph conversational agent with live system context",
+                "Dynamic 3D Spline and GSAP presentation"
             ]),
             role: "Full Stack Developer",
             isVisible: true,
-            displayOrder: 1
-        },
-        {
-            title: "Gesture Canvas — AI Gesture Drawing App",
-            description: "Hands-free gesture-based drawing app focused on accessibility.",
-            longDescription: "AI-powered canvas that enables drawing using real-time hand gesture recognition.",
-            category: "ai-app",
-            techStack: [
-                "TensorFlow.js",
-                "MediaPipe",
-                "JavaScript",
-                "Canvas API"
-            ],
-            status: "published",
-            featured: true,
-            repoUrl: "https://github.com/GreenHacker420",
-            projectUrl: null,
-            highlights: JSON.stringify([
-                "Real-time hand tracking",
-                "Low-latency gesture recognition",
-                "Smooth rendering pipeline"
-            ]),
-            role: "AI / Frontend Developer",
-            isVisible: true,
-            displayOrder: 2
+            displayOrder: 11
         }
     ];
 
