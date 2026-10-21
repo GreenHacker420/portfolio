@@ -286,14 +286,43 @@ export function ExpandableCard({ cards, active: externalActive, setActive: setEx
                             onClick={() => setActive(card)}
                             className="relative w-full h-full flex flex-col items-center justify-between bg-neutral-900/40 hover:bg-neutral-800/60 backdrop-blur-xl rounded-[2rem] cursor-pointer border border-white/5 hover:border-neon-green/20 transition-all duration-500 overflow-hidden group shadow-2xl"
                         >
-                            <motion.div layoutId={"image-" + card.id + "-" + id} className="relative w-full h-full rounded-[2rem] overflow-hidden z-10">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:from-black/95 group-hover:via-black/40" />
-                                <Image
-                                    fill
-                                    src={card.src}
-                                    alt={card.title}
-                                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                                />
+                            <motion.div layoutId={"image-" + card.id + "-" + id} className="relative w-full h-full rounded-[2rem] overflow-hidden z-10 bg-neutral-950">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-black/15 z-10 transition-opacity duration-500 group-hover:from-black/95 group-hover:via-black/55 pointer-events-none" />
+
+                                {card.projectUrl ? (
+                                    <>
+                                        {/* Live Website Preview Iframe */}
+                                        <div className="absolute inset-0 w-full h-full overflow-hidden bg-neutral-950 pointer-events-none">
+                                            <iframe
+                                                src={card.projectUrl}
+                                                title={"Live preview of " + card.title}
+                                                className="border-0 pointer-events-none select-none transition-transform duration-700 ease-out group-hover:scale-[0.42] bg-neutral-950"
+                                                style={{
+                                                    transform: "scale(0.4)",
+                                                    transformOrigin: "top left",
+                                                    width: "250%",
+                                                    height: "250%",
+                                                    pointerEvents: "none"
+                                                }}
+                                                loading="lazy"
+                                                sandbox="allow-scripts allow-same-origin allow-forms"
+                                            />
+                                        </div>
+
+                                        {/* Live indicator badge */}
+                                        <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/80 border border-emerald-500/40 backdrop-blur-md text-[11px] font-mono text-emerald-400 shadow-xl pointer-events-none">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                                            LIVE
+                                        </div>
+                                    </>
+                                ) : (
+                                    <Image
+                                        fill
+                                        src={card.src}
+                                        alt={card.title}
+                                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                                    />
+                                )}
 
                                 <div className="absolute bottom-0 left-0 right-0 p-8 z-20 flex flex-col translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
                                     <motion.h3
