@@ -104,7 +104,7 @@ export function getMockData() {
             "status": "published",
             "featured": false,
             "repoUrl": "https://github.com/GreenHacker420/ASKMYNOTES",
-            "projectUrl": null,
+            "projectUrl": "https://askmynotes.greenhacker.in/",
             "imageUrl": "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2670&auto=format&fit=crop",
             "highlights": JSON.stringify([
                 "Corrective RAG (CRAG) pipeline with strict citation provenance",
@@ -380,7 +380,7 @@ export function getMockData() {
             "status": "production",
             "featured": true,
             "repoUrl": "https://github.com/GreenHacker420/Campusconnect",
-            "projectUrl": "https://campus-connect.co.in",
+            "projectUrl": "https://pathwiser.in",
             "imageUrl": "https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2670&auto=format&fit=crop",
             "highlights": JSON.stringify([
                 "Multimodal AI interviewing via Gemini Live and LiveKit WebRTC — real-time voice & video analysis",
